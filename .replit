@@ -42,3 +42,4 @@ build = ["npm", "run", "build"]
 
 [userenv.shared]
 NEON_DATABASE_URL = "postgresql://neondb_owner:npg_YK0ckFI8JlWx@ep-divine-sunset-aho2z126.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+NEXT_PUBLIC_JAWG_ACCESS_TOKEN = "pVYZ52DDmjwyum9bCGhsTr2GvU9ot849uo1Fo3FyezaVBIy9tO5N3pmPHHSYdZhm"

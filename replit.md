@@ -43,6 +43,7 @@ public/          # Static assets
 
 - `NEON_DATABASE_URL` - External Neon PostgreSQL connection string (preferred, used first)
 - `DATABASE_URL` - Fallback PostgreSQL connection string
+- `NEXT_PUBLIC_JAWG_ACCESS_TOKEN` - Jawg Maps access token for Leaflet map tiles
 
 ## Development
 
