@@ -58,7 +58,7 @@ const partners = [
     showName: true,
     body: (
       <>
-        Lara is a chat-based navigation tool with the most comprehensive data on danfos and other forms of popular public transit. You don't need to download an app.
+        Lara is a chat-based navigation tool with the most comprehensive data on danfos and other forms of popular public transit. You don&apos;t need to download an app.
         <br></br>
         <a
           href="https://lara.ng"

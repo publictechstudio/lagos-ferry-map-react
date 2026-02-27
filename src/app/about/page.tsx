@@ -94,10 +94,10 @@ const accordionItems = [
         <p>
           Lagos offers varied ferry infrastructure: from modern ferry terminals
           with air-conditioned waiting rooms and other amenities, to undeveloped
-          landings where boats pull up on sand banks on the shoreline. Some locations are quite informal and undeveloped, making them a better fit for commuters who are more adventurous and don't mind getting their shoes muddy.
+          landings where boats pull up on sand banks on the shoreline. Some locations are quite informal and undeveloped, making them a better fit for commuters who are more adventurous and don&apos;t mind getting their shoes muddy.
         </p>
         <p>
-          Our interactive map presents the full spectrum of ferry facilities and routes. The ferry facilities are color-coded based on their level of development. Pictures and links to the Google Maps pages are also provided to help you imagine what it's like at each site.
+          Our interactive map presents the full spectrum of ferry facilities and routes. The ferry facilities are color-coded based on their level of development. Pictures and links to the Google Maps pages are also provided to help you imagine what it&apos;s like at each site.
         </p>
         <h3 className="text-on-surface font-bold">
           Types of boats
@@ -110,10 +110,10 @@ const accordionItems = [
           Schedules
         </h3>
         <p>
-          Most ferry routes have somewhat fluid, flexible schedules, with boats departing only once they are full of passengers. Even the government-run LagFerry routes don't always have a strict departure time; they often wait until the boats are full.
+          Most ferry routes have somewhat fluid, flexible schedules, with boats departing only once they are full of passengers. Even the government-run LagFerry routes don&apos;t always have a strict departure time; they often wait until the boats are full.
         </p>
         <p>
-          Our map clarifies these schedules and how often the boats typically depart. In addition to fixed routes, where passengers pay for individual tickets, our map includes charter options, where passengers pay to charter the entire boat to reach any desired destination. There often isn't a strict line between the two, with private/informal operators switching to offering charter services when there is low passenger demand for fixed routes, especially on weekends or during the lull between peak weekday commuting periods.
+          Our map clarifies these schedules and how often the boats typically depart. In addition to fixed routes, where passengers pay for individual tickets, our map includes charter options, where passengers pay to charter the entire boat to reach any desired destination. There often isn&apos;t a strict line between the two, with private/informal operators switching to offering charter services when there is low passenger demand for fixed routes, especially on weekends or during the lull between peak weekday commuting periods.
         </p>
       </>
     ),
@@ -131,7 +131,7 @@ const accordionItems = [
           At the national level, the <strong className="text-on-surface font-bold">
             NIWA — National Inland Waterways Authority
           </strong>{" "}
-          is responsible for regulating inland waterways, including those in Lagos. NIWA's duties encompass setting safety standards for vessels, approving and monitoring ferry operations, and sanctioning illegal activities on the waterways. They collaborate with other bodies to maintain navigable channels and ensure the safety of boat operators and passengers.
+          is responsible for regulating inland waterways, including those in Lagos. NIWA&apos;s duties encompass setting safety standards for vessels, approving and monitoring ferry operations, and sanctioning illegal activities on the waterways. They collaborate with other bodies to maintain navigable channels and ensure the safety of boat operators and passengers.
         </p>
         <p>
           At the state level, the <strong className="text-on-surface font-bold">
@@ -141,7 +141,7 @@ const accordionItems = [
         </p>
         <p>
           The <strong className="text-on-surface font-bold">Lagos State Ferry Services (LagFerry)</strong>{" "}
-          prioritises its passengers' safety through strict operating procedures. All passengers and crew are mandated to wear life jackets during voyages, and the agency ensures regular maintenance of its boats to uphold operational safety standards. To enhance emergency preparedness, LagFerry personnel undergo training in survival techniques and search and rescue operations. Additionally, LagFerry has implemented a digital surveillance system, featuring real-time vessel monitoring, CCTV cameras, and geo-fencing capabilities, to bolster passengers' and crew's safety and security.
+          prioritises its passengers&apos; safety through strict operating procedures. All passengers and crew are mandated to wear life jackets during voyages, and the agency ensures regular maintenance of its boats to uphold operational safety standards. To enhance emergency preparedness, LagFerry personnel undergo training in survival techniques and search and rescue operations. Additionally, LagFerry has implemented a digital surveillance system, featuring real-time vessel monitoring, CCTV cameras, and geo-fencing capabilities, to bolster passengers&apos; and crew&apos;s safety and security.
         </p>
       </>
     ),
