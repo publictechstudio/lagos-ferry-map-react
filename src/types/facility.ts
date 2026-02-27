@@ -1,0 +1,26 @@
+export type Facility = {
+  facility_id: number;
+  old_facility_id: string | null;
+  modified_at: string | null;
+  facility_name: string | null;
+  facility_lat: number;
+  facility_lon: number;
+  lga: string | null;
+  lagos_metro: string | null;
+  google_maps_url: string | null;
+  facility_type: string | null;
+  commercial_transport: string | null;
+  charter_services: string | null;
+  status: string | null;
+  quality: string | null;
+  image_url: string | null;
+  life_jackets: string | null;
+  ownership: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  laswa_officer_available: string | null;
+  source_of_awareness: string | null;
+  omi_eko: string | null;
+  assignment: string | null;
+  additional_notes: string | null;
+};

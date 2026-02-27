@@ -1,0 +1,23 @@
+export type Route = {
+  route_id: number;
+  modified_at: string | null;
+  operator: string | null;
+  payment_options: string | null;
+  boat_types: string | null;
+  weekend_equals_weekday_schedule: string | null;
+  saturday_equals_sunday_schedule: string | null;
+  total_base_duration: number | null;
+  total_base_cost: number | null;
+  hyacinth_season_disruption: string | null;
+  rain: string | null;
+  geom: string;
+  route_stops: boolean | null;
+  stop_names: number[] | null;
+  additional_notes: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  origin: number | null;
+  destination: number | null;
+  origin_name: string | null;
+  destination_name: string | null;
+};

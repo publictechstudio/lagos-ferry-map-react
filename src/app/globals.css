@@ -1,26 +1,74 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* ── MD3 Color System (Blue primary) ── */
+  --color-primary: #1976D2;
+  --color-primary-dark: #1565C0;
+  --color-on-primary: #FFFFFF;
+  --color-primary-container: #D6E3FF;
+  --color-on-primary-container: #001B3F;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-surface: #F9F9FF;
+  --color-surface-variant: #DFE2EE;
+  --color-on-surface: #1A1B20;
+  --color-on-surface-variant: #43474E;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --color-outline: #73777F;
+  --color-outline-variant: #C3C7CF;
+
+  /* ── MD3 Elevation shadows ── */
+  --shadow-elevation-1: 0px 1px 2px rgba(0,0,0,0.3), 0px 1px 3px 1px rgba(0,0,0,0.15);
+  --shadow-elevation-2: 0px 1px 2px rgba(0,0,0,0.3), 0px 2px 6px 2px rgba(0,0,0,0.15);
+  --shadow-elevation-3: 0px 1px 3px rgba(0,0,0,0.3), 0px 4px 8px 3px rgba(0,0,0,0.15);
+
+  /* ── Animations ── */
+  --animate-bob: bob 2s ease-in-out infinite;
+  --animate-ferry-sail: ferry-sail 5s linear infinite;
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-8px); }
+  }
+
+  @keyframes ferry-sail {
+    /* Fast entry from left */
+    0%  { transform: translateX(-60vw); animation-timing-function: linear; }
+    /* Decelerate approaching centre */
+    35% { transform: translateX(-10vw);  animation-timing-function: ease-out; }
+    /* Stop at centre — brief pause at the "jetty" */
+    45% { transform: translateX(0);     animation-timing-function: linear; }
+    60% { transform: translateX(0);     animation-timing-function: ease-in; }
+    /* Accelerate leaving centre */
+    70% { transform: translateX(10vw);   animation-timing-function: linear; }
+    /* Fast exit to right */
+    100%{ transform: translateX(60vw); }
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #F9F9FF;
+  color: #1A1B20;
+}
+
+/* Remove the browser's default focus rectangle on Leaflet SVG paths */
+.leaflet-interactive:focus {
+  outline: none;
+}
+
+@layer base {
+  a.link{
+    color: #1976D2;
+    text-decoration-line: underline;
+  }
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Push top-right Leaflet controls (zoom) below the quality legend card */
+.leaflet-top.leaflet-right {
+  top: 120px;
 }
