@@ -41,7 +41,8 @@ public/          # Static assets
 
 ## Environment Variables
 
-- `DATABASE_URL` - Neon PostgreSQL connection string (required)
+- `NEON_DATABASE_URL` - External Neon PostgreSQL connection string (preferred, used first)
+- `DATABASE_URL` - Fallback PostgreSQL connection string
 
 ## Development
 

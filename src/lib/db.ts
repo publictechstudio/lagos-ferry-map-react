@@ -1,7 +1,9 @@
 import { neon } from "@neondatabase/serverless";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set");
+const dbUrl = process.env.NEON_DATABASE_URL || process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  throw new Error("NEON_DATABASE_URL environment variable is not set");
 }
 
-export const sql = neon(process.env.DATABASE_URL);
+export const sql = neon(dbUrl);
