@@ -25,7 +25,7 @@ const accordionItems = [
     content: (
       <>
         <p>
-          Private, informal transit operations are always subject to change. This information was collected in February 2026 and updates will be published on a quarterly basis. The scope of the map is The scope is limited to the Lagos metropolitan area, rather than the entire state, because we are focused on reducing road congestion in the city of Lagos.
+          Private, informal transit operations are always subject to change. This information was collected in February 2026 and updates will be published on a quarterly basis. The scope of the map is primarily focused on the Lagos metropolitan area, rather than the entire state, because we are focused on reducing road congestion in the city of Lagos. However, we are gradually expanding the map for coverage of all the full state.
         </p>
         <p>
           If you see anything that&apos;s missing or incorrect, please{" "}
@@ -110,7 +110,7 @@ const accordionItems = [
           Schedules
         </h3>
         <p>
-          Most ferry routes have somewhat fluid, flexible schedules, with boats departing only once they are full of passengers. Even the government-run LagFerry routes don&apos;t always have a strict departure time; they often wait until the boats are full.
+          Most ferry routes have very fluid, flexible schedules, with boats departing only once they are full of passengers. Even the government-run LagFerry routes don&apos;t always have a strict departure time; they often wait until the boats are full.
         </p>
         <p>
           Our map clarifies these schedules and how often the boats typically depart. In addition to fixed routes, where passengers pay for individual tickets, our map includes charter options, where passengers pay to charter the entire boat to reach any desired destination. There often isn&apos;t a strict line between the two, with private/informal operators switching to offering charter services when there is low passenger demand for fixed routes, especially on weekends or during the lull between peak weekday commuting periods.

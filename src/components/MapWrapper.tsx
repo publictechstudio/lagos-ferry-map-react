@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import type { Map as LMap } from "leaflet";
 import type { Facility } from "@/types/facility";
 import type { Route } from "@/types/route";
@@ -42,7 +41,6 @@ export default function MapWrapper({
   initialSelected,
   initialSelectedRoute,
 }: MapWrapperProps) {
-  const router = useRouter();
   const [selected, setSelected] = useState<Facility | null>(initialSelected);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(initialSelectedRoute);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
@@ -61,7 +59,7 @@ export default function MapWrapper({
   function handleSelect(facility: Facility) {
     setSelected(facility);
     setSelectedRoute(null);
-    router.replace(`/map/${toFacilitySlug(facility)}`, { scroll: false });
+    window.history.replaceState(null, "", `/map/${toFacilitySlug(facility)}`);
     mapRef.current?.flyTo([facility.facility_lat, facility.facility_lon], 15, {
       animate: true,
       duration: 0.8,
@@ -70,11 +68,11 @@ export default function MapWrapper({
 
   function handleClose() {
     setSelected(null);
-    router.replace("/map", { scroll: false });
+    window.history.replaceState(null, "", "/map");
   }
 
   function handleSelectRoute(route: Route) {
-    router.replace(`/map/route/${toRouteSlug(route)}`, { scroll: false });
+    window.history.replaceState(null, "", `/map/route/${toRouteSlug(route)}`);
   }
 
   function handleLocate() {
@@ -94,7 +92,7 @@ export default function MapWrapper({
 
   function handleCloseRoute() {
     setSelectedRoute(null);
-    router.replace("/map", { scroll: false });
+    window.history.replaceState(null, "", "/map");
   }
 
   function handleMapReady(map: LMap) {

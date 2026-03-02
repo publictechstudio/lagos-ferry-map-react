@@ -2,6 +2,7 @@
 
 .replit
 replit.md
+website.code-workspace
 
 # dependencies
 /node_modules
