@@ -72,6 +72,8 @@ export default function MapWrapper({
   }
 
   function handleSelectRoute(route: Route) {
+    setSelectedRoute(route);
+    setSelected(null);
     window.history.replaceState(null, "", `/map/route/${toRouteSlug(route)}`);
   }
 

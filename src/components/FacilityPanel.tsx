@@ -235,35 +235,17 @@ export default function FacilityPanel({ facility, onClose }: Props) {
     setDestinations(null);
     setRoutesByDest(new Map());
     setPeriodsByRoute(new Map());
-    fetch(`/api/destinations/${facility.facility_id}`)
+    fetch(`/api/facility-panel/${facility.facility_id}`)
       .then((r) => r.json())
-      .then((data: Destination[]) => {
-        setDestinations(data);
+      .then(({ destinations, routesByDest, periodsByRoute }: {
+        destinations: Destination[];
+        routesByDest: Record<string, ConnectingRoute[]>;
+        periodsByRoute: Record<string, RoutePeriod[]>;
+      }) => {
+        setDestinations(destinations);
+        setRoutesByDest(new Map(Object.entries(routesByDest).map(([k, v]) => [Number(k), v])));
+        setPeriodsByRoute(new Map(Object.entries(periodsByRoute).map(([k, v]) => [Number(k), v])));
         setLoading(false);
-        // Fetch connecting routes for every destination in parallel
-        Promise.all(
-          data.map((dest) =>
-            fetch(`/api/routes-between/${facility.facility_id}/${dest.facility_id}`)
-              .then((r) => r.json())
-              .then((routes: ConnectingRoute[]) => [dest.facility_id, routes] as const)
-              .catch((): [number, ConnectingRoute[]] => [dest.facility_id, []])
-          )
-        ).then((entries) => {
-          const routeMap = new Map(entries);
-          setRoutesByDest(routeMap);
-          // Fetch periods for every unique route ID
-          const uniqueIds = [...new Set([...routeMap.values()].flat().map((r) => r.route_id))];
-          Promise.all(
-            uniqueIds.map((id) =>
-              fetch(`/api/route-periods/${id}`)
-                .then((r) => r.json())
-                .then((periods: RoutePeriod[]) => [id, periods] as const)
-                .catch((): [number, RoutePeriod[]] => [id, []])
-            )
-          ).then((periodEntries) => {
-            setPeriodsByRoute(new Map(periodEntries));
-          });
-        });
       })
       .catch(() => {
         setDestinations([]);
