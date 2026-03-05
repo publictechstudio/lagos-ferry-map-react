@@ -71,10 +71,21 @@ export default function MapWrapper({
     window.history.replaceState(null, "", "/map");
   }
 
+  function handleDeselect() {
+    setSelected(null);
+    setSelectedRoute(null);
+    window.history.replaceState(null, "", "/map");
+  }
+
   function handleSelectRoute(route: Route) {
     setSelectedRoute(route);
     setSelected(null);
     window.history.replaceState(null, "", `/map/route/${toRouteSlug(route)}`);
+    const coords = parseWKTLineString(route.geom);
+    const bounds = latLonBounds(coords);
+    if (bounds && mapRef.current) {
+      mapRef.current.fitBounds(bounds, { padding: [40, 40] });
+    }
   }
 
   function handleLocate() {
@@ -126,6 +137,7 @@ export default function MapWrapper({
           facilities={facilities}
           selectedId={selected?.facility_id ?? null}
           onSelect={handleSelect}
+          onDeselect={handleDeselect}
           onMapReady={handleMapReady}
           routes={routes}
           selectedRouteId={selectedRoute?.route_id ?? null}
@@ -142,11 +154,11 @@ export default function MapWrapper({
           />
         </div>
 
-        {/* Locate me button — bottom-right */}
+        {/* Locate me button — below zoom controls on mobile, bottom-right on desktop */}
         <button
           onClick={handleLocate}
           disabled={locating}
-          className="absolute bottom-10 right-3 z-[900] w-10 h-10 bg-surface rounded-lg shadow-elevation-2 flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors disabled:opacity-50"
+          className="absolute top-3 left-3 md:left-[calc(18rem+0.75rem)] z-[900] w-10 h-10 bg-surface rounded-lg shadow-elevation-2 flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors disabled:opacity-50"
           aria-label="Show my location"
           title="Show my location"
         >

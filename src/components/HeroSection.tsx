@@ -53,9 +53,9 @@ export default function HeroSection() {
           Dark overlay on each panel keeps the white text legible.
           The ferry icon animates across the full section width.
       ──────────────────────────────────────────────────────────────────── */}
-      <div className="relative flex h-[400px]">
+      <div className="relative flex flex-col md:flex-row h-[400px]">
 
-        {/* Left panel — traffic */}
+        {/* Top panel (mobile) / Left panel (desktop) — traffic */}
         <div
           className="flex-1 relative bg-cover bg-center"
           style={{ backgroundImage: "url('/hero-traffic.jpg')" }}
@@ -63,7 +63,7 @@ export default function HeroSection() {
           <div className="absolute inset-0 bg-[#012c57]/75" />
         </div>
 
-        {/* Right panel — ferry */}
+        {/* Bottom panel (mobile) / Right panel (desktop) — ferry */}
         <div
           className="flex-1 relative bg-cover bg-center"
           style={{ backgroundImage: "url('/hero-ferry.jpg')" }}
@@ -100,7 +100,7 @@ export default function HeroSection() {
           Full-width blue band; cards constrained to max-w-6xl inside.
       ──────────────────────────────────────────────────────────────────── */}
       <div className="bg-[#1976D2]">
-        <div className="min-h-[360px] max-w-8xl mx-auto px-20 py-15 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="min-h-[360px] max-w-8xl mx-auto px-4 md:px-20 py-15 grid grid-cols-1 md:grid-cols-3 gap-8">
           {ctaCards.map((card) => (
             <CtaCard key={card.href} {...card} />
           ))}

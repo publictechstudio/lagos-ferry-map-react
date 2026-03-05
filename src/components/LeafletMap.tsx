@@ -25,6 +25,7 @@ interface LeafletMapProps {
   facilities: Facility[];
   selectedId: number | null;
   onSelect: (facility: Facility) => void;
+  onDeselect: () => void;
   onMapReady: (map: LMap) => void;
   routes: Route[];
   selectedRouteId: number | null;
@@ -36,6 +37,7 @@ export default function LeafletMap({
   facilities,
   selectedId,
   onSelect,
+  onDeselect,
   onMapReady,
   routes,
   selectedRouteId,
@@ -69,6 +71,9 @@ export default function LeafletMap({
 
       L.control.zoom({ position: "topright" }).addTo(map);
 
+      // Clicking blank map space clears any selection
+      map.on("click", onDeselect);
+
       L.tileLayer("https://tile.jawg.io/jawg-sunny/{z}/{x}/{y}{r}.png?access-token={accessToken}", {
         attribution:
           '<a href="https://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -85,10 +90,12 @@ export default function LeafletMap({
 
         const isSelected = route.route_id === initialSelectedRouteId;
 
+        // Visual polyline — non-interactive, purely for display
         const polyline = L.polyline(coords, {
-          color: isSelected ? COLOR_ROUTE : '#949494',
-          weight: isSelected ? 8 : 1,
-          opacity: isSelected ? 1 : 1,
+          color: isSelected ? '#262626' : '#a8a8a8',
+          weight: isSelected ? 6 : 1,
+          opacity: isSelected ? 1 : 0.7,
+          interactive: false,
         });
         polyline.addTo(map);
 
@@ -97,8 +104,17 @@ export default function LeafletMap({
             ? `${route.origin_name} → ${route.destination_name}`
             : `Route #${route.route_id}`;
 
-        polyline.bindTooltip(routeName, { sticky: true });
-        polyline.on("click", () => onSelectRoute(route));
+        // Ghost polyline — wide transparent line for click/touch target
+        const ghost = L.polyline(coords, {
+          color: '#000000',
+          weight: 10,
+          opacity: 0,
+          interactive: true,
+          bubblingMouseEvents: false,
+        });
+        ghost.addTo(map);
+        ghost.bindTooltip(routeName, { sticky: true });
+        ghost.on("click", () => onSelectRoute(route));
 
         routeLinesRef.current.set(route.route_id, polyline);
       });
@@ -109,6 +125,7 @@ export default function LeafletMap({
       facilities.forEach((facility) => {
         const name = facility.facility_name ?? "Unnamed";
 
+        // Visual marker — non-interactive, purely for display
         const marker = L.circleMarker([facility.facility_lat, facility.facility_lon], {
           radius: 8,
           fillColor: markerColor(facility.quality),
@@ -116,12 +133,26 @@ export default function LeafletMap({
           weight: 2,
           opacity: 1,
           fillOpacity: 0.8,
+          interactive: false,
         });
         marker.addTo(map);
-        marker.bindTooltip(name, { permanent: false, direction: "top", offset: [0, -5] });
-        marker.on("click", () => onSelect(facility));
 
-        markerData.push({ marker, name });
+        // Hit area — large transparent circle for easy clicking/tapping on mobile.
+        // offset [0, 7] compensates for the larger radius so the tooltip appears
+        // at the same height as it would above the small visual marker.
+        const hitArea = L.circleMarker([facility.facility_lat, facility.facility_lon], {
+          radius: 20,
+          fillColor: '#000000',
+          fillOpacity: 0.0,
+          stroke: false,
+          interactive: true,
+          bubblingMouseEvents: false,
+        });
+        hitArea.addTo(map);
+        hitArea.bindTooltip(name, { permanent: false, direction: "top", offset: [0, -8] });
+        hitArea.on("click", () => onSelect(facility));
+
+        markerData.push({ marker: hitArea, name });
         markersRef.current.set(facility.facility_id, marker);
       });
 
@@ -139,7 +170,7 @@ export default function LeafletMap({
         const permanent = map.getZoom() >= ZOOM_LABEL_THRESHOLD;
         markerData.forEach(({ marker, name }) => {
           marker.unbindTooltip();
-          marker.bindTooltip(name, { permanent, direction: "top", offset: [0, -5] });
+          marker.bindTooltip(name, { permanent, direction: "top", offset: [0, -8] });
         });
       }
 
@@ -164,7 +195,7 @@ export default function LeafletMap({
   useEffect(() => {
     markersRef.current.forEach((marker, id) => {
       const isSelected = id === selectedId;
-      marker.setStyle({ weight: isSelected ? 4 : 2, radius: isSelected ? 15 : 8 });
+      marker.setStyle({ weight: isSelected ? 5 : 2, radius: isSelected ? 20 : 9 });
       if (isSelected) {
         // Bring circle to front in SVG layer
         marker.bringToFront();
@@ -182,8 +213,9 @@ export default function LeafletMap({
     routeLinesRef.current.forEach((polyline, id) => {
       const isSelected = id === selectedRouteId;
       polyline.setStyle({
-        weight: isSelected ? 5 : 3,
-        opacity: isSelected ? 1 : 0.5,
+        color: isSelected ? '#262626' : '#a8a8a8',
+        weight: isSelected ? 8 : 1,
+        opacity: isSelected ? 1 : 0.7,
       });
       if (isSelected) polyline.bringToFront();
     });
@@ -205,10 +237,11 @@ export default function LeafletMap({
         markersRef.current.forEach((marker, id) => {
           const isStop = stopIds.has(id);
           marker.setStyle({
-            radius: isStop ? 8 : 3,
+            radius: isStop ? 12 : 3,
             fillOpacity: isStop ? 0.8 : 0.3,
             opacity: isStop ? 1 : 0.3,
           });
+          if (isStop) marker.bringToFront();
         });
       })
       .catch(() => {/* leave markers as-is on error */});
