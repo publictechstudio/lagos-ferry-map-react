@@ -5,8 +5,15 @@ import { toFacilitySlug } from "@/lib/facilitySlug";
 import type { Facility } from "@/types/facility";
 
 export const metadata: Metadata = {
-  title: "Directory — Lagos Ferry Map",
-  description: "Directory of all active Lagos ferry facilities, grouped by Local Government Area.",
+  title: "Ferry Directory",
+  description:
+    "Complete directory of all active Lagos ferry terminals and facilities, grouped by Local Government Area. Find facility details, types, and quality ratings.",
+  openGraph: {
+    title: "Ferry Directory",
+    description:
+      "Complete directory of all active Lagos ferry terminals and facilities, grouped by LGA.",
+  },
+  alternates: { canonical: "/directory" },
 };
 
 export const revalidate = 3600;

@@ -3,6 +3,7 @@ export type Facility = {
   old_facility_id: string | null;
   modified_at: string | null;
   facility_name: string | null;
+  facility_name_short: string | null;
   facility_lat: number;
   facility_lon: number;
   lga: string | null;

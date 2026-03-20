@@ -1,8 +1,44 @@
+import type { Metadata } from "next";
 import HeroSection from "@/components/HeroSection";
+
+export const metadata: Metadata = {
+  title: "Lagos Ferry Map — Avoid Traffic, Take the Ferry",
+  description:
+    "The first comprehensive map of all ferry services in Lagos, Nigeria. Find routes, schedules, fares, and terminals to beat the traffic on the water.",
+  openGraph: {
+    title: "Lagos Ferry Map — Avoid Traffic, Take the Ferry",
+    description:
+      "The first comprehensive map of all ferry services in Lagos, Nigeria. Find routes, schedules, fares, and terminals.",
+  },
+  alternates: { canonical: "/" },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Lagos Ferry Map",
+  url: "https://lagosferries.com",
+  description:
+    "The first comprehensive map of all ferry services in Lagos, Nigeria.",
+  publisher: {
+    "@type": "Organization",
+    name: "Public Tech Studio",
+    url: "https://www.publictech.studio/",
+  },
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://lagosferries.com/map?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+};
 
 export default function HomePage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <HeroSection />
 
       <section className="max-w-4xl mx-auto px-4 py-16">

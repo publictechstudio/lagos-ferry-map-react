@@ -20,4 +20,6 @@ export type Route = {
   destination: number | null;
   origin_name: string | null;
   destination_name: string | null;
+  origin_name_short: string | null;
+  destination_name_short: string | null;
 };

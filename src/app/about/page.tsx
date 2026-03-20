@@ -7,9 +7,15 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 
 export const metadata: Metadata = {
-  title: "About — Lagos Ferry Map",
+  title: "About",
   description:
-    "Learn about Lagos ferries, the mapping process, safety information, and data limitations.",
+    "Learn about Lagos ferries, the mapping process, safety information, and data limitations of the Lagos Ferry Map.",
+  openGraph: {
+    title: "About Lagos Ferry Map",
+    description:
+      "Learn about Lagos ferries, the mapping process, safety information, and data limitations.",
+  },
+  alternates: { canonical: "/about" },
 };
 
 import { REPORT_FORM_URL } from "@/lib/constants";

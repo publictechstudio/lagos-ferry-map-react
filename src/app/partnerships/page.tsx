@@ -3,9 +3,15 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Navigation Partnerships — Lagos Ferry Map",
+  title: "Navigation Partnerships",
   description:
-    "Ferry data integrated into popular navigation apps and mapping platforms so Lagos residents get step-by-step, multi-modal directions including water transport.",
+    "Lagos ferry data integrated into Google Maps, OrnaMap, Lara, and OpenStreetMap so you can get step-by-step, multi-modal directions including water transport.",
+  openGraph: {
+    title: "Navigation Partnerships",
+    description:
+      "Lagos ferry data integrated into popular navigation apps and mapping platforms.",
+  },
+  alternates: { canonical: "/partnerships" },
 };
 
 const partners = [

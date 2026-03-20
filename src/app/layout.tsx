@@ -11,14 +11,37 @@ const lato = Lato({
   variable: "--font-lato",
 });
 
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://lagosferries.com";
+
 export const metadata: Metadata = {
-  title: "Lagos Ferry Map",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "Lagos Ferry Map",
+    template: "%s — Lagos Ferry Map",
+  },
   description:
-    "Avoid Lagos traffic by taking the ferry. The first comprehensive map of all ferry services in Lagos.",
+    "Avoid Lagos traffic by taking the ferry. The first comprehensive map of all ferry services in Lagos, Nigeria — routes, schedules, fares, and terminals.",
   openGraph: {
-    title: "Lagos Ferry Map",
-    description: "Avoid Lagos traffic by taking the ferry.",
+    type: "website",
+    locale: "en_NG",
     siteName: "Lagos Ferry Map",
+    title: "Lagos Ferry Map",
+    description:
+      "The first comprehensive map of all ferry routes, schedules, fares, and terminals in Lagos, Nigeria.",
+    url: BASE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lagos Ferry Map",
+    description:
+      "The first comprehensive map of all ferry routes, schedules, fares, and terminals in Lagos, Nigeria.",
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
+  other: {
+    "theme-color": "#012c57",
   },
 };
 

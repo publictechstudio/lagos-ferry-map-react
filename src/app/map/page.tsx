@@ -4,8 +4,15 @@ import { getFacilities } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
 
 export const metadata: Metadata = {
-  title: "Map — Lagos Ferry Map",
-  description: "Interactive map of all Lagos ferry routes and terminals.",
+  title: "Interactive Map",
+  description:
+    "Interactive map of all Lagos ferry routes, terminals, schedules, and fares. Search for facilities, toggle route layers, and plan your ferry journey.",
+  openGraph: {
+    title: "Interactive Ferry Map",
+    description:
+      "Interactive map of all Lagos ferry routes, terminals, schedules, and fares.",
+  },
+  alternates: { canonical: "/map" },
 };
 
 export const revalidate = 3600;
