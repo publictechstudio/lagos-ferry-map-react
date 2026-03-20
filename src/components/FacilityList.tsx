@@ -161,7 +161,8 @@ export default function FacilityList({
         // Desktop — absolute left panel inside the map container (height always full)
         "md:absolute md:inset-y-0 md:left-0 md:right-auto md:h-full md:w-72",
         // z-[1001] sits above Leaflet's attribution/control layer (z-1000)
-        "z-[1001] flex flex-col",
+        // overflow-visible on mobile so search suggestions can extend above the panel
+        "z-[1001] flex flex-col overflow-visible md:overflow-hidden",
         "bg-surface shadow-elevation-3",
         // Mobile: rounded top corners only; desktop: rounded right corners
         "rounded-t-[20px] md:rounded-t-none md:rounded-r-none md:rounded-l-xl",

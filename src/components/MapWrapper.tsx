@@ -177,7 +177,7 @@ export default function MapWrapper({
 
       {/* Facility list — mobile: flex child below map */}
       {!panelOpen && (
-        <div className="md:hidden">
+        <div className="md:hidden relative z-[1002]">
           <FacilityList
             facilities={facilities}
             selected={selected}
