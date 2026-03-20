@@ -106,8 +106,23 @@ export default function PartnershipsPage() {
         <p>Want step-by-step directions?</p>
         <p>
           We have established partnerships to integrate our ferry data into popular navigation
-          applications and mapping platforms. Now you can get step-by-step directions that include bus, train, and other transportation connections.
+          apps and mapping platforms. Now you can get step-by-step directions for the ferries that include bus, train, and other transportation connections. View all the navigation options below.
         </p>
+
+        <div className="inline-flex items-center">
+          <div className="inline-flex items-center mb-0 w-53 text-sm font-semibold leading-6 text-white bg-[#012c57] group-hover:bg-[#1976D2] rounded-full px-5 py-2.5 transition-colors duration-200">
+            <a
+              href="/map"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden>
+                <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" />
+              </svg>
+              View Full Map Instead
+            </a>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
           {partners.map((partner) => (
