@@ -5,6 +5,7 @@ import type { Route } from "@/types/route";
 import type { RouteStop } from "@/types/routeStop";
 import type { RoutePeriod } from "@/types/routePeriod";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
+import { toRouteSlug } from "@/lib/routeSlug";
 
 const REPORT_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSfCkMgguEE1GJ_WhWXBaIKhaILOICt1UqiA85r0m4yz_eEmAw/viewform";
@@ -399,7 +400,7 @@ export default function RoutePanel({ route, onClose }: Props) {
           {/* Report data issue */}
           <div className="inline-flex items-center mb-0 w-42 text-xs font-semibold leading-6 text-white bg-[#012c57] group-hover:bg-[#1976D2] rounded-full px-5 py-2.5 transition-colors duration-200">
             <a
-              href={REPORT_FORM_URL}
+              href={`${REPORT_FORM_URL}?entry.26660475=${encodeURIComponent(toRouteSlug(route))}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5"
