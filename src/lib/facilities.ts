@@ -8,6 +8,8 @@ export async function getFacilities(): Promise<Facility[]> {
       old_facility_id,
       modified_at,
       facility_name,
+      facility_name_short,
+      category,
       facility_lat::float  AS facility_lat,
       facility_lon::float  AS facility_lon,
       lga,
@@ -31,8 +33,7 @@ export async function getFacilities(): Promise<Facility[]> {
     FROM facilities
     WHERE facility_lat IS NOT NULL
       AND facility_lon IS NOT NULL
-      AND status IS NOT NULL
-      AND status != 'not_in_use'
+      AND category NOT LIKE 'Not included%'
     ORDER BY facility_name
   `;
   return rows as Facility[];

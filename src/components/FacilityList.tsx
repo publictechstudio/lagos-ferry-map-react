@@ -1,12 +1,80 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react";
 import type { Facility } from "@/types/facility";
+import { CATEGORY_STYLES, COLOR_OMI_EKO } from "./LeafletMap";
 
 interface FacilityListProps {
   facilities: Facility[];
   selected: Facility | null;
   onSelect: (facility: Facility) => void;
+  hiddenLayers: Set<string>;
+  setHiddenLayers: Dispatch<SetStateAction<Set<string>>>;
+  onCollapsedChange?: (collapsed: boolean) => void;
+}
+
+type LegendItem = {
+  key: string;
+  color: string;
+  label: string;
+  info: string;
+  icon?: "star";
+};
+
+const LEGEND_GROUPS: { active: LegendItem[]; other: LegendItem[] } = {
+  active: [
+    { key: "Ferry facility: Developed", color: CATEGORY_STYLES["Ferry facility: Developed"].color, label: "Developed", info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Facilities with permanent structures and regular service." },
+    { key: "Ferry facility: Less developed", color: CATEGORY_STYLES["Ferry facility: Less developed"].color, label: "Less Developed", info: "Lorem ipsum dolor sit amet. Facilities with basic infrastructure and limited amenities." },
+  ],
+  other: [
+    { key: "Charter only", color: CATEGORY_STYLES["Charter only"].color, label: "Charter Only", info: "Lorem ipsum dolor sit amet. Locations offering private charter boat services only." },
+    { key: "Omi Eko", color: COLOR_OMI_EKO, label: "Omi Eko", info: "Lorem ipsum dolor sit amet. Facilities participating in the Omi Eko programme.", icon: "star" },
+  ],
+};
+
+function LegendRow({
+  layerKey, color, label, info, icon, hiddenLayers, setHiddenLayers,
+}: LegendItem & { layerKey: string; hiddenLayers: Set<string>; setHiddenLayers: Dispatch<SetStateAction<Set<string>>> }) {
+  const visible = !hiddenLayers.has(layerKey);
+  return (
+    <div className="flex items-center gap-2">
+      <label className="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
+        <input
+          type="checkbox"
+          checked={visible}
+          onChange={() => setHiddenLayers((prev) => {
+            const next = new Set(prev);
+            if (next.has(layerKey)) next.delete(layerKey); else next.add(layerKey);
+            return next;
+          })}
+          className="h-3.5 w-3.5 shrink-0 rounded accent-on-surface-variant"
+        />
+        {icon === "star" ? (
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden className={`shrink-0 ${visible ? "opacity-100" : "opacity-40"}`}>
+            <polygon
+              points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+              fill={color} stroke="#000000" strokeWidth="2" strokeLinejoin="round"
+            />
+          </svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden className={`shrink-0 ${visible ? "opacity-100" : "opacity-40"}`}>
+            <circle cx="7" cy="7" r="5.5" fill={color} fillOpacity={0.8} stroke="white" strokeWidth="1.5" />
+          </svg>
+        )}
+        <span className={`text-xs truncate ${visible ? "text-on-surface-variant" : "text-on-surface-variant/50"}`}>
+          {label}
+        </span>
+      </label>
+      <span className="relative shrink-0 group">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface-variant/40 hover:text-on-surface-variant cursor-help transition-colors" aria-label={`Info: ${label}`}>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+        </svg>
+        <span className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 z-[950] w-48 rounded-lg bg-on-surface text-surface text-[11px] leading-snug px-3 py-2 shadow-elevation-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          {info}
+        </span>
+      </span>
+    </div>
+  );
 }
 
 /** Group facilities by LGA, preserving alphabetical order within each group. */
@@ -24,11 +92,18 @@ export default function FacilityList({
   facilities,
   selected,
   onSelect,
+  hiddenLayers,
+  setHiddenLayers,
+  onCollapsedChange,
 }: FacilityListProps) {
   // Track which LGA groups are open; collapsed by default
   const groups = groupByLGA(facilities);
   const [open, setOpen] = useState<Set<string>>(() => new Set());
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    onCollapsedChange?.(collapsed);
+  }, [collapsed, onCollapsedChange]);
 
   // Search state
   const [query, setQuery] = useState("");
@@ -79,8 +154,8 @@ export default function FacilityList({
      */
     <div
       className={[
-        // Mobile — fixed bottom sheet; height collapses to just the handle when dismissed
-        "fixed bottom-0 left-0 right-0",
+        // Mobile — flex child at bottom of column; height collapses to just the handle
+        "shrink-0",
         collapsed ? "h-10" : "h-[50vh]",
         "transition-[height] duration-300 ease-in-out",
         // Desktop — absolute left panel inside the map container (height always full)
@@ -138,7 +213,7 @@ export default function FacilityList({
 
           {/* Suggestions dropdown */}
           {showSuggestions && suggestions.length > 0 && (
-            <ul className="absolute left-0 right-0 top-full mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
+            <ul className="absolute left-0 right-0 bottom-full mb-1 md:bottom-auto md:mb-0 md:top-full md:mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
               {suggestions.map((facility, i) => (
                 <>
                   {i === lgaStartIndex && (
@@ -178,6 +253,29 @@ export default function FacilityList({
 
       {/* Scrollable list */}
       <div className="overflow-y-auto flex-1">
+        {/* ── Map layers legend ── */}
+        <div className="px-4 pt-3 pb-2 border-b border-outline-variant">
+          <p className="text-[13px] font-medium text-on-surface mb-2">Map Layers</p>
+
+          <p className="text-[11px] font-semibold text-on-surface-variant/70 uppercase tracking-wide mb-1">
+            Active Ferry Facilities
+          </p>
+          <div className="flex flex-col gap-1.5 mb-2.5">
+            {LEGEND_GROUPS.active.map(({ key, color, label, info }) => (
+              <LegendRow key={key} layerKey={key} color={color} label={label} info={info} hiddenLayers={hiddenLayers} setHiddenLayers={setHiddenLayers} />
+            ))}
+          </div>
+
+          <p className="text-[11px] font-semibold text-on-surface-variant/70 uppercase tracking-wide mb-1">
+            Other
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {LEGEND_GROUPS.other.map(({ key, color, label, info, icon }) => (
+              <LegendRow key={key} layerKey={key} color={color} label={label} info={info} icon={icon} hiddenLayers={hiddenLayers} setHiddenLayers={setHiddenLayers} />
+            ))}
+          </div>
+        </div>
+
         <div className="px-4 pt-3">
           <p className="text-xs text-on-surface-variant">
             Explore by LGA

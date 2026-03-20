@@ -20,6 +20,7 @@ export type Facility = {
   contact_email: string | null;
   laswa_officer_available: string | null;
   source_of_awareness: string | null;
+  category: string | null;
   omi_eko: string | null;
   assignment: string | null;
   additional_notes: string | null;

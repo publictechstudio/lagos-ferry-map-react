@@ -13,9 +13,6 @@ import { toFacilitySlug } from "@/lib/facilitySlug";
 import { toRouteSlug } from "@/lib/routeSlug";
 import { parseWKTLineString, latLonBounds } from "@/lib/parseWKT";
 
-const COLOR_DEVELOPED      = "#1A1A1A";
-const COLOR_LESS_DEVELOPED = "#8B2000";
-
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
   ssr: false,
   loading: () => (
@@ -45,16 +42,18 @@ export default function MapWrapper({
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(initialSelectedRoute);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [locating, setLocating] = useState(false);
+  const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set());
+  const [mobileCollapsed, setMobileCollapsed] = useState(false);
   const mapRef = useRef<LMap | null>(null);
 
   const pendingFlyTo = useRef<Facility | null>(initialSelected);
   const pendingRoute = useRef<Route | null>(initialSelectedRoute);
 
-  // After the split layout changes size, tell Leaflet to re-measure the container.
+  // After the layout changes size, tell Leaflet to re-measure the container.
   useEffect(() => {
-    const id = setTimeout(() => mapRef.current?.invalidateSize(), 50);
+    const id = setTimeout(() => mapRef.current?.invalidateSize(), 350);
     return () => clearTimeout(id);
-  }, [selected, selectedRoute]);
+  }, [selected, selectedRoute, mobileCollapsed]);
 
   function handleSelect(facility: Facility) {
     setSelected(facility);
@@ -143,18 +142,21 @@ export default function MapWrapper({
           selectedRouteId={selectedRoute?.route_id ?? null}
           onSelectRoute={handleSelectRoute}
           userLocation={userLocation}
+          hiddenLayers={hiddenLayers}
         />
 
-        {/* Facility list — hidden when a detail panel is open */}
-        <div className={panelOpen ? "hidden" : ""}>
+        {/* Facility list — desktop: absolute overlay inside map area */}
+        <div className={`hidden md:block ${panelOpen ? "md:hidden" : ""}`}>
           <FacilityList
             facilities={facilities}
             selected={selected}
             onSelect={handleSelect}
+            hiddenLayers={hiddenLayers}
+            setHiddenLayers={setHiddenLayers}
           />
         </div>
 
-        {/* Locate me button — below zoom controls on mobile, bottom-right on desktop */}
+        {/* Locate me button*/}
         <button
           onClick={handleLocate}
           disabled={locating}
@@ -171,33 +173,21 @@ export default function MapWrapper({
           )}
         </button>
 
-        {/* Quality legend — top-right */}
-        <div className="absolute top-3 right-3 z-[900] bg-surface rounded-xl shadow-elevation-2 px-4 py-3 pointer-events-none select-none">
-          <p className="text-[13px] font-medium text-on-surface mb-2">
-            Facility Quality
-          </p>
-          <div className="flex flex-col gap-2">
-            {[
-              { color: COLOR_DEVELOPED,      label: "Developed" },
-              { color: COLOR_LESS_DEVELOPED, label: "Less Developed" },
-            ].map(({ color, label }) => (
-              <div key={label} className="flex items-center gap-2">
-                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
-                  <circle
-                    cx="7" cy="7" r="5.5"
-                    fill={color}
-                    fillOpacity={0.8}
-                    stroke="white"
-                    strokeWidth="1.5"
-                  />
-                </svg>
-                <span className="text-xs text-on-surface-variant">{label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
       </div>
+
+      {/* Facility list — mobile: flex child below map */}
+      {!panelOpen && (
+        <div className="md:hidden">
+          <FacilityList
+            facilities={facilities}
+            selected={selected}
+            onSelect={handleSelect}
+            hiddenLayers={hiddenLayers}
+            setHiddenLayers={setHiddenLayers}
+            onCollapsedChange={setMobileCollapsed}
+          />
+        </div>
+      )}
 
       {/* ── Facility detail panel ──────────────────────────────────── */}
       {selected && (

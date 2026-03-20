@@ -67,8 +67,3 @@ body {
   width: 100%;
   height: 100%;
 }
-
-/* Push top-right Leaflet controls (zoom) below the quality legend card */
-.leaflet-top.leaflet-right {
-  top: 120px;
-}

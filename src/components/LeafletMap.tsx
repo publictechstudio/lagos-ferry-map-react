@@ -1,24 +1,45 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { Map as LMap, CircleMarker, Circle, Polyline } from "leaflet";
+import type { Map as LMap, CircleMarker, Circle, Polyline, Marker } from "leaflet";
 import type { Facility } from "@/types/facility";
 import type { Route } from "@/types/route";
 import { parseWKTLineString } from "@/lib/parseWKT";
 
-const LAGOS_CENTER: [number, number] = [6.4531, 3.3958];
+const LAGOS_CENTER: [number, number] = [6.47, 3.3958];
 const INITIAL_ZOOM = 12;
 const ZOOM_LABEL_THRESHOLD = 14;
 
-const COLOR_DEVELOPED     = "#1A1A1A";
-const COLOR_LESS_DEVELOPED = "#8B2000";
-const COLOR_ROUTE         = "#4e4e4e";
+const COLOR_ROUTE = "#4e4e4e";
 
-function markerColor(quality: string | null): string {
-  if (!quality) return COLOR_LESS_DEVELOPED;
-  return quality.toLowerCase().startsWith("less")
-    ? COLOR_LESS_DEVELOPED
-    : COLOR_DEVELOPED;
+export const CATEGORY_STYLES: Record<string, { color: string; label: string }> = {
+  "Ferry facility: Developed":      { color: "#1A1A1A", label: "Developed" },
+  "Ferry facility: Less developed":  { color: "#8B2000", label: "Less Developed" },
+  "Charter only":                    { color: "#2E7D32", label: "Charter Only" },
+};
+
+const MARKER_RADIUS = 5.5;
+const MARKER_WEIGHT = 1;
+const MARKER_OPACITY = 1;
+const MARKER_FILL_OPACITY = 0.8;
+const MARKER_STROKE_COLOR = "#ffffff";
+
+const MARKER_SELECTED_RADIUS = 20;
+const MARKER_SELECTED_WEIGHT = 5;
+
+const CATEGORY_FALLBACK_COLOR = "#8c00ff";
+const COLOR_OMI_EKO = "#ffffff";
+
+const OMI_EKO_STAR_SVG = `<svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+    fill="${COLOR_OMI_EKO}" stroke="#000000" stroke-width="1" stroke-linejoin="round"/>
+</svg>`;
+
+export { COLOR_OMI_EKO };
+
+function markerColor(category: string | null): string {
+  if (!category) return CATEGORY_FALLBACK_COLOR;
+  return CATEGORY_STYLES[category]?.color ?? CATEGORY_FALLBACK_COLOR;
 }
 
 interface LeafletMapProps {
@@ -31,6 +52,7 @@ interface LeafletMapProps {
   selectedRouteId: number | null;
   onSelectRoute: (route: Route) => void;
   userLocation: [number, number] | null;
+  hiddenLayers: Set<string>;
 }
 
 export default function LeafletMap({
@@ -43,11 +65,15 @@ export default function LeafletMap({
   selectedRouteId,
   onSelectRoute,
   userLocation,
+  hiddenLayers,
 }: LeafletMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LMap | null>(null);
   const markersRef = useRef<Map<number, CircleMarker>>(new Map());
+  const hitAreasRef = useRef<Map<number, CircleMarker>>(new Map());
+  const facilityCategoryRef = useRef<Map<number, string>>(new Map());
   const routeLinesRef = useRef<Map<number, Polyline>>(new Map());
+  const omiEkoMarkersRef = useRef<Map<number, Marker>>(new Map());
   const userMarkersRef = useRef<{ dot: CircleMarker; ring: Circle } | null>(null);
 
   // ── Map initialisation (runs once) ──────────────────────────────────────
@@ -71,13 +97,17 @@ export default function LeafletMap({
 
       L.control.zoom({ position: "topright" }).addTo(map);
 
+      // Custom pane for Omi Eko stars — sits between tiles (200) and overlay/paths (400)
+      const omiEkoPane = map.createPane("omiEkoPane");
+      omiEkoPane.style.zIndex = "350";
+
       // Clicking blank map space clears any selection
       map.on("click", onDeselect);
 
       L.tileLayer("https://tile.jawg.io/jawg-sunny/{z}/{x}/{y}{r}.png?access-token={accessToken}", {
         attribution:
           '<a href="https://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        minZoom: 0,
+        minZoom: 10,
         maxZoom: 22,
         // @ts-expect-error — accessToken is a Jawg-specific option not in Leaflet's TileLayerOptions type
         accessToken: process.env.NEXT_PUBLIC_JAWG_ACCESS_TOKEN,
@@ -119,27 +149,54 @@ export default function LeafletMap({
         routeLinesRef.current.set(route.route_id, polyline);
       });
 
+      // ── Omi Eko star markers (drawn first so they sit below facility markers) ──
+      const omiEkoIcon = L.divIcon({
+        html: OMI_EKO_STAR_SVG,
+        className: "",
+        iconSize: [30, 30],
+        iconAnchor: [12, 12.5],
+      });
+
+      facilities.forEach((facility) => {
+        if (facility.omi_eko !== "Yes") return;
+        const name = facility.facility_name ?? "Unnamed";
+
+        const star = L.marker([facility.facility_lat, facility.facility_lon], {
+          icon: omiEkoIcon,
+          interactive: true,
+          bubblingMouseEvents: false,
+          pane: "omiEkoPane",
+        });
+        star.addTo(map);
+        star.bindTooltip(name, { direction: "top", offset: [0, -15] });
+        star.on("click", () => onSelect(facility));
+
+        omiEkoMarkersRef.current.set(facility.facility_id, star);
+      });
+
       // ── Facility markers ────────────────────────────────────────────────
       const markerData: Array<{ marker: CircleMarker; name: string }> = [];
 
       facilities.forEach((facility) => {
         const name = facility.facility_name ?? "Unnamed";
+        const cat = facility.category ?? "Unknown";
+
+        // Future Omi Eko facilities are only shown via the Omi Eko star layer
+        if (cat === "Future Omi Eko") return;
 
         // Visual marker — non-interactive, purely for display
         const marker = L.circleMarker([facility.facility_lat, facility.facility_lon], {
-          radius: 8,
-          fillColor: markerColor(facility.quality),
-          color: "#FFFFFF",
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.8,
+          radius: MARKER_RADIUS,
+          fillColor: markerColor(facility.category),
+          color: MARKER_STROKE_COLOR,
+          weight: MARKER_WEIGHT,
+          opacity: MARKER_OPACITY,
+          fillOpacity: MARKER_FILL_OPACITY,
           interactive: false,
         });
         marker.addTo(map);
 
         // Hit area — large transparent circle for easy clicking/tapping on mobile.
-        // offset [0, 7] compensates for the larger radius so the tooltip appears
-        // at the same height as it would above the small visual marker.
         const hitArea = L.circleMarker([facility.facility_lat, facility.facility_lon], {
           radius: 20,
           fillColor: '#000000',
@@ -154,6 +211,8 @@ export default function LeafletMap({
 
         markerData.push({ marker: hitArea, name });
         markersRef.current.set(facility.facility_id, marker);
+        hitAreasRef.current.set(facility.facility_id, hitArea);
+        facilityCategoryRef.current.set(facility.facility_id, cat);
       });
 
       // Apply the initial selected facility style.
@@ -184,7 +243,10 @@ export default function LeafletMap({
     return () => {
       cancelled = true;
       markersRef.current.clear();
+      hitAreasRef.current.clear();
+      facilityCategoryRef.current.clear();
       routeLinesRef.current.clear();
+      omiEkoMarkersRef.current.clear();
       mapRef.current?.remove();
       mapRef.current = null;
     };
@@ -195,7 +257,7 @@ export default function LeafletMap({
   useEffect(() => {
     markersRef.current.forEach((marker, id) => {
       const isSelected = id === selectedId;
-      marker.setStyle({ weight: isSelected ? 5 : 2, radius: isSelected ? 20 : 9 });
+      marker.setStyle({ weight: isSelected ? MARKER_SELECTED_WEIGHT : MARKER_WEIGHT, radius: isSelected ? MARKER_SELECTED_RADIUS : MARKER_RADIUS });
       if (isSelected) {
         // Bring circle to front in SVG layer
         marker.bringToFront();
@@ -225,7 +287,7 @@ export default function LeafletMap({
   useEffect(() => {
     if (selectedRouteId === null) {
       markersRef.current.forEach((marker) => {
-        marker.setStyle({ radius: 8, fillOpacity: 0.8, opacity: 1 });
+        marker.setStyle({ radius: MARKER_RADIUS, fillOpacity: MARKER_FILL_OPACITY, opacity: MARKER_OPACITY, weight: MARKER_WEIGHT });
       });
       return;
     }
@@ -281,6 +343,31 @@ export default function LeafletMap({
       userMarkersRef.current = { dot, ring };
     });
   }, [userLocation]);
+
+  // ── Toggle layer visibility ─────────────────────────────────────────
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Toggle category markers (circle markers + hit areas)
+    facilityCategoryRef.current.forEach((cat, id) => {
+      const marker = markersRef.current.get(id);
+      const hitArea = hitAreasRef.current.get(id);
+      const hidden = hiddenLayers.has(cat);
+      if (marker) {
+        if (hidden) marker.remove(); else marker.addTo(map);
+      }
+      if (hitArea) {
+        if (hidden) hitArea.remove(); else hitArea.addTo(map);
+      }
+    });
+
+    // Toggle Omi Eko stars
+    const omiHidden = hiddenLayers.has("Omi Eko");
+    omiEkoMarkersRef.current.forEach((star) => {
+      if (omiHidden) star.remove(); else star.addTo(map);
+    });
+  }, [hiddenLayers]);
 
   return (
     <div
