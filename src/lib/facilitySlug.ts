@@ -8,5 +8,5 @@ export function toFacilitySlug(facility: {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  return `${facility.facility_id}-${slug}`;
+  return `facility-${facility.facility_id}-${slug}`;
 }

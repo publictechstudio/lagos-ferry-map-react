@@ -24,6 +24,8 @@ export async function GET(
       r.total_base_duration,
       f1.facility_name AS origin_name,
       f2.facility_name AS destination_name,
+      f1.facility_name_short AS origin_name_short,
+      f2.facility_name_short AS destination_name_short,
       CASE WHEN rs1.stop_order < rs2.stop_order THEN 'Inbound' ELSE 'Outbound' END AS travel_direction
     FROM route_stops rs1
     JOIN route_stops rs2

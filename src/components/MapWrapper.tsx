@@ -160,7 +160,7 @@ export default function MapWrapper({
         <button
           onClick={handleLocate}
           disabled={locating}
-          className="absolute top-3 left-3 md:left-[calc(18rem+0.75rem)] z-[900] w-10 h-10 bg-surface rounded-lg shadow-elevation-2 flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors disabled:opacity-50"
+          className="absolute top-3 right-13 z-[900] w-10 h-10 bg-surface rounded-lg shadow-elevation-2 flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors disabled:opacity-50"
           aria-label="Show my location"
           title="Show my location"
         >

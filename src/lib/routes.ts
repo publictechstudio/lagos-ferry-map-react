@@ -24,7 +24,9 @@ export async function getRoutes(): Promise<Route[]> {
       r.origin,
       r.destination,
       f1.facility_name AS origin_name,
-      f2.facility_name AS destination_name
+      f2.facility_name AS destination_name,
+      f1.facility_name_short AS origin_name_short,
+      f2.facility_name_short AS destination_name_short
     FROM routes r
     LEFT JOIN facilities f1 ON r.origin = f1.facility_id
     LEFT JOIN facilities f2 ON r.destination = f2.facility_id
@@ -57,7 +59,9 @@ export async function getRouteById(id: number): Promise<Route | null> {
       r.origin,
       r.destination,
       f1.facility_name AS origin_name,
-      f2.facility_name AS destination_name
+      f2.facility_name AS destination_name,
+      f1.facility_name_short AS origin_name_short,
+      f2.facility_name_short AS destination_name_short
     FROM routes r
     LEFT JOIN facilities f1 ON r.origin = f1.facility_id
     LEFT JOIN facilities f2 ON r.destination = f2.facility_id

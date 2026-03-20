@@ -2,7 +2,7 @@
 
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react";
 import type { Facility } from "@/types/facility";
-import { CATEGORY_STYLES, COLOR_OMI_EKO } from "./LeafletMap";
+import { CATEGORY_STYLES, COLOR_OMI_EKO, ROUTE_OPERATOR_STYLES } from "./LeafletMap";
 
 interface FacilityListProps {
   facilities: Facility[];
@@ -18,17 +18,21 @@ type LegendItem = {
   color: string;
   label: string;
   info: string;
-  icon?: "star";
+  icon?: "star" | "line";
 };
 
-const LEGEND_GROUPS: { active: LegendItem[]; other: LegendItem[] } = {
+const LEGEND_GROUPS: { active: LegendItem[]; routes: LegendItem[]; other: LegendItem[] } = {
   active: [
     { key: "Ferry facility: Developed", color: CATEGORY_STYLES["Ferry facility: Developed"].color, label: "Developed", info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Facilities with permanent structures and regular service." },
     { key: "Ferry facility: Less developed", color: CATEGORY_STYLES["Ferry facility: Less developed"].color, label: "Less Developed", info: "Lorem ipsum dolor sit amet. Facilities with basic infrastructure and limited amenities." },
   ],
+  routes: [
+    { key: "LagFerry", color: ROUTE_OPERATOR_STYLES["LagFerry"].color, label: "LagFerry", info: "Lorem ipsum dolor sit amet. Routes operated by the Lagos state government ferry service.", icon: "line" },
+    { key: "Commercial Operator", color: ROUTE_OPERATOR_STYLES["Commercial Operator"].color, label: "Commercial Operator", info: "Lorem ipsum dolor sit amet. Routes operated by commercial operators.", icon: "line" },
+  ],
   other: [
     { key: "Charter only", color: CATEGORY_STYLES["Charter only"].color, label: "Charter Only", info: "Lorem ipsum dolor sit amet. Locations offering private charter boat services only." },
-    { key: "Omi Eko", color: COLOR_OMI_EKO, label: "Omi Eko", info: "Lorem ipsum dolor sit amet. Facilities participating in the Omi Eko programme.", icon: "star" },
+    { key: "Omi Eko", color: COLOR_OMI_EKO, label: "Omi Eko Plan", info: "Lorem ipsum dolor sit amet. Facilities participating in the Omi Eko programme.", icon: "star" },
   ],
 };
 
@@ -55,6 +59,10 @@ function LegendRow({
               points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
               fill={color} stroke="#000000" strokeWidth="2" strokeLinejoin="round"
             />
+          </svg>
+        ) : icon === "line" ? (
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden className={`shrink-0 ${visible ? "opacity-100" : "opacity-40"}`}>
+            <line x1="0" y1="7" x2="14" y2="7" stroke={color} strokeWidth="3" strokeLinecap="round" />
           </svg>
         ) : (
           <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden className={`shrink-0 ${visible ? "opacity-100" : "opacity-40"}`}>
@@ -264,6 +272,15 @@ export default function FacilityList({
           <div className="flex flex-col gap-1.5 mb-2.5">
             {LEGEND_GROUPS.active.map(({ key, color, label, info }) => (
               <LegendRow key={key} layerKey={key} color={color} label={label} info={info} hiddenLayers={hiddenLayers} setHiddenLayers={setHiddenLayers} />
+            ))}
+          </div>
+
+          <p className="text-[11px] font-semibold text-on-surface-variant/70 uppercase tracking-wide mb-1">
+            Active Ferry Routes
+          </p>
+          <div className="flex flex-col gap-1.5 mb-2.5">
+            {LEGEND_GROUPS.routes.map(({ key, color, label, info, icon }) => (
+              <LegendRow key={key} layerKey={key} color={color} label={label} info={info} icon={icon} hiddenLayers={hiddenLayers} setHiddenLayers={setHiddenLayers} />
             ))}
           </div>
 

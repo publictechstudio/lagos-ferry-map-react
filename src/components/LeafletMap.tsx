@@ -12,6 +12,25 @@ const ZOOM_LABEL_THRESHOLD = 14;
 
 const COLOR_ROUTE = "#4e4e4e";
 
+export const ROUTE_OPERATOR_STYLES: Record<string, { color: string; label: string }> = {
+  "LagFerry":               { color: "#1565C0", label: "LagFerry" },
+  "Commercial Operator":    { color: "#808080", label: "Commercial Operator" },
+};
+
+const ROUTE_FALLBACK_COLOR = "#a8a8a8";
+
+function routeOperatorKey(operator: string | null): string {
+  if (!operator) return "Commercial Operator";
+  const op = operator.trim();
+  if (op.startsWith("LagFerry")) return "LagFerry";
+  return "Commercial Operator";
+}
+
+function routeColor(operator: string | null): string {
+  const key = routeOperatorKey(operator);
+  return ROUTE_OPERATOR_STYLES[key]?.color ?? ROUTE_FALLBACK_COLOR;
+}
+
 export const CATEGORY_STYLES: Record<string, { color: string; label: string }> = {
   "Ferry facility: Developed":      { color: "#1A1A1A", label: "Developed" },
   "Ferry facility: Less developed":  { color: "#8B2000", label: "Less Developed" },
@@ -73,6 +92,8 @@ export default function LeafletMap({
   const hitAreasRef = useRef<Map<number, CircleMarker>>(new Map());
   const facilityCategoryRef = useRef<Map<number, string>>(new Map());
   const routeLinesRef = useRef<Map<number, Polyline>>(new Map());
+  const routeGhostsRef = useRef<Map<number, Polyline>>(new Map());
+  const routeOperatorRef = useRef<Map<number, string>>(new Map());
   const omiEkoMarkersRef = useRef<Map<number, Marker>>(new Map());
   const userMarkersRef = useRef<{ dot: CircleMarker; ring: Circle } | null>(null);
 
@@ -119,11 +140,13 @@ export default function LeafletMap({
         if (coords.length < 2) return;
 
         const isSelected = route.route_id === initialSelectedRouteId;
+        const opKey = routeOperatorKey(route.operator);
+        const opColor = routeColor(route.operator);
 
         // Visual polyline — non-interactive, purely for display
         const polyline = L.polyline(coords, {
-          color: isSelected ? '#262626' : '#a8a8a8',
-          weight: isSelected ? 6 : 1,
+          color: isSelected ? '#262626' : opColor,
+          weight: isSelected ? 6 : 2,
           opacity: isSelected ? 1 : 0.7,
           interactive: false,
         });
@@ -147,6 +170,8 @@ export default function LeafletMap({
         ghost.on("click", () => onSelectRoute(route));
 
         routeLinesRef.current.set(route.route_id, polyline);
+        routeGhostsRef.current.set(route.route_id, ghost);
+        routeOperatorRef.current.set(route.route_id, opKey);
       });
 
       // ── Omi Eko star markers (drawn first so they sit below facility markers) ──
@@ -246,6 +271,8 @@ export default function LeafletMap({
       hitAreasRef.current.clear();
       facilityCategoryRef.current.clear();
       routeLinesRef.current.clear();
+      routeGhostsRef.current.clear();
+      routeOperatorRef.current.clear();
       omiEkoMarkersRef.current.clear();
       mapRef.current?.remove();
       mapRef.current = null;
@@ -274,9 +301,11 @@ export default function LeafletMap({
   useEffect(() => {
     routeLinesRef.current.forEach((polyline, id) => {
       const isSelected = id === selectedRouteId;
+      const opKey = routeOperatorRef.current.get(id);
+      const opColor = opKey ? (ROUTE_OPERATOR_STYLES[opKey]?.color ?? ROUTE_FALLBACK_COLOR) : ROUTE_FALLBACK_COLOR;
       polyline.setStyle({
-        color: isSelected ? '#262626' : '#a8a8a8',
-        weight: isSelected ? 8 : 1,
+        color: isSelected ? '#262626' : opColor,
+        weight: isSelected ? 8 : 2,
         opacity: isSelected ? 1 : 0.7,
       });
       if (isSelected) polyline.bringToFront();
@@ -359,6 +388,19 @@ export default function LeafletMap({
       }
       if (hitArea) {
         if (hidden) hitArea.remove(); else hitArea.addTo(map);
+      }
+    });
+
+    // Toggle route polylines by operator
+    routeOperatorRef.current.forEach((opKey, id) => {
+      const polyline = routeLinesRef.current.get(id);
+      const ghost = routeGhostsRef.current.get(id);
+      const hidden = hiddenLayers.has(opKey);
+      if (polyline) {
+        if (hidden) polyline.remove(); else polyline.addTo(map);
+      }
+      if (ghost) {
+        if (hidden) ghost.remove(); else ghost.addTo(map);
       }
     });
 

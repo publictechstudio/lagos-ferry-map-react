@@ -7,6 +7,7 @@ import type { ConnectingRoute } from "@/types/connectingRoute";
 import type { RoutePeriod } from "@/types/routePeriod";
 import Link from "next/link";
 import { toFacilitySlug } from "@/lib/facilitySlug";
+import { toRouteSlug } from "@/lib/routeSlug";
 import PlaceIcon from '@mui/icons-material/Place';
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 
@@ -14,13 +15,17 @@ const REPORT_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSfCkMgguEE1GJ_WhWXBaIKhaILOICt1UqiA85r0m4yz_eEmAw/viewform";
 
 const OPERATOR_MAP: Record<string, { label: string; tooltip: string }> = {
-  "LagFerry/Government: Operated by the government.": {
+  "LagFerry/Government: Operated by the government": {
     label: "LagFerry",
     tooltip: "Operated by the government",
   },
   "Formal Commercial: Operated by licensed operators (under the jurisdiction/licensed by LASWA or NIWA)": {
     label: "Licensed Commercial",
     tooltip: "Licensed commercial operators under the jurisdiction/licensed by LASWA or NIWA",
+  },
+  "Informal Commercial: Operated by unlicensed operators(NOT under the jurisdiction/licensed by LASWA/NIWA)": {
+    label: "Unlicensed Commercial",
+    tooltip: "Unlicensed commercial operators not under the jurisdiction/licensed by LASWA or NIWA",
   },
 };
 
@@ -29,7 +34,6 @@ const KEY_ATTRS: { key: keyof Facility; label: string }[] = [
   { key: "lga",       label: "LGA" },
   { key: "quality",   label: "Facility Quality" },
   { key: "facility_type", label: "Type" },
-  { key: "ownership", label: "Ownership" },
 ];
 
 function summarizePeriods(periods: RoutePeriod[]): string {
@@ -73,13 +77,13 @@ function summarizePeriods(periods: RoutePeriod[]): string {
 function routeDisplayNames(route: ConnectingRoute): { from: string; to: string } {
   if (route.travel_direction === "Outbound") {
     return {
-      from: route.destination_name ?? "?",
-      to:   route.origin_name      ?? "?",
+      from: route.destination_name_short ?? "?",
+      to:   route.origin_name_short      ?? "?",
     };
   }
   return {
-    from: route.origin_name      ?? "?",
-    to:   route.destination_name ?? "?",
+    from: route.origin_name_short      ?? "?",
+    to:   route.destination_name_short ?? "?",
   };
 }
 
@@ -150,7 +154,7 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
           <div className="border-t border-outline-variant/60">
             <div className="flex items-center gap-2 px-4 pt-2.5 pb-1 text-on-surface-variant text-sm">
               <DirectionsBoatIcon sx={{ fontSize: 16 }} className="shrink-0" />
-              <span>Routes that will take you from {facility.facility_name} to {dest.facility_name ?? "destination"}</span>
+              <span>Routes that will take you from {facility.facility_name_short} to {dest.facility_name_short ?? "destination"}</span>
             </div>
             {!routes ? (
               <p className="px-4 pb-2.5 text-xs text-on-surface-variant/60">Loading routes…</p>
@@ -177,7 +181,7 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
                       return (
                         <tr key={r.route_id} className="border-b border-outline-variant/40 last:border-b-0 align-top">
                           <td className="px-4 py-2">
-                            <Link href={`/map/route/${r.route_id}`} className="font-medium text-primary hover:underline underline-offset-2">
+                            <Link href={`/map/route/${toRouteSlug(r)}`} className="font-medium text-primary hover:underline underline-offset-2">
                               {from} → {to}
                             </Link>
                           </td>
@@ -191,7 +195,7 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
                             {schedule || "—"}
                           </td>
                           <td className="px-2 py-2 text-on-surface-variant">
-                            <Link href={`/map/route/${r.route_id}`} className="font-medium text-primary hover:underline underline-offset-2">
+                            <Link href={`/map/route/${toRouteSlug(r)}`} className="font-medium text-primary hover:underline underline-offset-2">
                               Click for full details
                             </Link>
                           </td>
