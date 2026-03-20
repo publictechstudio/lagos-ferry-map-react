@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { REPORT_FORM_URL } from "@/lib/constants";
 
 const internalLinks = [
   { label: "About", href: "/about" },
@@ -39,7 +40,7 @@ export default function Footer() {
             ))}
             <li>
               <a
-                href="https://docs.google.com/forms/d/e/1FAIpQLSfCkMgguEE1GJ_WhWXBaIKhaILOICt1UqiA85r0m4yz_eEmAw/viewform"
+                href={REPORT_FORM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block px-4 py-2 rounded-full text-sm font-medium tracking-[0.1px] text-[#C3C7CF] hover:text-[#F9F9FF] hover:bg-white/8 transition-colors"

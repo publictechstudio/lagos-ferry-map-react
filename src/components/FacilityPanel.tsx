@@ -8,11 +8,12 @@ import type { RoutePeriod } from "@/types/routePeriod";
 import Link from "next/link";
 import { toFacilitySlug } from "@/lib/facilitySlug";
 import { toRouteSlug } from "@/lib/routeSlug";
+import PanelShell from "./PanelShell";
+import LoadingSpinner from "./LoadingSpinner";
+import { groupByLGA } from "@/lib/groupByLGA";
+import { formatNaira } from "@/lib/format";
 import PlaceIcon from '@mui/icons-material/Place';
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
-
-const REPORT_FORM_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfCkMgguEE1GJ_WhWXBaIKhaILOICt1UqiA85r0m4yz_eEmAw/viewform";
 
 const OPERATOR_MAP: Record<string, { label: string; tooltip: string }> = {
   "LagFerry/Government: Operated by the government": {
@@ -189,7 +190,7 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
                             <OperatorLabel operator={r.operator} />
                           </td>
                           <td className="px-2 py-2 text-on-surface-variant whitespace-nowrap">
-                            {r.total_base_cost != null ? `₦${r.total_base_cost.toLocaleString()}` : "—"}
+                            {r.total_base_cost != null ? formatNaira(r.total_base_cost) : "—"}
                           </td>
                           <td className="px-2 py-2 text-on-surface-variant">
                             {schedule || "—"}
@@ -213,15 +214,6 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
   );
 }
 
-function groupByLGA(destinations: Destination[]): [string, Destination[]][] {
-  const map = new Map<string, Destination[]>();
-  for (const d of destinations) {
-    const lga = d.lga ?? "Unknown";
-    if (!map.has(lga)) map.set(lga, []);
-    map.get(lga)!.push(d);
-  }
-  return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
-}
 
 interface Props {
   facility: Facility;
@@ -269,45 +261,12 @@ export default function FacilityPanel({ facility, onClose }: Props) {
      *   mobile  (flex-col parent): h-1/2, full width
      *   desktop (flex-row parent): h-full, w-1/2
      */
-    <div className="h-2/3 shrink-0 md:h-full md:w-1/2 flex flex-col bg-surface border-t border-outline-variant md:border-t-0 md:border-l overflow-hidden">
-
-      {/* Mobile drag handle */}
-      <div className="md:hidden flex justify-center pt-2.5 pb-1 shrink-0">
-        <div className="w-8 h-1 rounded-full bg-on-surface-variant/30" />
-      </div>
-
-      {/* Type label + close button */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-1 shrink-0">
-        <div className="flex items-center gap-1.5 text-on-surface-variant">
-          <PlaceIcon sx={{ fontSize: 16 }} className="shrink-0" />
-          <span className="text-sm">{facility.facility_type ?? "Ferry Facility"}</span>
-        </div>
-                <div className="inline-flex items-center">
-          {/* Report data issue */}
-          <div className="inline-flex items-center mb-0 w-42 text-xs font-semibold leading-6 text-white bg-[#012c57] group-hover:bg-[#1976D2] rounded-full px-5 py-2.5 transition-colors duration-200">
-            <a
-              href={`${REPORT_FORM_URL}?entry.26660475=${encodeURIComponent(toFacilitySlug(facility))}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
-              </svg>
-              Report a data issue
-            </a>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-on-surface/8 text-on-surface-variant transition-colors"
-            aria-label="Close"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-            </svg>
-          </button>
-        </div>
-      </div>
+    <PanelShell
+      typeIcon={<PlaceIcon sx={{ fontSize: 16 }} className="shrink-0" />}
+      typeLabel={facility.facility_type ?? "Ferry Facility"}
+      reportSlug={toFacilitySlug(facility)}
+      onClose={onClose}
+    >
 
       {/* Facility name */}
       <h1 className="px-4 pb-2 text-[22px] font-bold leading-7 text-on-surface shrink-0">
@@ -364,10 +323,7 @@ export default function FacilityPanel({ facility, onClose }: Props) {
         </h3>
 
         {loading ? (
-          <div className="flex items-center gap-2 text-on-surface-variant text-sm py-4">
-            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0" />
-            Loading destinations…
-          </div>
+          <LoadingSpinner message="Loading destinations…" />
         ) : groups.length === 0 ? (
           <p className="text-sm text-on-surface-variant py-2">
             No destinations recorded for this facility.
@@ -398,6 +354,6 @@ export default function FacilityPanel({ facility, onClose }: Props) {
           </div>
         )}
       </div>
-    </div>
+    </PanelShell>
   );
 }

@@ -12,8 +12,7 @@ export const metadata: Metadata = {
     "Learn about Lagos ferries, the mapping process, safety information, and data limitations.",
 };
 
-const REPORT_ISSUE_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfCkMgguEE1GJ_WhWXBaIKhaILOICt1UqiA85r0m4yz_eEmAw/viewform";
+import { REPORT_FORM_URL } from "@/lib/constants";
 
 const linkClass =
   "text-primary underline underline-offset-2 hover:text-primary-dark";
@@ -29,7 +28,7 @@ const accordionItems = [
         </p>
         <p>
           If you see anything that&apos;s missing or incorrect, please{" "}
-          <a href={REPORT_ISSUE_URL} className={linkClass} target="_blank" rel="noopener noreferrer">
+          <a href={REPORT_FORM_URL} className={linkClass} target="_blank" rel="noopener noreferrer">
             let us know
           </a>
           .
@@ -181,7 +180,7 @@ const accordionItems = [
           This information was collected in{" "}
           <strong className="text-on-surface font-medium">February 2026</strong> and is updated quarterly.
           If you see anything that&apos;s missing or incorrect, please{" "}
-          <a href={REPORT_ISSUE_URL} className={linkClass} target="_blank" rel="noopener noreferrer">
+          <a href={REPORT_FORM_URL} className={linkClass} target="_blank" rel="noopener noreferrer">
             let us know
           </a>
           .

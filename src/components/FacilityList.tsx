@@ -3,6 +3,7 @@
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react";
 import type { Facility } from "@/types/facility";
 import { CATEGORY_STYLES, COLOR_OMI_EKO, ROUTE_OPERATOR_STYLES } from "./LeafletMap";
+import { groupByLGA } from "@/lib/groupByLGA";
 
 interface FacilityListProps {
   facilities: Facility[];
@@ -85,16 +86,6 @@ function LegendRow({
   );
 }
 
-/** Group facilities by LGA, preserving alphabetical order within each group. */
-function groupByLGA(facilities: Facility[]): [string, Facility[]][] {
-  const map = new Map<string, Facility[]>();
-  for (const f of facilities) {
-    const lga = f.lga ?? "Unknown LGA";
-    if (!map.has(lga)) map.set(lga, []);
-    map.get(lga)!.push(f);
-  }
-  return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
-}
 
 export default function FacilityList({
   facilities,
@@ -105,7 +96,7 @@ export default function FacilityList({
   onCollapsedChange,
 }: FacilityListProps) {
   // Track which LGA groups are open; collapsed by default
-  const groups = groupByLGA(facilities);
+  const groups = groupByLGA(facilities, "Unknown LGA");
   const [open, setOpen] = useState<Set<string>>(() => new Set());
   const [collapsed, setCollapsed] = useState(false);
 

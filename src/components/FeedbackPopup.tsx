@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const FEEDBACK_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfCkMgguEE1GJ_WhWXBaIKhaILOICt1UqiA85r0m4yz_eEmAw/viewform";
+import { REPORT_FORM_URL } from "@/lib/constants";
 
 const DELAY_MS = 1.5 * 60 * 1000; // 1.5 minutes
 
@@ -36,7 +34,7 @@ export default function FeedbackPopup() {
         </p>
         <div className="flex flex-col gap-2.5">
           <a
-            href={FEEDBACK_URL}
+            href={REPORT_FORM_URL}
             target="_blank"
             rel="noopener noreferrer"
             onClick={dismiss}
