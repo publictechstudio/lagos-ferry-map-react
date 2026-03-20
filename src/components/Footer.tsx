@@ -11,7 +11,7 @@ const internalLinks = [
 export default function Footer() {
   return (
     /* MD3 dark surface — on-surface (#1A1B20) */
-    <footer className="bg-[#1A1B20] text-[#C3C7CF] py-10 px-4">
+    <footer id="site-footer" className="bg-[#1A1B20] text-[#C3C7CF] py-10 px-4">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-8">
         <div>
           {/* Title Medium */}

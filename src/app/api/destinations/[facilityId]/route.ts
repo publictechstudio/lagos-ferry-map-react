@@ -28,6 +28,7 @@ export async function GET(
     WHERE fd.facility_id = ${id}
       AND f.status IS NOT NULL
       AND f.status != 'not_in_use'
+      AND fd.is_charter is FALSE
     ORDER BY f.lga, f.facility_name
   `;
 

@@ -28,6 +28,7 @@ export async function GET(
     SELECT
       f.facility_id,
       f.facility_name,
+      f.facility_name_short,
       f.facility_lat::float AS facility_lat,
       f.facility_lon::float AS facility_lon,
       f.lga,
@@ -37,6 +38,7 @@ export async function GET(
     WHERE fd.facility_id = ${id}
       AND f.status IS NOT NULL
       AND f.status != 'not_in_use'
+      AND fd.is_charter is FALSE
     ORDER BY f.lga, f.facility_name
   `;
 

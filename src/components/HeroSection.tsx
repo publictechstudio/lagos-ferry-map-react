@@ -33,7 +33,7 @@ const ctaCards = [
     title: "Navigate from A to B",
     description:
       "Get step-by-step directions, including bus connections. We have partnered with several popular navigation apps.",
-    href: "/directory",
+    href: "/partnerships",
   },
     {
     icon: InfoIcon,
