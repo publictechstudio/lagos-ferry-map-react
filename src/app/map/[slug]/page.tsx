@@ -12,7 +12,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const facilityId = parseInt(slug.split("-")[0], 10);
+  const facilityId = parseInt(slug.split("-")[1], 10);
 
   if (!isNaN(facilityId)) {
     const facilities = await getFacilities();
@@ -61,7 +61,7 @@ export default async function FacilityMapPage({
     params,
   ]);
 
-  const facilityId = parseInt(slug.split("-")[0], 10);
+  const facilityId = parseInt(slug.split("-")[1], 10);
   const initialSelected =
     !isNaN(facilityId)
       ? (facilities.find((f) => f.facility_id === facilityId) ?? null)
