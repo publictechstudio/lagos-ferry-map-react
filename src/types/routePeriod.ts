@@ -1,7 +1,7 @@
 export type RoutePeriod = {
   route_period_id: number;
   route_id: number;
-  direction_id: string; // "Inbound" | "Outbound"
+  direction_id: number;
   morning_service: boolean;
   evening_service: boolean;
   monday: boolean;

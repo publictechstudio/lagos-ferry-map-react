@@ -95,6 +95,8 @@ export default function LeafletMap({
   const routeGhostsRef = useRef<Map<number, Polyline>>(new Map());
   const routeOperatorRef = useRef<Map<number, string>>(new Map());
   const omiEkoMarkersRef = useRef<Map<number, Marker>>(new Map());
+  const omiEkoRouteLinesRef = useRef<Map<number, Polyline>>(new Map());
+  const omiEkoRouteGhostsRef = useRef<Map<number, Polyline>>(new Map());
   const userMarkersRef = useRef<{ dot: CircleMarker; ring: Circle } | null>(null);
 
   // ── Map initialisation (runs once) ──────────────────────────────────────
@@ -140,38 +142,66 @@ export default function LeafletMap({
         if (coords.length < 2) return;
 
         const isSelected = route.route_id === initialSelectedRouteId;
+        const isOmiEko = route.omi_eko === true;
+        const isPlannedOnly = isOmiEko && route.total_base_duration === 9999;
         const opKey = routeOperatorKey(route.operator);
         const opColor = routeColor(route.operator);
-
-        // Visual polyline — non-interactive, purely for display
-        const polyline = L.polyline(coords, {
-          color: isSelected ? '#262626' : opColor,
-          weight: isSelected ? 6 : 2,
-          opacity: isSelected ? 1 : 0.7,
-          interactive: false,
-        });
-        polyline.addTo(map);
 
         const routeName =
           route.origin_name && route.destination_name
             ? `${route.origin_name} → ${route.destination_name}`
             : `Route #${route.route_id}`;
 
-        // Ghost polyline — wide transparent line for click/touch target
-        const ghost = L.polyline(coords, {
-          color: '#000000',
-          weight: 10,
-          opacity: 0,
-          interactive: true,
-          bubblingMouseEvents: false,
-        });
-        ghost.addTo(map);
-        ghost.bindTooltip(routeName, { sticky: true });
-        ghost.on("click", () => onSelectRoute(route));
+        // Regular polylines — skip for planned-only Omi Eko routes (duration 9999)
+        if (!isPlannedOnly) {
+          const polyline = L.polyline(coords, {
+            color: isSelected ? '#262626' : opColor,
+            weight: isSelected ? 6 : 2,
+            opacity: isSelected ? 1 : 0.7,
+            interactive: false,
+          });
+          polyline.addTo(map);
 
-        routeLinesRef.current.set(route.route_id, polyline);
-        routeGhostsRef.current.set(route.route_id, ghost);
-        routeOperatorRef.current.set(route.route_id, opKey);
+          const ghost = L.polyline(coords, {
+            color: '#000000',
+            weight: 10,
+            opacity: 0,
+            interactive: true,
+            bubblingMouseEvents: false,
+          });
+          ghost.addTo(map);
+          ghost.bindTooltip(routeName, { sticky: true });
+          ghost.on("click", () => onSelectRoute(route));
+
+          routeLinesRef.current.set(route.route_id, polyline);
+          routeGhostsRef.current.set(route.route_id, ghost);
+          routeOperatorRef.current.set(route.route_id, opKey);
+        }
+
+        // Omi Eko dashed polylines — separate layer, off by default
+        if (isOmiEko) {
+          const dashedLine = L.polyline(coords, {
+            color: '#000000',
+            weight: 2,
+            opacity: 0.8,
+            dashArray: '8, 6',
+            interactive: false,
+          });
+
+          const dashedGhost = L.polyline(coords, {
+            color: '#000000',
+            weight: 10,
+            opacity: 0,
+            interactive: true,
+            bubblingMouseEvents: false,
+          });
+          dashedGhost.bindTooltip(routeName, { sticky: true });
+          dashedGhost.on("click", () => onSelectRoute(route));
+
+          // Don't add to map — layer is hidden by default
+          omiEkoRouteLinesRef.current.set(route.route_id, dashedLine);
+          omiEkoRouteGhostsRef.current.set(route.route_id, dashedGhost);
+        }
       });
 
       // ── Omi Eko star markers (drawn first so they sit below facility markers) ──
@@ -274,6 +304,8 @@ export default function LeafletMap({
       routeGhostsRef.current.clear();
       routeOperatorRef.current.clear();
       omiEkoMarkersRef.current.clear();
+      omiEkoRouteLinesRef.current.clear();
+      omiEkoRouteGhostsRef.current.clear();
       mapRef.current?.remove();
       mapRef.current = null;
     };
@@ -408,6 +440,15 @@ export default function LeafletMap({
     const omiHidden = hiddenLayers.has("Omi Eko");
     omiEkoMarkersRef.current.forEach((star) => {
       if (omiHidden) star.remove(); else star.addTo(map);
+    });
+
+    // Toggle Omi Eko route polylines
+    const omiRoutesHidden = hiddenLayers.has("Omi Eko Routes");
+    omiEkoRouteLinesRef.current.forEach((line) => {
+      if (omiRoutesHidden) line.remove(); else line.addTo(map);
+    });
+    omiEkoRouteGhostsRef.current.forEach((ghost) => {
+      if (omiRoutesHidden) ghost.remove(); else ghost.addTo(map);
     });
   }, [hiddenLayers]);
 

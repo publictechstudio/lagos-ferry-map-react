@@ -1,18 +1,26 @@
 import type { RouteStop } from "@/types/routeStop";
 import { formatStopCost, isFlat } from "./helpers";
+import { formatNaira } from "@/lib/format";
 
 /** Price table for one direction. */
 export default function PriceTable({
   stops,
   paymentOptions,
+  totalBaseCost,
+  originName,
+  destinationName,
 }: {
   stops: RouteStop[];
   paymentOptions: string | null;
+  totalBaseCost: number | null;
+  originName: string;
+  destinationName: string;
 }) {
   if (stops.length < 2) return null;
 
   const flat = isFlat(stops);
   const paymentNote = paymentOptions ? ` (${paymentOptions})` : "";
+  const showTotal = stops.length > 2 && totalBaseCost != null;
 
   return (
     <div className="mb-3">
@@ -51,6 +59,16 @@ export default function PriceTable({
                 </tr>
               );
             })
+          )}
+          {showTotal && (
+            <tr className="border-t border-outline-variant bg-surface-variant/50">
+              <td className="px-3 py-2 text-on-surface font-semibold">
+                {originName} → {destinationName} (total)
+              </td>
+              <td className="px-3 py-2 text-on-surface font-semibold">
+                {formatNaira(totalBaseCost)}
+              </td>
+            </tr>
           )}
         </tbody>
       </table>

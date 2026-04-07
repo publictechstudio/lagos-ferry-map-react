@@ -57,7 +57,7 @@ function summarizePeriods(periods: RoutePeriod[]): string {
 
   // Format the day range
   let days: string;
-  if (mo && tu && we && th && fr && sa && su)  days = "Daily";
+  if (mo && tu && we && th && fr && sa && su)  days = "Mon-Sun";
   else if (mo && tu && we && th && fr && !sa && !su) days = "Mon–Fri";
   else if (!mo && !tu && !we && !th && !fr && sa && su) days = "Sat–Sun";
   else if (mo && tu && we && th && fr && sa && !su)  days = "Mon–Sat";
@@ -68,23 +68,23 @@ function summarizePeriods(periods: RoutePeriod[]): string {
 
   // Format the time-of-day coverage
   const time =
-    hasMorning && hasEvening ? "all day" :
-    hasMorning               ? "mornings only" :
-    hasEvening               ? "evenings only" : "";
+    hasMorning && hasEvening ? "All day" :
+    hasMorning               ? "Morning only" :
+    hasEvening               ? "Evening only" : "";
 
   return time ? `${days} · ${time}` : days;
 }
 
 function routeDisplayNames(route: ConnectingRoute): { from: string; to: string } {
-  if (route.travel_direction === "Outbound") {
+  if (route.travel_direction == 0) {
     return {
-      from: route.destination_name_short ?? "?",
-      to:   route.origin_name_short      ?? "?",
+      from: route.origin_name_short ?? "?",
+      to:   route.destination_name_short ?? "?",
     };
   }
   return {
-    from: route.origin_name_short      ?? "?",
-    to:   route.destination_name_short ?? "?",
+    from: route.destination_name_short ?? "?",
+    to:   route.origin_name_short ?? "?",
   };
 }
 
@@ -99,7 +99,7 @@ function OperatorLabel({ operator }: { operator: string | null }) {
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface-variant/50">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
         </svg>
-        <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-48 rounded bg-on-surface px-2.5 py-1.5 text-[11px] leading-4 text-surface shadow-md opacity-0 group-hover/tip:opacity-100 transition-opacity z-50">
+        <span className="pointer-events-none absolute top-full right-0 mt-1.5 w-48 rounded bg-on-surface px-2.5 py-1.5 text-[11px] leading-4 text-surface shadow-md opacity-0 group-hover/tip:opacity-100 transition-opacity z-50">
           {mapped.tooltip}
         </span>
       </span>
@@ -119,7 +119,7 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
   const routes = routesByDest.get(dest.facility_id);
 
   return (
-    <div className="rounded-xl border border-outline-variant bg-surface overflow-hidden">
+    <div className="rounded-xl border border-outline-variant bg-surface overflow-visible">
       {/* Accordion trigger */}
       <button
         onClick={() => setOpen((o) => !o)}
@@ -162,7 +162,7 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
             ) : routes.length === 0 ? (
               <p className="px-4 pb-2.5 text-xs text-on-surface-variant/60">No direct routes recorded.</p>
             ) : (
-              <div className="pb-3 overflow-x-auto">
+              <div className="pb-3 overflow-visible">
                 <table className="w-full text-xs border-collapse">
                   <thead>
                     <tr className="border-b border-outline-variant/60 text-on-surface-variant/70 text-left">
@@ -177,6 +177,7 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
                     {routes.map((r) => {
                       const allPeriods = periodsByRoute.get(r.route_id) ?? [];
                       const periods = allPeriods.filter((p) => p.direction_id === r.travel_direction);
+                      console.log(`[FacilityPanel] route_id=${r.route_id} travel_direction="${r.travel_direction}" — allPeriods:`, allPeriods.length, "direction_ids in allPeriods:", allPeriods.map(p => ({ direction_id: p.direction_id, type: typeof p.direction_id })), "matched periods after filter:", periods.length);
                       const schedule = summarizePeriods(periods);
                       const { from, to } = routeDisplayNames(r);
                       return (
@@ -197,7 +198,7 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
                           </td>
                           <td className="px-2 py-2 text-on-surface-variant">
                             <Link href={`/map/route/${toRouteSlug(r)}`} className="font-medium text-primary hover:underline underline-offset-2">
-                              Click for full details
+                              View full details
                             </Link>
                           </td>
                         </tr>
@@ -238,6 +239,8 @@ export default function FacilityPanel({ facility, onClose }: Props) {
         routesByDest: Record<string, ConnectingRoute[]>;
         periodsByRoute: Record<string, RoutePeriod[]>;
       }) => {
+        console.log(`[FacilityPanel] facility_id=${facility.facility_id} — destinations:`, destinations?.length, "routesByDest keys:", Object.keys(routesByDest), "periodsByRoute keys:", Object.keys(periodsByRoute));
+        console.log(`[FacilityPanel] periodsByRoute sample:`, Object.entries(periodsByRoute).slice(0, 2).map(([k, v]) => ({ route_id: k, count: (v as RoutePeriod[]).length, sample: (v as RoutePeriod[])[0] })));
         setDestinations(destinations);
         setRoutesByDest(new Map(Object.entries(routesByDest).map(([k, v]) => [Number(k), v])));
         setPeriodsByRoute(new Map(Object.entries(periodsByRoute).map(([k, v]) => [Number(k), v])));
@@ -279,10 +282,10 @@ export default function FacilityPanel({ facility, onClose }: Props) {
         {/* Two-column on desktop: image left, key attrs right */}
         <div className="md:flex md:gap-4 mb-4">
           {/* Image */}
-          {facility.image_url && (
+          {facility.gcs_url && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={facility.image_url}
+              src={facility.gcs_url}
               alt={facility.facility_name ?? "Facility"}
               className="w-full h-48 object-cover rounded-lg mb-3 md:mb-0 md:w-1/2 md:shrink-0"
             />

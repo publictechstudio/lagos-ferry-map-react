@@ -85,7 +85,7 @@ export default async function FacilityMapPage({
             addressCountry: "NG",
           },
         }),
-        ...(initialSelected.image_url && { image: initialSelected.image_url }),
+        ...(initialSelected.gcs_url && { image: initialSelected.gcs_url }),
       }
     : null;
 

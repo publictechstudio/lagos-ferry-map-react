@@ -20,7 +20,7 @@ export async function getFacilities(): Promise<Facility[]> {
       charter_services,
       status,
       quality,
-      image_url,
+      gcs_url,
       life_jackets,
       ownership,
       contact_name,

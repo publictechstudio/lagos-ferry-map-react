@@ -7,5 +7,5 @@ export type ConnectingRoute = {
   destination_name: string | null;
   origin_name_short: string | null;
   destination_name_short: string | null;
-  travel_direction: "Inbound" | "Outbound";
+  travel_direction: number;
 };

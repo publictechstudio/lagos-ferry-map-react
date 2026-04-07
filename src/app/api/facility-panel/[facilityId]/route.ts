@@ -62,7 +62,7 @@ export async function GET(
       f2.facility_name AS destination_name,
       f1.facility_name_short AS origin_name_short,
       f2.facility_name_short AS destination_name_short,
-      CASE WHEN rs1.stop_order < rs2.stop_order THEN 'Inbound' ELSE 'Outbound' END AS travel_direction
+      CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END AS travel_direction
     FROM route_stops rs1
     JOIN route_stops rs2
       ON rs2.route_id = rs1.route_id
@@ -71,6 +71,7 @@ export async function GET(
     LEFT JOIN facilities f1 ON f1.facility_id = r.origin
     LEFT JOIN facilities f2 ON f2.facility_id = r.destination
     WHERE rs1.stop_id = ${id}
+      AND rs1.route_id NOT IN (SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE)
   `;
 
   const routesByDest: Record<number, ConnectingRoute[]> = {};
@@ -94,6 +95,7 @@ export async function GET(
     SELECT *
     FROM route_periods
     WHERE route_id = ANY(${routeIds})
+      AND route_id NOT IN (SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE)
     ORDER BY route_id, direction_id, start_time
   `;
 

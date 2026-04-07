@@ -11,14 +11,22 @@ export default function DirectionSection({
   stops,
   periods,
   paymentOptions,
+  totalBaseCost,
+  originName,
+  destinationName,
 }: {
   label: string;
   stops: RouteStop[];
   periods: RoutePeriod[];
   paymentOptions: string | null;
+  totalBaseCost: number | null;
+  originName: string;
+  destinationName: string;
 }) {
+  console.log(`[DirectionSection] label="${label}" — periods received:`, periods.length, "stops received:", stops.length);
   const suffix = directionSuffix(periods);
   const dayGroups = groupByDays(periods);
+  console.log(`[DirectionSection] dayGroups count:`, dayGroups.size, "keys:", [...dayGroups.keys()]);
 
   return (
     <div className="rounded-xl border border-outline-variant bg-primary/[0.04] overflow-hidden mb-4">
@@ -48,7 +56,7 @@ export default function DirectionSection({
         )}
 
         {/* Price table */}
-        <PriceTable stops={stops} paymentOptions={paymentOptions} />
+        <PriceTable stops={stops} paymentOptions={paymentOptions} totalBaseCost={totalBaseCost} originName={originName} destinationName={destinationName} />
       </div>
     </div>
   );

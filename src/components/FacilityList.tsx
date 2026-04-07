@@ -19,7 +19,7 @@ type LegendItem = {
   color: string;
   label: string;
   info: string;
-  icon?: "star" | "line";
+  icon?: "star" | "line" | "dashed-line";
 };
 
 const LEGEND_GROUPS: { active: LegendItem[]; routes: LegendItem[]; other: LegendItem[] } = {
@@ -34,6 +34,7 @@ const LEGEND_GROUPS: { active: LegendItem[]; routes: LegendItem[]; other: Legend
   other: [
     { key: "Charter only", color: CATEGORY_STYLES["Charter only"].color, label: "Charter Only", info: "Lorem ipsum dolor sit amet. Locations offering private charter boat services only." },
     { key: "Omi Eko", color: COLOR_OMI_EKO, label: "Omi Eko Plan", info: "Lorem ipsum dolor sit amet. Facilities participating in the Omi Eko programme.", icon: "star" },
+    { key: "Omi Eko Routes", color: "#000000", label: "Planned Omi Eko Routes", info: "Planned ferry routes under the Omi Eko programme.", icon: "dashed-line" },
   ],
 };
 
@@ -60,6 +61,10 @@ function LegendRow({
               points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
               fill={color} stroke="#000000" strokeWidth="2" strokeLinejoin="round"
             />
+          </svg>
+        ) : icon === "dashed-line" ? (
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden className={`shrink-0 ${visible ? "opacity-100" : "opacity-40"}`}>
+            <line x1="0" y1="7" x2="14" y2="7" stroke={color} strokeWidth="3" strokeLinecap="round" strokeDasharray="4,3" />
           </svg>
         ) : icon === "line" ? (
           <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden className={`shrink-0 ${visible ? "opacity-100" : "opacity-40"}`}>

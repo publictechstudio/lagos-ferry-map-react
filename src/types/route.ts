@@ -22,4 +22,5 @@ export type Route = {
   destination_name: string | null;
   origin_name_short: string | null;
   destination_name_short: string | null;
+  omi_eko: boolean | null;
 };

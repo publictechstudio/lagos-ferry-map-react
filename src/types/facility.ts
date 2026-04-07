@@ -14,7 +14,7 @@ export type Facility = {
   charter_services: string | null;
   status: string | null;
   quality: string | null;
-  image_url: string | null;
+  gcs_url: string | null;
   life_jackets: string | null;
   ownership: string | null;
   contact_name: string | null;
