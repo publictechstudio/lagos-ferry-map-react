@@ -101,7 +101,7 @@ export default function RoutePanel({ route, onClose }: Props) {
       <div className="overflow-y-auto flex-1 px-4 py-3">
         {/* Route label */}
         <h1 className="px-2 pb-4 text-[22px] font-bold leading-7 text-on-surface shrink-0">
-          {route.origin_name_short ?? "Origin"} to {route.destination_name_short ?? "Destination"} ⇄ {route.destination_name_short ?? "Destination"} to {route.origin_name_short ?? "Origin"}
+          {route.origin_name_short ?? "Origin"} ⇄ {route.destination_name_short ?? "Destination"}
         </h1>
 
         {/* ── Route header card ──────────────────────────────────────── */}

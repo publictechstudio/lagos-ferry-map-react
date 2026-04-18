@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import HeroSection from "@/components/HeroSection";
 
 export const metadata: Metadata = {
@@ -65,9 +66,11 @@ export default function HomePage() {
             <h2 className="text-[28px] font-normal leading-9 text-on-surface mb-4">
               Who&apos;s beind the map?
             </h2>
-            <p className="text-base leading-6 text-on-surface-variant mb-5">
+            <Image src="/logos/black-logo-transparent.png" alt="Public Tech Studio" height={30} width={110} className="mb-3 object-contain object-left" />
+            <p className="text-base leading-6 text-on-surface-variant mb-3">
               <a className="link" href="https://www.publictech.studio/">Public Tech Studio</a> launched this project in 2025 to educate Lagos commuters about the availability and advantages of ferry transportation, aiming to reduce road congestion and promote more robust multi-modal public transit.</p>
-            <p className="text-base leading-6 text-on-surface-variant mb-5">
+            <Image src="/logos/LASWA_logo.png" alt="Lagos State Waterways Authority" height={25} width={90} className="mb-3 object-contain object-left" />
+            <p className="text-base leading-6 text-on-surface-variant mb-3">
               Through a new partnership, the <a className="link" href="https://lagoswaterways.com/">Lagos State Waterways Authority </a> is also contributing data on ferry operations at the facilities under their oversight.
             </p>
           </div>
