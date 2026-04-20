@@ -162,6 +162,7 @@ export default function PartnershipsPage() {
                   alt={`${partner.name} logo`}
                   width={partner.width}
                   height={partner.height}
+                  sizes="(max-width: 640px) 50vw, 200px"
                   className="object-contain"
                 />
                 {"showName" in partner && partner.showName && (

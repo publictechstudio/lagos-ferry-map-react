@@ -67,6 +67,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://tile.jawg.io" />
+        <link rel="dns-prefetch" href="https://tile.jawg.io" />
+      </head>
       <body
         className={`${lato.className} min-h-screen flex flex-col antialiased`}
         suppressHydrationWarning

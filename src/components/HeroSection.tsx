@@ -1,3 +1,4 @@
+import Image from "next/image";
 import CtaCard from "./CtaCard";
 
 // Material Icons — inline SVGs matching the screenshot exactly
@@ -56,18 +57,28 @@ export default function HeroSection() {
       <div className="relative flex flex-col md:flex-row h-[400px]">
 
         {/* Top panel (mobile) / Left panel (desktop) — traffic */}
-        <div
-          className="flex-1 relative bg-cover bg-center"
-          style={{ backgroundImage: "url('/hero-traffic.jpg')" }}
-        >
+        <div className="flex-1 relative">
+          <Image
+            src="/hero-traffic.jpg"
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover object-center"
+          />
           <div className="absolute inset-0 bg-[#012c57]/75" />
         </div>
 
         {/* Bottom panel (mobile) / Right panel (desktop) — ferry */}
-        <div
-          className="flex-1 relative bg-cover bg-center"
-          style={{ backgroundImage: "url('/hero-ferry.jpg')" }}
-        >
+        <div className="flex-1 relative">
+          <Image
+            src="/hero-ferry.jpg"
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover object-center"
+          />
           <div className="absolute inset-0 bg-[#012c57]/75" />
         </div>
 
@@ -75,13 +86,14 @@ export default function HeroSection() {
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 gap-6">
           {/* Outer span animates (translateX); inner img rotates + whitens */}
           <span className="inline-block animate-ferry-sail select-none">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://cdn-icons-png.flaticon.com/128/685/685775.png"
+            <Image
+              src="/ferry-icon.png"
               alt=""
               aria-hidden
               draggable={false}
-              className="w-18 h-18 rotate-[-5deg] brightness-0 invert"
+              width={72}
+              height={72}
+              className="rotate-[-5deg] brightness-0 invert"
             />
           </span>
 
