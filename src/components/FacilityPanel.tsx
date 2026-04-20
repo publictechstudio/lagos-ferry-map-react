@@ -321,41 +321,69 @@ export default function FacilityPanel({ facility, onClose }: Props) {
         </div>
 
         {/* ── Destinations section ─────────────────────────────────── */}
-        <h3 className="text-[15px] font-semibold text-on-surface mb-3 leading-5">
-          From this facility, you can get to the following destinations
-        </h3>
+        {(() => {
+          const isCharterOnly = facility.category?.includes("Charter only") ?? false;
+          const isFutureOmiEko = (facility.category?.includes("Future Omi Eko") ?? false) || (isCharterOnly && (facility.omi_eko === "Yes" || facility.omi_eko === true));
+          const isOmiEko = !isCharterOnly && (facility.omi_eko === "Yes" || facility.omi_eko === true);
 
-        {loading ? (
-          <LoadingSpinner message="Loading destinations…" />
-        ) : groups.length === 0 ? (
-          <p className="text-sm text-on-surface-variant py-2">
-            No destinations recorded for this facility.
-          </p>
-        ) : (
-          <div className="flex flex-col gap-5">
-            {groups.map(([lga, items]) => (
-              <div key={lga}>
-                {/* LGA section header */}
-                <p className="text-[13px] text-on-surface-variant mb-2">
-                  {lga} LGA
+          if (isCharterOnly || isFutureOmiEko) {
+            return (
+              <>
+                {isCharterOnly && (
+                  <p className="text-sm text-on-surface-variant py-2">
+                    This is a charter-only facility. At this location, you can hire a private boat to take you anywhere, including popular destinations like the beach.
+                  </p>
+                )}
+                {isFutureOmiEko && (
+                  <p className="text-sm text-on-surface-variant py-2">
+                    This location has been prioritized for the Lagos State government OMI EKO ferry network upgrading plan. Currently, there are no ferry services here, but they are planned to be operating here in the future.
+                  </p>
+                )}
+              </>
+            );
+          }
+
+          return (
+            <>
+              {isOmiEko && (
+                <p className="text-sm text-on-surface-variant mb-4 pb-4 border-b border-outline-variant">
+                  This location has been prioritized for the Lagos State government OMI EKO ferry network upgrading plan, so the facility is likely to get additional investment and upgrades.
                 </p>
-
-                {/* Destination cards */}
-                <div className="flex flex-col gap-2">
-                  {items.map((dest) => (
-                    <DestinationCard
-                      key={dest.facility_id}
-                      dest={dest}
-                      facility={facility}
-                      routesByDest={routesByDest}
-                      periodsByRoute={periodsByRoute}
-                    />
+              )}
+              <h3 className="text-[15px] font-semibold text-on-surface mb-3 leading-5">
+                From this facility, you can get to the following destinations
+              </h3>
+              {loading ? (
+                <LoadingSpinner message="Loading destinations…" />
+              ) : groups.length === 0 ? (
+                <p className="text-sm text-on-surface-variant py-2">
+                  No destinations recorded for this facility.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-5">
+                  {groups.map(([lga, items]) => (
+                    <div key={lga}>
+                      <p className="text-[13px] text-on-surface-variant mb-2">
+                        {lga} LGA
+                      </p>
+                      <div className="flex flex-col gap-2">
+                        {items.map((dest) => (
+                          <DestinationCard
+                            key={dest.facility_id}
+                            dest={dest}
+                            facility={facility}
+                            routesByDest={routesByDest}
+                            periodsByRoute={periodsByRoute}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              )}
+            </>
+          );
+        })()}
       </div>
     </PanelShell>
   );

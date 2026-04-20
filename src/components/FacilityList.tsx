@@ -24,17 +24,17 @@ type LegendItem = {
 
 const LEGEND_GROUPS: { active: LegendItem[]; routes: LegendItem[]; other: LegendItem[] } = {
   active: [
-    { key: "Ferry facility: Developed", color: CATEGORY_STYLES["Ferry facility: Developed"].color, label: "Developed", info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Facilities with permanent structures and regular service." },
-    { key: "Ferry facility: Less developed", color: CATEGORY_STYLES["Ferry facility: Less developed"].color, label: "Less Developed", info: "Lorem ipsum dolor sit amet. Facilities with basic infrastructure and limited amenities." },
+    { key: "Ferry facility: Developed", color: CATEGORY_STYLES["Ferry facility: Developed"].color, label: "Developed", info: "Active ferry facilities with permanent infrastructure, such as terminals, jetties, or seawalls." },
+    { key: "Ferry facility: Less developed", color: CATEGORY_STYLES["Ferry facility: Less developed"].color, label: "Less Developed", info: "Active ferry landing points with basic or informal infrastructure, such as landings where boats simply pull up on sandbanks." },
   ],
   routes: [
-    { key: "LagFerry", color: ROUTE_OPERATOR_STYLES["LagFerry"].color, label: "LagFerry", info: "Lorem ipsum dolor sit amet. Routes operated by the Lagos state government ferry service.", icon: "line" },
-    { key: "Commercial Operator", color: ROUTE_OPERATOR_STYLES["Commercial Operator"].color, label: "Commercial Operator", info: "Lorem ipsum dolor sit amet. Routes operated by commercial operators.", icon: "line" },
+    { key: "LagFerry", color: ROUTE_OPERATOR_STYLES["LagFerry"].color, label: "LagFerry", info: "Routes operated by LagFerry, the Lagos State Government's public ferry service. Their boats are generally larger and higher quality.", icon: "line" },
+    { key: "Commercial Operator", color: ROUTE_OPERATOR_STYLES["Commercial Operator"].color, label: "Commercial Operator", info: "Routes operated by licensed (under LASWA or NIWA) or unlicensed private boat operators.", icon: "line" },
   ],
   other: [
-    { key: "Charter only", color: CATEGORY_STYLES["Charter only"].color, label: "Charter Only", info: "Lorem ipsum dolor sit amet. Locations offering private charter boat services only." },
-    { key: "Omi Eko", color: COLOR_OMI_EKO, label: "Omi Eko Plan", info: "Lorem ipsum dolor sit amet. Facilities participating in the Omi Eko programme.", icon: "star" },
-    { key: "Omi Eko Routes", color: "#000000", label: "Planned Omi Eko Routes", info: "Planned ferry routes under the Omi Eko programme.", icon: "dashed-line" },
+    { key: "Charter only", color: CATEGORY_STYLES["Charter only"].color, label: "Charter Only", info: "Locations where you can hire a private boat to any destination. These sites do not offer public ferry services." },
+    { key: "Omi Eko", color: COLOR_OMI_EKO, label: "Omi Eko Plan", info: "Sites earmarked under the Lagos State Government's OMI EKI ferry expansion program for new or upgraded infrastructure.", icon: "star" },
+    { key: "Omi Eko Routes", color: "#000000", label: "Planned Omi Eko Routes", info: "Ferry routes proposed under the Lagos State Government's OMI EKI ferry expansion program", icon: "dashed-line" },
   ],
 };
 
@@ -104,6 +104,7 @@ export default function FacilityList({
   const groups = groupByLGA(facilities, "Unknown LGA");
   const [open, setOpen] = useState<Set<string>>(() => new Set());
   const [collapsed, setCollapsed] = useState(false);
+  const [lgaOpen, setLgaOpen] = useState(false);
 
   useEffect(() => {
     onCollapsedChange?.(collapsed);
@@ -290,12 +291,18 @@ export default function FacilityList({
           </div>
         </div>
 
-        <div className="px-4 pt-3">
-          <p className="text-xs text-on-surface-variant">
-            Explore by LGA
-          </p>
-        </div>
-        {groups.map(([lga, items]) => (
+        <button
+          onClick={() => setLgaOpen((v) => !v)}
+          className="w-full flex items-center justify-between px-4 pt-3 pb-2 text-left hover:bg-on-surface/[0.04] transition-colors"
+          aria-expanded={lgaOpen}
+        >
+          <p className="text-xs text-on-surface-variant">Explore by LGA</p>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
+            className={`text-on-surface-variant transition-transform duration-200 ${lgaOpen ? "rotate-180" : ""}`}>
+            <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
+          </svg>
+        </button>
+        {lgaOpen && groups.map(([lga, items]) => (
           <div key={lga}>
             {/* LGA accordion header */}
             <button

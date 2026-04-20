@@ -42,7 +42,7 @@ export default function MapWrapper({
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(initialSelectedRoute);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [locating, setLocating] = useState(false);
-  const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set(["Omi Eko Routes"]));
+  const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set(["Charter only", "Omi Eko", "Omi Eko Routes"]));
   const [mobileCollapsed, setMobileCollapsed] = useState(false);
   const mapRef = useRef<LMap | null>(null);
 

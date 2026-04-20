@@ -222,7 +222,7 @@ export default function LeafletMap({
           bubblingMouseEvents: false,
           pane: "omiEkoPane",
         });
-        star.addTo(map);
+        if (!hiddenLayers.has("Omi Eko")) star.addTo(map);
         star.bindTooltip(name, { direction: "top", offset: [0, -15] });
         star.on("click", () => onSelect(facility));
 
@@ -249,7 +249,7 @@ export default function LeafletMap({
           fillOpacity: MARKER_FILL_OPACITY,
           interactive: false,
         });
-        marker.addTo(map);
+        if (!hiddenLayers.has(cat)) marker.addTo(map);
 
         // Hit area — large transparent circle for easy clicking/tapping on mobile.
         const hitArea = L.circleMarker([facility.facility_lat, facility.facility_lon], {
@@ -260,7 +260,7 @@ export default function LeafletMap({
           interactive: true,
           bubblingMouseEvents: false,
         });
-        hitArea.addTo(map);
+        if (!hiddenLayers.has(cat)) hitArea.addTo(map);
         hitArea.bindTooltip(name, { permanent: false, direction: "top", offset: [0, -8] });
         hitArea.on("click", () => onSelect(facility));
 

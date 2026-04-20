@@ -116,11 +116,6 @@ export default function RoutePanel({ route, onClose }: Props) {
             </div>
           )}
 
-          {/* Placeholder description */}
-          <p className="text-[12px] text-on-surface-variant leading-relaxed mb-3">
-            This route connects ferry terminals along the Lagos waterways. Check the schedule below for departure times and frequency.
-          </p>
-
           {/* Total duration + Boat types */}
           <div className="grid grid-cols-2 gap-3 border-t border-outline-variant pt-3">
             {route.total_base_duration != null && (
@@ -195,16 +190,6 @@ export default function RoutePanel({ route, onClose }: Props) {
                 </li>
               )}
             </ul>
-          </div>
-        )}
-
-        {/* ── Additional notes ───────────────────────────────────────── */}
-        {route.additional_notes && (
-          <div className="mb-4">
-            <h3 className="text-[13px] font-semibold text-on-surface mb-1">Additional notes</h3>
-            <p className="text-[12px] text-on-surface-variant leading-relaxed whitespace-pre-line">
-              {route.additional_notes}
-            </p>
           </div>
         )}
 
