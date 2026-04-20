@@ -38,3 +38,16 @@ export async function getFacilities(): Promise<Facility[]> {
   `;
   return rows as Facility[];
 }
+
+export async function getAllFacilityDestinations(): Promise<{ facility_id: number; destination_name: string }[]> {
+  const rows = await sql`
+    SELECT fd.facility_id, f.facility_name AS destination_name
+    FROM facility_destinations fd
+    JOIN facilities f ON f.facility_id = fd.destination_id
+    WHERE f.status IS NOT NULL
+      AND f.status != 'not_in_use'
+      AND fd.is_charter IS FALSE
+    ORDER BY fd.facility_id, f.facility_name
+  `;
+  return rows as { facility_id: number; destination_name: string }[];
+}

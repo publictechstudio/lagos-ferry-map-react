@@ -3,15 +3,30 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Navigation Partnerships",
+  title: "Lagos Ferry Navigation Partnerships | Google Maps, OrnaMap & More",
   description:
-    "Lagos ferry data integrated into Google Maps, OrnaMap, Lara, and OpenStreetMap so you can get step-by-step, multi-modal directions including water transport.",
+    "Get step-by-step ferry directions in Lagos via Google Maps, OrnaMap, Lara, and OpenStreetMap. Lagos Ferry Map data is integrated into popular navigation apps so you can plan multi-modal journeys including water transport.",
   openGraph: {
-    title: "Navigation Partnerships",
+    title: "Lagos Ferry Navigation Partnerships | Google Maps, OrnaMap & More",
     description:
-      "Lagos ferry data integrated into popular navigation apps and mapping platforms.",
+      "Lagos ferry routes are integrated into Google Maps, OrnaMap, Lara, and OpenStreetMap. Get step-by-step directions including ferry connections across Lagos Lagoon.",
   },
   alternates: { canonical: "/partnerships" },
+};
+
+const partnershipsJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Lagos Ferry Navigation Partnerships",
+  description:
+    "Lagos ferry data integrated into Google Maps, OrnaMap, Lara, and OpenStreetMap for multi-modal step-by-step directions.",
+  url: "https://lagosferries.com/partnerships",
+  about: [
+    { "@type": "Organization", name: "Google Maps", url: "https://maps.google.com" },
+    { "@type": "Organization", name: "OrnaMap", url: "https://ornamap.com" },
+    { "@type": "Organization", name: "Lara", url: "https://lara.ng" },
+    { "@type": "Organization", name: "OpenStreetMap", url: "https://www.openstreetmap.org" },
+  ],
 };
 
 const partners = [
@@ -104,6 +119,11 @@ const partners = [
 
 export default function PartnershipsPage() {
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(partnershipsJsonLd) }}
+      />
     <section className="max-w-4xl mx-auto px-4 py-16">
       <h1 className="text-[32px] font-normal leading-10 text-on-surface mb-6">
         Navigation Partnerships
@@ -159,5 +179,6 @@ export default function PartnershipsPage() {
         </div>
       </div>
     </section>
+    </>
   );
 }

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Lato } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FeedbackPopup from "@/components/FeedbackPopup";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const lato = Lato({
   subsets: ["latin"],
@@ -69,6 +71,9 @@ export default function RootLayout({
         className={`${lato.className} min-h-screen flex flex-col antialiased`}
         suppressHydrationWarning
       >
+        <Suspense>
+          <GoogleAnalytics />
+        </Suspense>
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

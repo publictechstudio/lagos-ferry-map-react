@@ -5,6 +5,7 @@ import type { Facility } from "@/types/facility";
 import { CATEGORY_STYLES, COLOR_OMI_EKO, ROUTE_OPERATOR_STYLES } from "./LeafletMap";
 import { groupByLGA } from "@/lib/groupByLGA";
 import { haversineKm } from "@/lib/haversine";
+import { event as gaEvent } from "@/lib/gtag";
 
 interface FacilityListProps {
   facilities: Facility[];
@@ -49,11 +50,15 @@ function LegendRow({
         <input
           type="checkbox"
           checked={visible}
-          onChange={() => setHiddenLayers((prev) => {
-            const next = new Set(prev);
-            if (next.has(layerKey)) next.delete(layerKey); else next.add(layerKey);
-            return next;
-          })}
+          onChange={() => {
+            const nowVisible = hiddenLayers.has(layerKey);
+            gaEvent("layer_toggle", { layer: layerKey, visible: nowVisible });
+            setHiddenLayers((prev) => {
+              const next = new Set(prev);
+              if (next.has(layerKey)) next.delete(layerKey); else next.add(layerKey);
+              return next;
+            });
+          }}
           className="h-3.5 w-3.5 shrink-0 rounded accent-on-surface-variant"
         />
         {icon === "star" ? (
@@ -144,6 +149,7 @@ export default function FacilityList({
 
   // Stage 2: resolve place_id → coordinates, then compute nearest facilities
   async function handleAddressConfirm(suggestion: PlaceSuggestion) {
+    gaEvent("search", { search_term: suggestion.description, search_type: "address" });
     // Immediately lock the input so stage-1 effect doesn't re-fire
     setSelectedGeoPoint({ lat: 0, lon: 0, display_name: suggestion.description });
     setAddressQuery(suggestion.description);
@@ -174,6 +180,7 @@ export default function FacilityList({
   }
 
   function handleNearbyFacilitySelect(facility: Facility) {
+    gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, source: "proximity_search" });
     onSelect(facility);
     handleAddressClear();
   }
@@ -204,12 +211,14 @@ export default function FacilityList({
   })();
 
   function handleSuggestionSelect(facility: Facility) {
+    gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, source: "name_search" });
     onSelect(facility);
     setQuery("");
     setShowSuggestions(false);
   }
 
   function toggle(lga: string) {
+    gaEvent("lga_expand", { lga, expanded: !open.has(lga) });
     setOpen((prev) => {
       const next = new Set(prev);
       if (next.has(lga)) next.delete(lga);
@@ -471,7 +480,7 @@ export default function FacilityList({
         </div>
 
         <button
-          onClick={() => setLgaOpen((v) => !v)}
+          onClick={() => { gaEvent("lga_section_toggle", { expanded: !lgaOpen }); setLgaOpen((v) => !v); }}
           className="w-full flex items-center justify-between mt-1 px-4 pt-3 pb-2 text-left hover:bg-on-surface/[0.04] transition-colors"
           aria-expanded={lgaOpen}
         >

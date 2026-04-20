@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { event as gaEvent } from "@/lib/gtag";
 
 const navLinks = [
   { label: "About", href: "/about" },
@@ -31,6 +32,7 @@ export default function Navbar() {
             <li key={link.href}>
               <Link
                 href={link.href}
+                onClick={() => gaEvent("nav_click", { label: link.label, href: link.href, location: "desktop" })}
                 className="block px-4 py-2 rounded-full text-sm font-bold tracking-[0.1px] text-white hover:text-primary hover:bg-primary/8 transition-colors"
               >
                 {link.label}
@@ -60,7 +62,7 @@ export default function Navbar() {
               <Link
                 href={link.href}
                 className="block px-4 py-3 rounded-full text-sm font-bold tracking-[0.1px] text-on-surface-variant hover:bg-on-surface/8 hover:text-primary transition-colors"
-                onClick={() => setMenuOpen(false)}
+                onClick={() => { gaEvent("nav_click", { label: link.label, href: link.href, location: "mobile" }); setMenuOpen(false); }}
               >
                 {link.label}
               </Link>

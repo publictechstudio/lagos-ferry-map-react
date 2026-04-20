@@ -12,6 +12,7 @@ import RoutePanel from "./RoutePanel";
 import { toFacilitySlug } from "@/lib/facilitySlug";
 import { toRouteSlug } from "@/lib/routeSlug";
 import { parseWKTLineString, latLonBounds } from "@/lib/parseWKT";
+import { event as gaEvent } from "@/lib/gtag";
 
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
   ssr: false,
@@ -56,6 +57,7 @@ export default function MapWrapper({
   }, [selected, selectedRoute, mobileCollapsed]);
 
   function handleSelect(facility: Facility) {
+    gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, lga: facility.lga });
     setSelected(facility);
     setSelectedRoute(null);
     window.history.replaceState(null, "", `/map/${toFacilitySlug(facility)}`);
@@ -77,6 +79,7 @@ export default function MapWrapper({
   }
 
   function handleSelectRoute(route: Route) {
+    gaEvent("select_content", { content_type: "route", item_id: route.route_id, route_name: `${route.origin_name} → ${route.destination_name}` });
     setSelectedRoute(route);
     setSelected(null);
     window.history.replaceState(null, "", `/map/route/${toRouteSlug(route)}`);
@@ -89,6 +92,7 @@ export default function MapWrapper({
 
   function handleLocate() {
     if (!navigator.geolocation) return;
+    gaEvent("locate_me");
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
