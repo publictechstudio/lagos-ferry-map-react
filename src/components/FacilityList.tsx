@@ -76,7 +76,7 @@ function LegendRow({
             <circle cx="7" cy="7" r="5.5" fill={color} fillOpacity={0.8} stroke="white" strokeWidth="1.5" />
           </svg>
         )}
-        <span className={`text-xs truncate ${visible ? "text-on-surface-variant" : "text-on-surface-variant/50"}`}>
+        <span className={`text-xs truncate ${visible ? "text-on-surface" : "text-on-surface/40"}`}>
           {label}
         </span>
       </label>
@@ -244,13 +244,14 @@ export default function FacilityList({
         <>
       {/* Panel header */}
       <div className="px-4 py-3 border-b border-outline-variant shrink-0">
-        <p className="text-xs text-on-surface-variant mt-0.5 flex items-center gap-1.5">
+        <p className="text-sm font-semibold text-on-surface mb-1">Explore the Map</p>
+        <p className="text-[13px] text-on-surface-variant mt-0.5 flex items-center gap-1.5">
           Get started by clicking the map!
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden className="shrink-0">
             <path d="M9 11.24V7.5C9 6.12 10.12 5 11.5 5S14 6.12 14 7.5v3.74c1.21-.81 2-2.18 2-3.74C16 5.01 13.99 3 11.5 3S7 5.01 7 7.5c0 1.56.79 2.93 2 3.74zm9.84 4.63-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74l-3.43-.72c-.08-.01-.15-.03-.24-.03-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.21.21.5.44.8.44h6.79c.5 0 .93-.36.99-.86l.73-5.27c.07-.42-.18-.86-.6-1z" />
           </svg>
         </p>
-        <p className="text-xs text-on-surface-variant mt-3">
+        <p className="text-[13px] text-on-surface-variant mt-3">
           Or search an address to find the closest facilities
         </p>
         {/* Address proximity search */}
@@ -318,7 +319,7 @@ export default function FacilityList({
           {selectedGeoPoint && nearbyFacilities !== null && (
             <ul className="absolute left-0 right-0 bottom-full mb-1 md:bottom-auto md:mb-0 md:top-full md:mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
               <li className="px-3 py-1.5 border-b border-outline-variant bg-surface-variant/50">
-                <span className="text-[10px] font-medium uppercase tracking-wide text-on-surface-variant">
+                <span className="text-[11px] font-medium uppercase tracking-wide text-on-surface-variant">
                   Closest ferry facilities
                 </span>
               </li>
@@ -356,7 +357,7 @@ export default function FacilityList({
             </ul>
           )}
         </div>
-        <p className="text-xs text-on-surface-variant mt-3">
+        <p className="text-[13px] text-on-surface-variant mt-3">
           Or search a specific facility name to get its destinations and schedules
         </p>
         {/* Facility search */}
@@ -392,7 +393,7 @@ export default function FacilityList({
                 <>
                   {i === lgaStartIndex && (
                     <li key="lga-divider" className="px-3 py-1 border-t border-outline-variant bg-surface-variant/50">
-                      <span className="text-[10px] font-medium uppercase tracking-wide text-on-surface-variant">
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-on-surface-variant">
                         Facilities in matching LGA
                       </span>
                     </li>
@@ -429,9 +430,9 @@ export default function FacilityList({
       <div className="overflow-y-auto flex-1">
         {/* ── Map layers legend ── */}
         <div className="px-4 pt-3 pb-2 border-b border-outline-variant">
-          <p className="text-[13px] font-medium text-on-surface mb-2">Map Layers</p>
+          <p className="text-sm font-semibold text-on-surface mb-2">Map Layers</p>
 
-          <p className="text-[11px] font-semibold text-on-surface-variant/70 uppercase tracking-wide mb-1">
+          <p className="text-[11px] font-medium text-on-surface-variant/60 uppercase tracking-wide mb-1">
             Active Ferry Facilities
           </p>
           <div className="flex flex-col gap-1.5 mb-2.5">
@@ -440,7 +441,7 @@ export default function FacilityList({
             ))}
           </div>
 
-          <p className="text-[11px] font-semibold text-on-surface-variant/70 uppercase tracking-wide mb-1">
+          <p className="text-[11px] font-medium text-on-surface-variant/60 uppercase tracking-wide mb-1">
             Active Ferry Routes
           </p>
           <div className="flex flex-col gap-1.5 mb-2.5">
@@ -449,7 +450,7 @@ export default function FacilityList({
             ))}
           </div>
 
-          <p className="text-[11px] font-semibold text-on-surface-variant/70 uppercase tracking-wide mb-1">
+          <p className="text-[11px] font-medium text-on-surface-variant/60 uppercase tracking-wide mb-1">
             Other
           </p>
           <div className="flex flex-col gap-1.5">
@@ -464,7 +465,7 @@ export default function FacilityList({
           className="w-full flex items-center justify-between mt-1 px-4 pt-3 pb-2 text-left hover:bg-on-surface/[0.04] transition-colors"
           aria-expanded={lgaOpen}
         >
-          <p className="text-xs text-on-surface-variant">Explore by LGA</p>
+          <p className="text-sm font-medium text-on-surface">Explore by LGA</p>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
             className={`text-on-surface-variant transition-transform duration-200 ${lgaOpen ? "rotate-180" : ""}`}>
             <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
