@@ -323,8 +323,8 @@ export default function FacilityPanel({ facility, onClose }: Props) {
         {/* ── Destinations section ─────────────────────────────────── */}
         {(() => {
           const isCharterOnly = facility.category?.includes("Charter only") ?? false;
-          const isFutureOmiEko = (facility.category?.includes("Future Omi Eko") ?? false) || (isCharterOnly && (facility.omi_eko === "Yes" || facility.omi_eko === true));
-          const isOmiEko = !isCharterOnly && (facility.omi_eko === "Yes" || facility.omi_eko === true);
+          const isFutureOmiEko = (facility.category?.includes("Future Omi Eko") ?? false) || (isCharterOnly && facility.omi_eko === "Yes");
+          const isOmiEko = !isCharterOnly && facility.omi_eko === "Yes";
 
           if (isCharterOnly || isFutureOmiEko) {
             return (

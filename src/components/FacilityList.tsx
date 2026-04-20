@@ -4,6 +4,7 @@ import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 
 import type { Facility } from "@/types/facility";
 import { CATEGORY_STYLES, COLOR_OMI_EKO, ROUTE_OPERATOR_STYLES } from "./LeafletMap";
 import { groupByLGA } from "@/lib/groupByLGA";
+import { haversineKm } from "@/lib/haversine";
 
 interface FacilityListProps {
   facilities: Facility[];
@@ -110,7 +111,63 @@ export default function FacilityList({
     onCollapsedChange?.(collapsed);
   }, [collapsed, onCollapsedChange]);
 
-  // Search state
+  // Address proximity search — two-stage: address autocomplete → facility results
+  type GeoResult = { lat: number; lon: number; display_name: string };
+  const [addressQuery, setAddressQuery] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState<GeoResult[]>([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [addressSearching, setAddressSearching] = useState(false);
+  const [selectedGeoPoint, setSelectedGeoPoint] = useState<GeoResult | null>(null);
+  const [nearbyFacilities, setNearbyFacilities] = useState<{ facility: Facility; distanceKm: number }[] | null>(null);
+  const addressRef = useRef<HTMLDivElement>(null);
+
+  // Stage 1: fetch address suggestions while user is typing
+  useEffect(() => {
+    if (selectedGeoPoint) return; // already confirmed; don't re-fetch
+    const q = addressQuery.trim();
+    if (q.length < 3) { setAddressSuggestions([]); setShowAddressSuggestions(false); return; }
+
+    setAddressSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+        const results = await res.json() as GeoResult[];
+        setAddressSuggestions(results);
+        setShowAddressSuggestions(results.length > 0);
+      } finally {
+        setAddressSearching(false);
+      }
+    }, 400);
+    return () => { clearTimeout(timer); setAddressSearching(false); };
+  }, [addressQuery, selectedGeoPoint]);
+
+  // Stage 2: compute nearest facilities once an address is confirmed
+  function handleAddressConfirm(point: GeoResult) {
+    setSelectedGeoPoint(point);
+    setAddressQuery(point.display_name);
+    setShowAddressSuggestions(false);
+    setAddressSuggestions([]);
+    const ranked = facilities
+      .map((f) => ({ facility: f, distanceKm: haversineKm(point.lat, point.lon, f.facility_lat, f.facility_lon) }))
+      .sort((a, b) => a.distanceKm - b.distanceKm)
+      .slice(0, 5);
+    setNearbyFacilities(ranked);
+  }
+
+  function handleAddressClear() {
+    setAddressQuery("");
+    setSelectedGeoPoint(null);
+    setNearbyFacilities(null);
+    setAddressSuggestions([]);
+    setShowAddressSuggestions(false);
+  }
+
+  function handleNearbyFacilitySelect(facility: Facility) {
+    onSelect(facility);
+    handleAddressClear();
+  }
+
+  // Facility name search state
   const [query, setQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -187,12 +244,123 @@ export default function FacilityList({
         <>
       {/* Panel header */}
       <div className="px-4 py-3 border-b border-outline-variant shrink-0">
-        <p className="text-xs text-on-surface-variant mt-0.5">
-          Click the map to explore or search for a ferry facility by name
+        <p className="text-xs text-on-surface-variant mt-0.5 flex items-center gap-1.5">
+          Get started by clicking the map!
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden className="shrink-0">
+            <path d="M9 11.24V7.5C9 6.12 10.12 5 11.5 5S14 6.12 14 7.5v3.74c1.21-.81 2-2.18 2-3.74C16 5.01 13.99 3 11.5 3S7 5.01 7 7.5c0 1.56.79 2.93 2 3.74zm9.84 4.63-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74l-3.43-.72c-.08-.01-.15-.03-.24-.03-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.21.21.5.44.8.44h6.79c.5 0 .93-.36.99-.86l.73-5.27c.07-.42-.18-.86-.6-1z" />
+          </svg>
         </p>
+        <p className="text-xs text-on-surface-variant mt-3">
+          Or search an address to find the closest facilities
+        </p>
+        {/* Address proximity search */}
+        <div ref={addressRef} className="relative mt-0.5">
+          <div className="relative">
+            <svg
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
+              width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden
+            >
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+            </svg>
+            <input
+              type={selectedGeoPoint ? "text" : "search"}
+              readOnly={!!selectedGeoPoint}
+              value={addressQuery}
+              onChange={(e) => {
+                if (selectedGeoPoint) return;
+                setAddressQuery(e.target.value);
+              }}
+              onFocus={() => { if (!selectedGeoPoint && addressSuggestions.length > 0) setShowAddressSuggestions(true); }}
+              onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 150)}
+              onKeyDown={(e) => { if (e.key === "Escape") handleAddressClear(); }}
+              placeholder="e.g. 1 Afolabi Ekiyoyo Ave, Ikorodu"
+              className={[
+                "w-full pl-8 py-1.5 text-[13px] bg-surface-variant rounded-lg border border-outline-variant focus:outline-none focus:border-primary text-on-surface placeholder:text-on-surface-variant/60",
+                selectedGeoPoint ? "pr-8 cursor-default" : "pr-3",
+              ].join(" ")}
+            />
+            {addressSearching && (
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            )}
+            {selectedGeoPoint && !addressSearching && (
+              <button
+                onMouseDown={handleAddressClear}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors"
+                aria-label="Clear address search"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                  <path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                </svg>
+              </button>
+            )}
+          </div>
 
+          {/* Stage 1: address autocomplete suggestions */}
+          {showAddressSuggestions && !selectedGeoPoint && (
+            <ul className="absolute left-0 right-0 bottom-full mb-1 md:bottom-auto md:mb-0 md:top-full md:mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
+              {addressSuggestions.map((result, i) => (
+                <li key={i}>
+                  <button
+                    onMouseDown={() => handleAddressConfirm(result)}
+                    className="w-full text-left px-3 py-2 flex items-start gap-2 hover:bg-on-surface/[0.06] transition-colors"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface-variant shrink-0 mt-0.5" aria-hidden>
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                    </svg>
+                    <span className="text-[13px] text-on-surface leading-snug">{result.display_name}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Stage 2: nearest ferry facilities after address confirmed */}
+          {selectedGeoPoint && nearbyFacilities !== null && (
+            <ul className="absolute left-0 right-0 bottom-full mb-1 md:bottom-auto md:mb-0 md:top-full md:mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
+              <li className="px-3 py-1.5 border-b border-outline-variant bg-surface-variant/50">
+                <span className="text-[10px] font-medium uppercase tracking-wide text-on-surface-variant">
+                  Closest ferry facilities
+                </span>
+              </li>
+              {nearbyFacilities.map(({ facility, distanceKm }) => {
+                const isCharterOnly = facility.category?.includes("Charter only") ?? false;
+                const isFutureOmiEko = (facility.category?.includes("Future Omi Eko") ?? false) || (isCharterOnly && facility.omi_eko === "Yes");
+                const statusLabel = isFutureOmiEko ? "Future Omi Eko" : isCharterOnly ? "Charter Only" : "Active";
+                const statusColor = isFutureOmiEko ? "text-[#1A6B3C]" : isCharterOnly ? "text-[#7B3F00]" : "text-primary";
+                return (
+                  <li key={facility.facility_id}>
+                    <button
+                      onMouseDown={() => handleNearbyFacilitySelect(facility)}
+                      className="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-on-surface/[0.06] transition-colors"
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{
+                          backgroundColor: facility.quality?.toLowerCase().startsWith("less") ? "#8B2000" : "#1A1A1A",
+                        }}
+                      />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-[13px] text-on-surface truncate">
+                          {facility.facility_name ?? "Unnamed"}
+                        </span>
+                        <span className={`text-[11px] font-medium ${statusColor}`}>{statusLabel}</span>
+                      </span>
+                      <span className="text-[11px] text-on-surface-variant shrink-0 text-right">
+                        <span className="block">{facility.lga}</span>
+                        <span className="block">~{distanceKm} km</span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+        <p className="text-xs text-on-surface-variant mt-3">
+          Or search a specific facility name to get its destinations and schedules
+        </p>
         {/* Facility search */}
-        <div ref={searchRef} className="relative mt-3">
+        <div ref={searchRef} className="relative mt-0.5">
           <div className="relative">
             <svg
               className="absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
@@ -293,7 +461,7 @@ export default function FacilityList({
 
         <button
           onClick={() => setLgaOpen((v) => !v)}
-          className="w-full flex items-center justify-between px-4 pt-3 pb-2 text-left hover:bg-on-surface/[0.04] transition-colors"
+          className="w-full flex items-center justify-between mt-1 px-4 pt-3 pb-2 text-left hover:bg-on-surface/[0.04] transition-colors"
           aria-expanded={lgaOpen}
         >
           <p className="text-xs text-on-surface-variant">Explore by LGA</p>
