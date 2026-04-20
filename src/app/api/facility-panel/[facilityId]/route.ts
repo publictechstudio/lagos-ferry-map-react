@@ -4,7 +4,7 @@ import type { Destination } from "@/types/destination";
 import type { ConnectingRoute } from "@/types/connectingRoute";
 import type { RoutePeriod } from "@/types/routePeriod";
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export type FacilityPanelData = {
   destinations: Destination[];

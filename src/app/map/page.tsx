@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/map" },
 };
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export default async function MapPage() {
   const [facilities, routes] = await Promise.all([getFacilities(), getRoutes()]);

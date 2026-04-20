@@ -4,7 +4,7 @@ import { getFacilities } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
 import { toFacilitySlug } from "@/lib/facilitySlug";
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export async function generateMetadata({
   params,
