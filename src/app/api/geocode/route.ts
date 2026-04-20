@@ -2,36 +2,31 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "edge";
 
-export type GeoResult = { lat: number; lon: number; display_name: string };
+export type PlaceSuggestion = { place_id: string; description: string };
 
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q")?.trim();
   if (!q) return NextResponse.json([]);
 
-  const url = new URL("https://nominatim.openstreetmap.org/search");
-  url.searchParams.set("q", q);
-  url.searchParams.set("format", "json");
-  url.searchParams.set("countrycodes", "ng");
-  // Lagos bounding box: west, north, east, south
-  url.searchParams.set("viewbox", "3.0,6.8,4.1,6.2");
-  url.searchParams.set("bounded", "1");
-  url.searchParams.set("limit", "5");
+  const key = process.env.GOOGLE_MAPS_API_KEY;
+  if (!key) return NextResponse.json([]);
 
-  const res = await fetch(url.toString(), {
-    headers: {
-      "User-Agent": "LagosFerriesMap/1.0 (publictech.studio)",
-      "Accept-Language": "en",
-    },
-  });
+  const url = new URL("https://maps.googleapis.com/maps/api/place/autocomplete/json");
+  url.searchParams.set("input", q);
+  url.searchParams.set("key", key);
+  url.searchParams.set("components", "country:ng");
+  url.searchParams.set("location", "6.5243793,3.3792057"); // Lagos centre
+  url.searchParams.set("radius", "50000"); // bias within 50 km
+  url.searchParams.set("language", "en");
 
+  const res = await fetch(url.toString());
   if (!res.ok) return NextResponse.json([]);
 
-  const data = await res.json() as { lat: string; lon: string; display_name: string }[];
-  const results: GeoResult[] = data.map((r) => ({
-    lat: parseFloat(r.lat),
-    lon: parseFloat(r.lon),
-    display_name: r.display_name,
+  const data = await res.json() as { predictions?: { place_id: string; description: string }[] };
+  const suggestions: PlaceSuggestion[] = (data.predictions ?? []).map((p) => ({
+    place_id: p.place_id,
+    description: p.description,
   }));
 
-  return NextResponse.json(results);
+  return NextResponse.json(suggestions);
 }

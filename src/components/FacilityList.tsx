@@ -111,17 +111,18 @@ export default function FacilityList({
     onCollapsedChange?.(collapsed);
   }, [collapsed, onCollapsedChange]);
 
-  // Address proximity search — two-stage: address autocomplete → facility results
-  type GeoResult = { lat: number; lon: number; display_name: string };
+  // Address proximity search — two-stage: autocomplete suggestions → place details → facility results
+  type PlaceSuggestion = { place_id: string; description: string };
+  type GeoPoint = { lat: number; lon: number; display_name: string };
   const [addressQuery, setAddressQuery] = useState("");
-  const [addressSuggestions, setAddressSuggestions] = useState<GeoResult[]>([]);
+  const [addressSuggestions, setAddressSuggestions] = useState<PlaceSuggestion[]>([]);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const [addressSearching, setAddressSearching] = useState(false);
-  const [selectedGeoPoint, setSelectedGeoPoint] = useState<GeoResult | null>(null);
+  const [selectedGeoPoint, setSelectedGeoPoint] = useState<GeoPoint | null>(null);
   const [nearbyFacilities, setNearbyFacilities] = useState<{ facility: Facility; distanceKm: number }[] | null>(null);
   const addressRef = useRef<HTMLDivElement>(null);
 
-  // Stage 1: fetch address suggestions while user is typing
+  // Stage 1: fetch autocomplete suggestions while user is typing
   useEffect(() => {
     if (selectedGeoPoint) return; // already confirmed; don't re-fetch
     const q = addressQuery.trim();
@@ -131,7 +132,7 @@ export default function FacilityList({
     const timer = setTimeout(async () => {
       try {
         const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
-        const results = await res.json() as GeoResult[];
+        const results = await res.json() as PlaceSuggestion[];
         setAddressSuggestions(results);
         setShowAddressSuggestions(results.length > 0);
       } finally {
@@ -141,17 +142,27 @@ export default function FacilityList({
     return () => { clearTimeout(timer); setAddressSearching(false); };
   }, [addressQuery, selectedGeoPoint]);
 
-  // Stage 2: compute nearest facilities once an address is confirmed
-  function handleAddressConfirm(point: GeoResult) {
-    setSelectedGeoPoint(point);
-    setAddressQuery(point.display_name);
+  // Stage 2: resolve place_id → coordinates, then compute nearest facilities
+  async function handleAddressConfirm(suggestion: PlaceSuggestion) {
+    // Immediately lock the input so stage-1 effect doesn't re-fire
+    setSelectedGeoPoint({ lat: 0, lon: 0, display_name: suggestion.description });
+    setAddressQuery(suggestion.description);
     setShowAddressSuggestions(false);
     setAddressSuggestions([]);
-    const ranked = facilities
-      .map((f) => ({ facility: f, distanceKm: haversineKm(point.lat, point.lon, f.facility_lat, f.facility_lon) }))
-      .sort((a, b) => a.distanceKm - b.distanceKm)
-      .slice(0, 5);
-    setNearbyFacilities(ranked);
+    setAddressSearching(true);
+    try {
+      const res = await fetch(`/api/place-details?place_id=${encodeURIComponent(suggestion.place_id)}`);
+      const point = await res.json() as GeoPoint | null;
+      if (!point) return;
+      setSelectedGeoPoint(point);
+      const ranked = facilities
+        .map((f) => ({ facility: f, distanceKm: haversineKm(point.lat, point.lon, f.facility_lat, f.facility_lon) }))
+        .sort((a, b) => a.distanceKm - b.distanceKm)
+        .slice(0, 5);
+      setNearbyFacilities(ranked);
+    } finally {
+      setAddressSearching(false);
+    }
   }
 
   function handleAddressClear() {
@@ -274,7 +285,7 @@ export default function FacilityList({
               onFocus={() => { if (!selectedGeoPoint && addressSuggestions.length > 0) setShowAddressSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 150)}
               onKeyDown={(e) => { if (e.key === "Escape") handleAddressClear(); }}
-              placeholder="e.g. 42 Afolabi Ekiyoyo Ave, Ikorodu"
+              placeholder="e.g. 42 Afolabi Ekiyoyo Ave"
               className={[
                 "w-full pl-8 py-1.5 text-[13px] bg-surface-variant rounded-lg border border-outline-variant focus:outline-none focus:border-primary text-on-surface placeholder:text-on-surface-variant/60",
                 selectedGeoPoint ? "pr-8 cursor-default" : "pr-3",
@@ -308,7 +319,7 @@ export default function FacilityList({
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface-variant shrink-0 mt-0.5" aria-hidden>
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                     </svg>
-                    <span className="text-[13px] text-on-surface leading-snug">{result.display_name}</span>
+                    <span className="text-[13px] text-on-surface leading-snug">{result.description}</span>
                   </button>
                 </li>
               ))}
