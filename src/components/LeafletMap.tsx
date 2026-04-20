@@ -19,6 +19,14 @@ export const ROUTE_OPERATOR_STYLES: Record<string, { color: string; label: strin
 
 const ROUTE_FALLBACK_COLOR = "#a8a8a8";
 
+function routeWeight(zoom: number): number {
+  if (zoom <= 11) return 1;
+  if (zoom <= 12) return 1;
+  if (zoom <= 13) return 2;
+  if (zoom <= 14) return 4;
+  return 5;
+}
+
 function routeOperatorKey(operator: string | null): string {
   if (!operator) return "Commercial Operator";
   const op = operator.trim();
@@ -98,6 +106,7 @@ export default function LeafletMap({
   const omiEkoRouteLinesRef = useRef<Map<number, Polyline>>(new Map());
   const omiEkoRouteGhostsRef = useRef<Map<number, Polyline>>(new Map());
   const userMarkersRef = useRef<{ dot: CircleMarker; ring: Circle } | null>(null);
+  const selectedRouteIdRef = useRef<number | null>(selectedRouteId);
 
   // ── Map initialisation (runs once) ──────────────────────────────────────
   useEffect(() => {
@@ -156,7 +165,7 @@ export default function LeafletMap({
         if (!isPlannedOnly) {
           const polyline = L.polyline(coords, {
             color: isSelected ? '#262626' : opColor,
-            weight: isSelected ? 6 : 2,
+            weight: isSelected ? 6 : routeWeight(map.getZoom()),
             opacity: isSelected ? 1 : 0.7,
             interactive: false,
           });
@@ -288,7 +297,16 @@ export default function LeafletMap({
         });
       }
 
+      function updateRouteWeights() {
+        const weight = routeWeight(map.getZoom());
+        routeLinesRef.current.forEach((polyline, id) => {
+          const isSelected = id === selectedRouteIdRef.current;
+          if (!isSelected) polyline.setStyle({ weight });
+        });
+      }
+
       map.on("zoomend", updateLabels);
+      map.on("zoomend", updateRouteWeights);
       updateLabels();
 
       mapRef.current = map;
@@ -331,13 +349,15 @@ export default function LeafletMap({
 
   // ── Selected route highlight ──────────────────────────────────────────
   useEffect(() => {
+    selectedRouteIdRef.current = selectedRouteId;
+    const zoom = mapRef.current?.getZoom() ?? INITIAL_ZOOM;
     routeLinesRef.current.forEach((polyline, id) => {
       const isSelected = id === selectedRouteId;
       const opKey = routeOperatorRef.current.get(id);
       const opColor = opKey ? (ROUTE_OPERATOR_STYLES[opKey]?.color ?? ROUTE_FALLBACK_COLOR) : ROUTE_FALLBACK_COLOR;
       polyline.setStyle({
         color: isSelected ? '#262626' : opColor,
-        weight: isSelected ? 8 : 2,
+        weight: isSelected ? 8 : routeWeight(zoom),
         opacity: isSelected ? 1 : 0.7,
       });
       if (isSelected) polyline.bringToFront();
