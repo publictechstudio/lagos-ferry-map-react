@@ -273,7 +273,7 @@ export default function FacilityList({
               onFocus={() => { if (!selectedGeoPoint && addressSuggestions.length > 0) setShowAddressSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 150)}
               onKeyDown={(e) => { if (e.key === "Escape") handleAddressClear(); }}
-              placeholder="e.g. 1 Afolabi Ekiyoyo Ave, Ikorodu"
+              placeholder="e.g. 42 Afolabi Ekiyoyo Ave, Ikorodu"
               className={[
                 "w-full pl-8 py-1.5 text-[13px] bg-surface-variant rounded-lg border border-outline-variant focus:outline-none focus:border-primary text-on-surface placeholder:text-on-surface-variant/60",
                 selectedGeoPoint ? "pr-8 cursor-default" : "pr-3",
@@ -380,7 +380,7 @@ export default function FacilityList({
               onKeyDown={(e) => {
                 if (e.key === "Escape") { setQuery(""); setShowSuggestions(false); }
               }}
-              placeholder="e.g. Five Cowries Creek"
+              placeholder="e.g. Badore Terminal"
               className="w-full pl-8 pr-3 py-1.5 text-[13px] bg-surface-variant rounded-lg border border-outline-variant focus:outline-none focus:border-primary text-on-surface placeholder:text-on-surface-variant/60"
             />
           </div>
