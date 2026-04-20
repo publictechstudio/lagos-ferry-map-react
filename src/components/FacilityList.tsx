@@ -44,6 +44,7 @@ function LegendRow({
   layerKey, color, label, info, icon, hiddenLayers, setHiddenLayers,
 }: LegendItem & { layerKey: string; hiddenLayers: Set<string>; setHiddenLayers: Dispatch<SetStateAction<Set<string>>> }) {
   const visible = !hiddenLayers.has(layerKey);
+  const [tipOpen, setTipOpen] = useState(false);
   return (
     <div className="flex items-center gap-2">
       <label className="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
@@ -86,10 +87,19 @@ function LegendRow({
         </span>
       </label>
       <span className="relative shrink-0 group">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface-variant/40 hover:text-on-surface-variant cursor-help transition-colors" aria-label={`Info: ${label}`}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-        </svg>
-        <span className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 z-[950] w-48 rounded-lg bg-on-surface text-surface text-[11px] leading-snug px-3 py-2 shadow-elevation-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          type="button"
+          onClick={() => setTipOpen((v) => !v)}
+          onBlur={() => setTimeout(() => setTipOpen(false), 100)}
+          className="flex text-on-surface-variant/40 hover:text-on-surface-variant transition-colors"
+          aria-label={`Info: ${label}`}
+          aria-expanded={tipOpen}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+          </svg>
+        </button>
+        <span className={`pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 z-[950] w-48 rounded-lg bg-on-surface text-surface text-[11px] leading-snug px-3 py-2 shadow-elevation-3 transition-opacity ${tipOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
           {info}
         </span>
       </span>
