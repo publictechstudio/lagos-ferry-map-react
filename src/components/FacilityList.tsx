@@ -241,9 +241,9 @@ export default function FacilityList({
 
       {/* Panel header + list — hidden while collapsed on mobile */}
       {!collapsed && (
-        <>
-      {/* Panel header */}
-      <div className="px-4 py-3 border-b border-outline-variant shrink-0">
+        <div className="overflow-y-auto flex-1">
+      {/* Search / intro section */}
+      <div className="px-4 py-3 border-b border-outline-variant">
         <p className="text-sm font-semibold text-on-surface mb-1">Explore the Map</p>
         <p className="text-[13px] text-on-surface-variant mt-0.5 flex items-center gap-1.5">
           Get started by clicking the map!
@@ -298,7 +298,7 @@ export default function FacilityList({
 
           {/* Stage 1: address autocomplete suggestions */}
           {showAddressSuggestions && !selectedGeoPoint && (
-            <ul className="absolute left-0 right-0 bottom-full mb-1 md:bottom-auto md:mb-0 md:top-full md:mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
+            <ul className="absolute left-0 right-0 top-full mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
               {addressSuggestions.map((result, i) => (
                 <li key={i}>
                   <button
@@ -317,7 +317,7 @@ export default function FacilityList({
 
           {/* Stage 2: nearest ferry facilities after address confirmed */}
           {selectedGeoPoint && nearbyFacilities !== null && (
-            <ul className="absolute left-0 right-0 bottom-full mb-1 md:bottom-auto md:mb-0 md:top-full md:mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
+            <ul className="absolute left-0 right-0 top-full mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
               <li className="px-3 py-1.5 border-b border-outline-variant bg-surface-variant/50">
                 <span className="text-[11px] font-medium uppercase tracking-wide text-on-surface-variant">
                   Closest ferry facilities
@@ -388,7 +388,7 @@ export default function FacilityList({
 
           {/* Suggestions dropdown */}
           {showSuggestions && suggestions.length > 0 && (
-            <ul className="absolute left-0 right-0 bottom-full mb-1 md:bottom-auto md:mb-0 md:top-full md:mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
+            <ul className="absolute left-0 right-0 top-full mt-1 bg-surface border border-outline-variant rounded-lg shadow-elevation-2 overflow-hidden z-10">
               {suggestions.map((facility, i) => (
                 <>
                   {i === lgaStartIndex && (
@@ -426,8 +426,7 @@ export default function FacilityList({
         </div>
       </div>
 
-      {/* Scrollable list */}
-      <div className="overflow-y-auto flex-1">
+      {/* Map layers + LGA */}
         {/* ── Map layers legend ── */}
         <div className="px-4 pt-3 pb-2 border-b border-outline-variant">
           <p className="text-sm font-semibold text-on-surface mb-2">Map Layers</p>
@@ -539,7 +538,6 @@ export default function FacilityList({
           </div>
         ))}
       </div>
-        </>
       )}
     </div>
   );

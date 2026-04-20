@@ -137,8 +137,6 @@ export default function LeafletMap({
       map.on("click", onDeselect);
 
       L.tileLayer("https://tile.jawg.io/jawg-sunny/{z}/{x}/{y}{r}.png?access-token={accessToken}", {
-        attribution:
-          '<a href="https://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         minZoom: 10,
         maxZoom: 22,
         // @ts-expect-error — accessToken is a Jawg-specific option not in Leaflet's TileLayerOptions type
