@@ -62,7 +62,7 @@ export default function RoutePanel({ route, onClose }: Props) {
             {route.origin_name_short ?? "Origin"} to {route.destination_name_short ?? "Destination"}
           </h1>
           <p className="px-2 text-sm text-on-surface-variant leading-relaxed">
-            This route is tentatively planned as part of the Omi Eko ferry expansion.
+            This route is tentatively planned as part of the Lagos State government OMI EKO ferry expansion.
           </p>
         </div>
       </PanelShell>

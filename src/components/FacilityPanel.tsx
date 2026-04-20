@@ -336,7 +336,7 @@ export default function FacilityPanel({ facility, onClose }: Props) {
                 )}
                 {isFutureOmiEko && (
                   <p className="text-sm text-on-surface-variant py-2">
-                    This location has been prioritized for the Lagos State government OMI EKO ferry network upgrading plan. Currently, there are no ferry services here, but they are planned to be operating here in the future.
+                    This location has tentatively been prioritized for the Lagos State government OMI EKO ferry network upgrading plan. Currently, there are no ferry services here, but they are planned to be operating here in the future.
                   </p>
                 )}
               </>

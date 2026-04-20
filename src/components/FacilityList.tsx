@@ -35,8 +35,8 @@ const LEGEND_GROUPS: { active: LegendItem[]; routes: LegendItem[]; other: Legend
   ],
   other: [
     { key: "Charter only", color: CATEGORY_STYLES["Charter only"].color, label: "Charter Only", info: "Locations where you can hire a private boat to any destination. These sites do not offer public ferry services." },
-    { key: "Omi Eko", color: COLOR_OMI_EKO, label: "Omi Eko Plan", info: "Sites earmarked under the Lagos State Government's OMI EKI ferry expansion program for new or upgraded infrastructure.", icon: "star" },
-    { key: "Omi Eko Routes", color: "#000000", label: "Planned Omi Eko Routes", info: "Ferry routes proposed under the Lagos State Government's OMI EKI ferry expansion program", icon: "dashed-line" },
+    { key: "Omi Eko", color: COLOR_OMI_EKO, label: "OMI EKO Plan Facilities", info: "Sites tentatively earmarked under the Lagos State Government's OMI EKI ferry expansion program for new or upgraded infrastructure.", icon: "star" },
+    { key: "Omi Eko Routes", color: "#000000", label: "Planned OMI EKO Routes", info: "Ferry routes tentatively proposed under the Lagos State Government's OMI EKI ferry expansion program", icon: "dashed-line" },
   ],
 };
 
