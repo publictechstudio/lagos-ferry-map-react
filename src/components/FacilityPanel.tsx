@@ -8,6 +8,7 @@ import type { RoutePeriod } from "@/types/routePeriod";
 import Link from "next/link";
 import { toFacilitySlug } from "@/lib/facilitySlug";
 import { toRouteSlug } from "@/lib/routeSlug";
+import type { FacilityPanelData } from "@/lib/facilityPanel";
 import PanelShell from "./PanelShell";
 import LoadingSpinner from "./LoadingSpinner";
 import { groupByLGA } from "@/lib/groupByLGA";
@@ -219,15 +220,25 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
 interface Props {
   facility: Facility;
   onClose: () => void;
+  preloadedData?: FacilityPanelData | null;
 }
 
-export default function FacilityPanel({ facility, onClose }: Props) {
+export default function FacilityPanel({ facility, onClose, preloadedData }: Props) {
   const [destinations, setDestinations] = useState<Destination[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [routesByDest, setRoutesByDest] = useState<Map<number, ConnectingRoute[]>>(new Map());
   const [periodsByRoute, setPeriodsByRoute] = useState<Map<number, RoutePeriod[]>>(new Map());
 
   useEffect(() => {
+    // Use server-provided data immediately — no network request needed
+    if (preloadedData) {
+      setDestinations(preloadedData.destinations);
+      setRoutesByDest(new Map(Object.entries(preloadedData.routesByDest).map(([k, v]) => [Number(k), v])));
+      setPeriodsByRoute(new Map(Object.entries(preloadedData.periodsByRoute).map(([k, v]) => [Number(k), v])));
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setDestinations(null);
     setRoutesByDest(new Map());
@@ -239,8 +250,6 @@ export default function FacilityPanel({ facility, onClose }: Props) {
         routesByDest: Record<string, ConnectingRoute[]>;
         periodsByRoute: Record<string, RoutePeriod[]>;
       }) => {
-        console.log(`[FacilityPanel] facility_id=${facility.facility_id} — destinations:`, destinations?.length, "routesByDest keys:", Object.keys(routesByDest), "periodsByRoute keys:", Object.keys(periodsByRoute));
-        console.log(`[FacilityPanel] periodsByRoute sample:`, Object.entries(periodsByRoute).slice(0, 2).map(([k, v]) => ({ route_id: k, count: (v as RoutePeriod[]).length, sample: (v as RoutePeriod[])[0] })));
         setDestinations(destinations);
         setRoutesByDest(new Map(Object.entries(routesByDest).map(([k, v]) => [Number(k), v])));
         setPeriodsByRoute(new Map(Object.entries(periodsByRoute).map(([k, v]) => [Number(k), v])));
@@ -250,7 +259,7 @@ export default function FacilityPanel({ facility, onClose }: Props) {
         setDestinations([]);
         setLoading(false);
       });
-  }, [facility.facility_id]);
+  }, [facility.facility_id, preloadedData]);
 
   const keyAttrValues = KEY_ATTRS.filter(
     ({ key }) => facility[key] != null && facility[key] !== ""

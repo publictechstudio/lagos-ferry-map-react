@@ -4,8 +4,9 @@ import { getFacilities } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
 import { toRouteSlug } from "@/lib/routeSlug";
 import { formatNaira } from "@/lib/format";
+import { getRoutePanelData } from "@/lib/routePanel";
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -64,16 +65,61 @@ export default async function RouteMapPage({
     ? (routes.find((r) => r.route_id === routeId) ?? null)
     : null;
 
+  const isPlannedOmiEko = initialSelectedRoute?.omi_eko === true && initialSelectedRoute?.total_base_duration === 9999;
+  const initialRoutePanelData =
+    initialSelectedRoute && !isPlannedOmiEko
+      ? await getRoutePanelData(initialSelectedRoute.route_id)
+      : null;
+
+  const jsonLd = initialSelectedRoute && !isPlannedOmiEko
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BusRoute",
+        name: `${initialSelectedRoute.origin_name ?? ""} to ${initialSelectedRoute.destination_name ?? ""} Ferry`,
+        ...(initialSelectedRoute.operator && {
+          provider: { "@type": "Organization", name: initialSelectedRoute.operator },
+        }),
+        ...(initialSelectedRoute.total_base_duration != null && {
+          estimatedDuration: `PT${initialSelectedRoute.total_base_duration}M`,
+        }),
+        ...(initialSelectedRoute.total_base_cost != null && {
+          offers: {
+            "@type": "Offer",
+            price: String(initialSelectedRoute.total_base_cost),
+            priceCurrency: "NGN",
+          },
+        }),
+        ...(initialRoutePanelData && initialRoutePanelData.stops.length > 0 && {
+          itinerary: initialRoutePanelData.stops.map((s) => ({
+            "@type": "BusStop",
+            name: s.facility_name ?? "Stop",
+            ...(s.lga && {
+              containedInPlace: { "@type": "AdministrativeArea", name: `${s.lga} LGA, Lagos` },
+            }),
+          })),
+        }),
+      }
+    : null;
+
   return (
-    <section className="flex flex-col" style={{ height: "calc(100vh - 64px)" }}>
-      <div className="flex-1 min-h-0">
-        <MapWrapper
-          facilities={facilities}
-          routes={routes}
-          initialSelected={null}
-          initialSelectedRoute={initialSelectedRoute}
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-      </div>
-    </section>
+      )}
+      <section className="flex flex-col" style={{ height: "calc(100vh - 64px)" }}>
+        <div className="flex-1 min-h-0">
+          <MapWrapper
+            facilities={facilities}
+            routes={routes}
+            initialSelected={null}
+            initialSelectedRoute={initialSelectedRoute}
+            initialRoutePanelData={initialRoutePanelData}
+          />
+        </div>
+      </section>
+    </>
   );
 }

@@ -11,16 +11,29 @@ import RoutePanel from "./RoutePanel";
 // RoutePanel fetches its own stops/periods data
 import { toFacilitySlug } from "@/lib/facilitySlug";
 import { toRouteSlug } from "@/lib/routeSlug";
+import Image from "next/image";
 import { parseWKTLineString, latLonBounds } from "@/lib/parseWKT";
 import { event as gaEvent } from "@/lib/gtag";
+import type { FacilityPanelData } from "@/lib/facilityPanel";
+import type { RoutePanelData } from "@/lib/routePanel";
 
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-surface-variant">
-      <div className="flex flex-col items-center gap-3 text-on-surface-variant">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm">Loading map…</span>
+    <div className="w-full h-full relative overflow-hidden">
+      <Image
+        src="/map-preview.jpg"
+        alt="Map of Lagos ferry network"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center"
+      />
+      <div className="absolute inset-0 flex items-end justify-center pb-8">
+        <div className="flex items-center gap-2 bg-surface/90 rounded-full px-4 py-2 shadow-elevation-2">
+          <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0" />
+          <span className="text-sm text-on-surface">Loading map…</span>
+        </div>
       </div>
     </div>
   ),
@@ -31,6 +44,8 @@ interface MapWrapperProps {
   routes: Route[];
   initialSelected: Facility | null;
   initialSelectedRoute: Route | null;
+  initialFacilityPanelData?: FacilityPanelData | null;
+  initialRoutePanelData?: RoutePanelData | null;
 }
 
 export default function MapWrapper({
@@ -38,9 +53,13 @@ export default function MapWrapper({
   routes,
   initialSelected,
   initialSelectedRoute,
+  initialFacilityPanelData,
+  initialRoutePanelData,
 }: MapWrapperProps) {
   const [selected, setSelected] = useState<Facility | null>(initialSelected);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(initialSelectedRoute);
+  const [facilityPanelData, setFacilityPanelData] = useState<FacilityPanelData | null>(initialFacilityPanelData ?? null);
+  const [routePanelData, setRoutePanelData] = useState<RoutePanelData | null>(initialRoutePanelData ?? null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [locating, setLocating] = useState(false);
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set(["Charter only", "Omi Eko", "Omi Eko Routes"]));
@@ -60,6 +79,8 @@ export default function MapWrapper({
     gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, lga: facility.lga });
     setSelected(facility);
     setSelectedRoute(null);
+    setFacilityPanelData(null);
+    setRoutePanelData(null);
     window.history.replaceState(null, "", `/map/${toFacilitySlug(facility)}`);
     mapRef.current?.flyTo([facility.facility_lat, facility.facility_lon], 15, {
       animate: true,
@@ -82,6 +103,8 @@ export default function MapWrapper({
     gaEvent("select_content", { content_type: "route", item_id: route.route_id, route_name: `${route.origin_name} → ${route.destination_name}` });
     setSelectedRoute(route);
     setSelected(null);
+    setFacilityPanelData(null);
+    setRoutePanelData(null);
     window.history.replaceState(null, "", `/map/route/${toRouteSlug(route)}`);
     const coords = parseWKTLineString(route.geom);
     const bounds = latLonBounds(coords);
@@ -195,7 +218,7 @@ export default function MapWrapper({
 
       {/* ── Facility detail panel ──────────────────────────────────── */}
       {selected && (
-        <FacilityPanel facility={selected} onClose={handleClose} />
+        <FacilityPanel facility={selected} onClose={handleClose} preloadedData={facilityPanelData} />
       )}
 
       {/* ── Route detail panel ────────────────────────────────────── */}
@@ -203,6 +226,8 @@ export default function MapWrapper({
         <RoutePanel
           route={selectedRoute}
           onClose={handleCloseRoute}
+          preloadedStops={routePanelData?.stops ?? null}
+          preloadedPeriods={routePanelData?.periods ?? null}
         />
       )}
 

@@ -16,9 +16,11 @@ import DirectionSection from "./route-panel/DirectionSection";
 interface Props {
   route: Route;
   onClose: () => void;
+  preloadedStops?: RouteStop[] | null;
+  preloadedPeriods?: RoutePeriod[] | null;
 }
 
-export default function RoutePanel({ route, onClose }: Props) {
+export default function RoutePanel({ route, onClose, preloadedStops, preloadedPeriods }: Props) {
   const isPlannedOmiEko = route.omi_eko === true && route.total_base_duration === 9999;
 
   const [stops, setStops] = useState<RouteStop[] | null>(null);
@@ -27,6 +29,15 @@ export default function RoutePanel({ route, onClose }: Props) {
 
   useEffect(() => {
     if (isPlannedOmiEko) return;
+
+    // Use server-provided data immediately — no network request needed
+    if (preloadedStops != null && preloadedPeriods != null) {
+      setStops(preloadedStops);
+      setPeriods(preloadedPeriods);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setStops(null);
     setPeriods(null);
@@ -36,8 +47,6 @@ export default function RoutePanel({ route, onClose }: Props) {
       fetch(`/api/route-periods/${route.route_id}`).then((r) => r.json()),
     ])
       .then(([stopsData, periodsData]) => {
-        console.log(`[RoutePanel] route_id=${route.route_id} — raw stops:`, stopsData?.length, "raw periods:", periodsData?.length);
-        console.log(`[RoutePanel] raw periods sample:`, periodsData?.slice(0, 3));
         setStops(stopsData as RouteStop[]);
         setPeriods(periodsData as RoutePeriod[]);
         setLoading(false);
@@ -47,7 +56,7 @@ export default function RoutePanel({ route, onClose }: Props) {
         setPeriods([]);
         setLoading(false);
       });
-  }, [route.route_id, isPlannedOmiEko]);
+  }, [route.route_id, isPlannedOmiEko, preloadedStops, preloadedPeriods]);
 
   if (isPlannedOmiEko) {
     return (

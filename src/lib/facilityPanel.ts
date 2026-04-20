@@ -1,10 +1,7 @@
-import { NextResponse } from "next/server";
-import { sql } from "@/lib/db";
+import { sql } from "./db";
 import type { Destination } from "@/types/destination";
 import type { ConnectingRoute } from "@/types/connectingRoute";
 import type { RoutePeriod } from "@/types/routePeriod";
-
-export const revalidate = 60;
 
 export type FacilityPanelData = {
   destinations: Destination[];
@@ -12,18 +9,7 @@ export type FacilityPanelData = {
   periodsByRoute: Record<number, RoutePeriod[]>;
 };
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ facilityId: string }> }
-) {
-  const { facilityId } = await params;
-  const id = parseInt(facilityId, 10);
-
-  if (isNaN(id)) {
-    return NextResponse.json({ error: "Invalid facility ID" }, { status: 400 });
-  }
-
-  // Step 1: get all destinations for this facility
+export async function getFacilityPanelData(id: number): Promise<FacilityPanelData> {
   const destRows = await sql`
     SELECT
       f.facility_id,
@@ -38,19 +24,18 @@ export async function GET(
     WHERE fd.facility_id = ${id}
       AND f.status IS NOT NULL
       AND f.status != 'not_in_use'
-      AND fd.is_charter is FALSE
+      AND fd.is_charter IS FALSE
     ORDER BY f.lga, f.facility_name
   `;
 
   const destinations = destRows as Destination[];
 
   if (destinations.length === 0) {
-    return NextResponse.json({ destinations: [], routesByDest: {}, periodsByRoute: {} });
+    return { destinations: [], routesByDest: {}, periodsByRoute: {} };
   }
 
   const destIds = destinations.map((d) => d.facility_id);
 
-  // Step 2: get all connecting routes for ALL destinations in one query
   const routeRows = await sql`
     SELECT DISTINCT
       rs2.stop_id AS dest_id,
@@ -71,7 +56,9 @@ export async function GET(
     LEFT JOIN facilities f1 ON f1.facility_id = r.origin
     LEFT JOIN facilities f2 ON f2.facility_id = r.destination
     WHERE rs1.stop_id = ${id}
-      AND rs1.route_id NOT IN (SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE)
+      AND rs1.route_id NOT IN (
+        SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE
+      )
   `;
 
   const routesByDest: Record<number, ConnectingRoute[]> = {};
@@ -85,17 +72,18 @@ export async function GET(
   }
 
   if (uniqueRouteIds.size === 0) {
-    return NextResponse.json({ destinations, routesByDest, periodsByRoute: {} });
+    return { destinations, routesByDest, periodsByRoute: {} };
   }
 
   const routeIds = [...uniqueRouteIds];
 
-  // Step 3: get all periods for ALL route IDs in one query
   const periodRows = await sql`
     SELECT *
     FROM route_periods
     WHERE route_id = ANY(${routeIds})
-      AND route_id NOT IN (SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE)
+      AND route_id NOT IN (
+        SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE
+      )
     ORDER BY route_id, direction_id, start_time
   `;
 
@@ -105,5 +93,5 @@ export async function GET(
     periodsByRoute[row.route_id].push(row);
   }
 
-  return NextResponse.json({ destinations, routesByDest, periodsByRoute } satisfies FacilityPanelData);
+  return { destinations, routesByDest, periodsByRoute };
 }

@@ -3,8 +3,9 @@ import MapWrapper from "@/components/MapWrapper";
 import { getFacilities } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
 import { toFacilitySlug } from "@/lib/facilitySlug";
+import { getFacilityPanelData } from "@/lib/facilityPanel";
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -67,6 +68,10 @@ export default async function FacilityMapPage({
       ? (facilities.find((f) => f.facility_id === facilityId) ?? null)
       : null;
 
+  const initialFacilityPanelData = initialSelected
+    ? await getFacilityPanelData(initialSelected.facility_id)
+    : null;
+
   const jsonLd = initialSelected
     ? {
         "@context": "https://schema.org",
@@ -86,6 +91,20 @@ export default async function FacilityMapPage({
           },
         }),
         ...(initialSelected.gcs_url && { image: initialSelected.gcs_url }),
+        ...(initialFacilityPanelData && initialFacilityPanelData.destinations.length > 0 && {
+          containsPlace: initialFacilityPanelData.destinations.map((d) => ({
+            "@type": "Place",
+            name: d.facility_name,
+            ...(d.lga && {
+              address: {
+                "@type": "PostalAddress",
+                addressRegion: d.lga,
+                addressLocality: "Lagos",
+                addressCountry: "NG",
+              },
+            }),
+          })),
+        }),
       }
     : null;
 
@@ -104,6 +123,7 @@ export default async function FacilityMapPage({
             routes={routes}
             initialSelected={initialSelected}
             initialSelectedRoute={null}
+            initialFacilityPanelData={initialFacilityPanelData}
           />
         </div>
       </section>
