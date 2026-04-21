@@ -80,13 +80,16 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
 
   // outbound: stops in order (origin → destination)
   const outboundStops = stops ?? [];
-  // return: stops in reverse (destination → origin), durations and costs shifted
+  // return: stops in reverse (destination → origin).
+  // The cost/duration to reach return-stop[idx] equals the outbound cost/duration of the stop
+  // one position ahead in outbound order (outboundStops[n - idx]), i.e. the stop being departed.
   const returnStops = [...outboundStops].reverse().map((stop, idx) => {
-    const forwardNext = outboundStops[outboundStops.length - 1 - idx];
+    const n = outboundStops.length;
+    const srcStop = idx === 0 ? null : outboundStops[n - idx];
     return {
       ...stop,
-      duration_to_stop: idx === 0 ? 0 : (forwardNext?.duration_to_stop ?? 0),
-      cost_to_stop: idx === 0 ? "0" : (forwardNext?.cost_to_stop ?? "0"),
+      duration_to_stop: idx === 0 ? 0 : (srcStop?.duration_to_stop ?? 0),
+      cost_to_stop: idx === 0 ? "0" : (srcStop?.cost_to_stop ?? "0"),
     };
   });
 
