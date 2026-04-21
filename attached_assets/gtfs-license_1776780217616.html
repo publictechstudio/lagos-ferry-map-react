@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="author" content="Public Tech Studio">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTFS Data License - Lagos Ferry Map</title>
+    <meta name="description" content="License terms for the Lagos Ferry GTFS data published by Public Tech Studio, available under Creative Commons Attribution 4.0.">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:title" content="GTFS Data License - Lagos Ferry Map">
+    <meta property="og:description" content="License terms for the Lagos Ferry GTFS data published by Public Tech Studio.">
+    <meta property="og:image" content="https://lagosferries.com/assets/Open_Graph_Lagos_Ferry_Map.png">
+    <meta property="og:url" content="https://lagosferries.com/gtfs-license">
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GTFS Data License - Lagos Ferry Map">
+    <meta name="twitter:description" content="License terms for the Lagos Ferry GTFS data published by Public Tech Studio.">
+    <meta name="twitter:image" content="https://lagosferries.com/assets/Open_Graph_Lagos_Ferry_Map.png">
+
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="canonical" href="https://lagosferries.com/gtfs-license">
+
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CK09698KM1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-CK09698KM1');
+    </script>
+
+    <style>
+        :root {
+            --md-primary: #1976D2;
+            --md-primary-container: #E3F2FD;
+            --md-surface: #FEFBFF;
+            --md-on-surface: #1C1B1F;
+            --md-on-surface-variant: #49454F;
+            --md-elevation-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+            --md-elevation-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: var(--md-on-surface);
+            background-color: var(--md-surface);
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--md-surface);
+            box-shadow: var(--md-elevation-1);
+            z-index: 1000;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--md-primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--md-on-surface);
+            font-weight: 400;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background-color: var(--md-primary-container);
+            color: var(--md-primary);
+        }
+
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .nav-hamburger span {
+            width: 20px;
+            height: 2px;
+            background: var(--md-on-surface);
+            margin: 2px 0;
+        }
+
+        .nav-mobile {
+            display: none;
+            position: fixed;
+            top: 64px;
+            right: 0;
+            background: var(--md-surface);
+            box-shadow: var(--md-elevation-2);
+            border-radius: 0 0 0 16px;
+            padding: 16px;
+            z-index: 999;
+        }
+
+        .nav-mobile.active {
+            display: block;
+        }
+
+        .nav-mobile .nav-link {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .container {
+            margin-top: 64px;
+            max-width: 900px;
+            padding: 80px 24px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--md-primary);
+            text-decoration: none;
+            font-size: 16px;
+            margin-bottom: 32px;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 0.7;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 500;
+            color: var(--md-on-surface);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--md-on-surface);
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: var(--md-on-surface-variant);
+            margin-bottom: 24px;
+        }
+
+        ul {
+            list-style: none;
+            margin-bottom: 24px;
+            padding-left: 0;
+        }
+
+        ul li {
+            font-size: 18px;
+            line-height: 1.8;
+            color: var(--md-on-surface-variant);
+            padding: 6px 0 6px 28px;
+            position: relative;
+        }
+
+        ul li::before {
+            content: "•";
+            color: var(--md-primary);
+            font-weight: 700;
+            position: absolute;
+            left: 8px;
+        }
+
+        ul li strong {
+            color: var(--md-on-surface);
+        }
+
+        a {
+            color: var(--md-primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .material-icons {
+            font-size: 32px;
+            color: var(--md-primary);
+        }
+
+        .last-updated {
+            font-size: 14px;
+            color: var(--md-on-surface-variant);
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .footer {
+            background-color: var(--md-on-surface);
+            color: var(--md-surface);
+            padding: 48px 24px 24px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-main {
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--md-surface);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .footer-link:hover {
+            opacity: 0.7;
+        }
+
+        .footer-copyright {
+            font-size: 14px;
+            opacity: 0.7;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .nav-hamburger {
+                display: flex;
+            }
+
+            .nav-mobile {
+                width: 200px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .container {
+                padding: 48px 24px;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            Lagos Ferry Map
+        </a>
+
+        <div class="nav-links">
+            <a href="/about" class="nav-link">About</a>
+            <a href="/map" class="nav-link">Map</a>
+            <a href="/directory" class="nav-link">Directory</a>
+        </div>
+
+        <div class="nav-hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <div class="nav-mobile" id="nav-mobile">
+        <a href="/about" class="nav-link">About</a>
+        <a href="/map" class="nav-link">Map</a>
+        <a href="/directory" class="nav-link">Directory</a>
+    </div>
+
+    <div class="container">
+        <a href="/" class="back-link">
+            <span class="material-icons">arrow_back</span>
+            Back to home
+        </a>
+
+        <h1>
+            <span class="material-icons">description</span>
+            GTFS Data License
+        </h1>
+
+        <h2>Data Download Link</h2>
+        <p><a href="https://lagosferries.com/gtfs.zip">https://lagosferries.com/gtfs.zip</a></p>
+
+        <h2>Overview</h2>
+        <p>The General Transit Feed Specification (GTFS) data published on this website is openly available and may be used, shared, and adapted under the terms of this license. By accessing this GTFS data, you agree to comply with the license terms below.</p>
+
+        <h2>Data Owner</h2>
+        <p>This GTFS feed is provided by <a href="https://publictech.studio">Public Tech Studio</a>.</p>
+
+        <h2>License</h2>
+        <p>All GTFS data is licensed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License (CC BY 4.0)</a>.</p>
+
+        <p>You are free to:</p>
+        <ul>
+            <li><strong>Share</strong> - copy and redistribute the data in any medium or format</li>
+            <li><strong>Adapt</strong> - remix, transform, and build upon the data for any purpose, including commercial use</li>
+        </ul>
+
+        <p>Under the following condition:</p>
+        <ul>
+            <li><strong>Attribution</strong> - You must give proper credit to Public Tech Studio, include a reference to <a href="https://publictech.studio">https://publictech.studio</a> as the source, and indicate if any changes were made.</li>
+        </ul>
+
+        <p>For full license terms, see: <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">https://creativecommons.org/licenses/by/4.0/</a></p>
+
+        <h2>Example Attribution</h2>
+        <p>"Lagos Ferry GTFS data &copy; 2026 Public Tech Studio, licensed under CC BY 4.0."</p>
+
+        <h2>No Warranty</h2>
+        <p>This data is provided "as is", without warranty. Public Tech Studio is not liable for errors, omissions, or any consequences of its use.</p>
+
+        <h2>Updates</h2>
+        <p>The feed may be updated or modified at any time. Users are responsible for using the latest version.</p>
+
+        <h2>Contact</h2>
+        <p>Public Tech Studio<br>
+        Email: <a href="mailto:hannah@publictech.studio">hannah@publictech.studio</a></p>
+
+        <p class="last-updated">Last updated: 2026-04-21</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-main">This is a project from Public Tech Studio. <a href="https://publictech.studio">Want to build something great?</a></p>
+
+            <div class="footer-links">
+                <a href="/about" class="footer-link">About</a>
+                <a href="/map" class="footer-link">Interactive Map</a>
+                <a href="/directory" class="footer-link">Directory</a>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfCkMgguEE1GJ_WhWXBaIKhaILOICt1UqiA85r0m4yz_eEmAw/viewform?usp=sharing&ouid=105822215617585747910" class="footer-link">Report Issue</a>
+            </div>
+
+            <div class="footer-copyright">
+                <p>&copy; 2026 Public Tech Studio. All rights reserved. | <a href="/robots.txt" class="footer-link">Robots.txt</a> | <a href="/sitemap.xml" class="footer-link">Sitemap</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('nav-mobile');
+            mobileMenu.classList.toggle('active');
+
+            gtag('event', 'menu_toggle', {
+                'event_category': 'navigation',
+                'event_label': 'mobile_menu'
+            });
+        }
+
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('nav-mobile');
+            const hamburger = document.querySelector('.nav-hamburger');
+
+            if (!hamburger.contains(event.target) && !mobileMenu.contains(event.target)) {
+                mobileMenu.classList.remove('active');
+            }
+        });
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                document.getElementById('nav-mobile').classList.remove('active');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.nav-link, .back-link').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    gtag('event', 'click', {
+                        'event_category': 'navigation',
+                        'event_label': this.textContent.trim()
+                    });
+                });
+            });
+
+            document.querySelectorAll('.footer-link').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    gtag('event', 'click', {
+                        'event_category': 'footer',
+                        'event_label': this.textContent.trim()
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
