@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 
 export const metadata: Metadata = {
   title: "GTFS Data License — Lagos Ferry Map",
@@ -24,12 +22,16 @@ export default function GtfsLicensePage() {
         href="/"
         className="inline-flex items-center gap-2 text-primary mb-8 hover:opacity-70 transition-opacity"
       >
-        <ArrowBackIcon fontSize="small" />
+        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden>
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
         Back to home
       </Link>
 
       <h1 className="text-[32px] font-normal leading-10 text-on-surface mb-8 flex items-center gap-3">
-        <DescriptionOutlinedIcon className="text-primary" fontSize="large" />
+        <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-primary shrink-0" aria-hidden>
+          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+        </svg>
         GTFS Data License
       </h1>
 
