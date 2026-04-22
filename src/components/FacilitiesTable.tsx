@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ClickableRow } from "@/components/ClickableRow";
 import { toFacilitySlug } from "@/lib/facilitySlug";
 import type { Facility } from "@/types/facility";
@@ -36,10 +37,9 @@ function FilterIcon({ active }: { active: boolean }) {
 type FilterKey = "lga" | "name" | "type" | "destinations";
 
 function FilterTh({
-  label, filterKey, value, open, onToggle, onChange,
+  label, value, open, onToggle, onChange,
 }: {
   label: string;
-  filterKey: FilterKey;
   value: string;
   open: boolean;
   onToggle: () => void;
@@ -109,10 +109,10 @@ export function FacilitiesTable({
         <table className="w-full text-sm">
           <thead className="sticky top-0 z-10 bg-surface-variant border-b border-outline-variant">
             <tr>
-              <FilterTh label="LGA" filterKey="lga" value={filters.lga} open={open.lga} onToggle={() => toggle("lga")} onChange={setFilter("lga")} />
-              <FilterTh label="Facility Name" filterKey="name" value={filters.name} open={open.name} onToggle={() => toggle("name")} onChange={setFilter("name")} />
-              <FilterTh label="Facility Type" filterKey="type" value={filters.type} open={open.type} onToggle={() => toggle("type")} onChange={setFilter("type")} />
-              <FilterTh label="Destinations" filterKey="destinations" value={filters.destinations} open={open.destinations} onToggle={() => toggle("destinations")} onChange={setFilter("destinations")} />
+              <FilterTh label="LGA" value={filters.lga} open={open.lga} onToggle={() => toggle("lga")} onChange={setFilter("lga")} />
+              <FilterTh label="Facility Name" value={filters.name} open={open.name} onToggle={() => toggle("name")} onChange={setFilter("name")} />
+              <FilterTh label="Facility Type" value={filters.type} open={open.type} onToggle={() => toggle("type")} onChange={setFilter("type")} />
+              <FilterTh label="Destinations" value={filters.destinations} open={open.destinations} onToggle={() => toggle("destinations")} onChange={setFilter("destinations")} />
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant/60">
@@ -124,9 +124,9 @@ export function FacilitiesTable({
                 <ClickableRow key={facility.facility_id} href={href}>
                   <td className="px-4 py-3 text-on-surface-variant whitespace-nowrap align-top">{facility.lga ?? "—"}</td>
                   <td className="px-4 py-3 align-top">
-                    <span className="font-medium text-on-surface group-hover:text-primary transition-colors">
+                    <Link href={href} className="font-medium text-on-surface group-hover:text-primary transition-colors">
                       {facility.facility_name ?? "Unnamed"}
-                    </span>
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-on-surface-variant align-top whitespace-nowrap">
                     {facility.facility_type ?? "—"}

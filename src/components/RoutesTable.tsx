@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ClickableRow } from "@/components/ClickableRow";
 import { toRouteSlug } from "@/lib/routeSlug";
 import type { Route } from "@/types/route";
@@ -19,10 +20,9 @@ function FilterIcon({ active }: { active: boolean }) {
 type FilterKey = "origin" | "destination" | "operator";
 
 function FilterTh({
-  label, filterKey, value, open, onToggle, onChange,
+  label, value, open, onToggle, onChange,
 }: {
   label: string;
-  filterKey: FilterKey;
   value: string;
   open: boolean;
   onToggle: () => void;
@@ -84,15 +84,19 @@ export function RoutesTable({ routes }: { routes: Route[] }) {
         <table className="w-full text-sm">
           <thead className="sticky top-0 z-10 bg-surface-variant border-b border-outline-variant">
             <tr>
-              <FilterTh label="Origin" filterKey="origin" value={filters.origin} open={open.origin} onToggle={() => toggle("origin")} onChange={setFilter("origin")} />
-              <FilterTh label="Destination" filterKey="destination" value={filters.destination} open={open.destination} onToggle={() => toggle("destination")} onChange={setFilter("destination")} />
-              <FilterTh label="Operator" filterKey="operator" value={filters.operator} open={open.operator} onToggle={() => toggle("operator")} onChange={setFilter("operator")} />
+              <FilterTh label="Origin" value={filters.origin} open={open.origin} onToggle={() => toggle("origin")} onChange={setFilter("origin")} />
+              <FilterTh label="Destination" value={filters.destination} open={open.destination} onToggle={() => toggle("destination")} onChange={setFilter("destination")} />
+              <FilterTh label="Operator" value={filters.operator} open={open.operator} onToggle={() => toggle("operator")} onChange={setFilter("operator")} />
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant/60">
             {visible.map((route) => (
               <ClickableRow key={route.route_id} href={`/map/route/${toRouteSlug(route)}`}>
-                <td className="px-4 py-3 text-on-surface whitespace-nowrap">{route.origin_name ?? "—"}</td>
+                <td className="px-4 py-3 text-on-surface whitespace-nowrap">
+                  <Link href={`/map/route/${toRouteSlug(route)}`} className="group-hover:text-primary transition-colors">
+                    {route.origin_name ?? "—"}
+                  </Link>
+                </td>
                 <td className="px-4 py-3 text-on-surface whitespace-nowrap">{route.destination_name ?? "—"}</td>
                 <td className="px-4 py-3 text-on-surface-variant">
                   {(() => {
