@@ -72,6 +72,11 @@ export async function GET(
     LEFT JOIN facilities f2 ON f2.facility_id = r.destination
     WHERE rs1.stop_id = ${id}
       AND rs1.route_id NOT IN (SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE)
+      AND EXISTS (
+        SELECT 1 FROM route_periods rp
+        WHERE rp.route_id = r.route_id
+          AND rp.direction_id = (CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END)
+      )
   `;
 
   const routesByDest: Record<number, ConnectingRoute[]> = {};

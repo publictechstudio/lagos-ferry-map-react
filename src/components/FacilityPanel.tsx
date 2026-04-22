@@ -117,7 +117,10 @@ interface DestinationCardProps {
 
 function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: DestinationCardProps) {
   const [open, setOpen] = useState(false);
-  const routes = routesByDest.get(dest.facility_id);
+  const routes = (routesByDest.get(dest.facility_id) ?? []).filter((r) => {
+    const allPeriods = periodsByRoute.get(r.route_id) ?? [];
+    return allPeriods.some((p) => p.direction_id === r.travel_direction);
+  });
 
   return (
     <div className="rounded-xl border border-outline-variant bg-surface overflow-visible">
@@ -158,9 +161,7 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
               <DirectionsBoatIcon sx={{ fontSize: 16 }} className="shrink-0" />
               <span>Routes that will take you from {facility.facility_name_short} to {dest.facility_name_short ?? "destination"}</span>
             </div>
-            {!routes ? (
-              <p className="px-4 pb-2.5 text-xs text-on-surface-variant/60">Loading routes…</p>
-            ) : routes.length === 0 ? (
+            {routes.length === 0 ? (
               <p className="px-4 pb-2.5 text-xs text-on-surface-variant/60">No direct routes recorded.</p>
             ) : (
               <div className="pb-3 overflow-visible">
@@ -178,7 +179,6 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
                     {routes.map((r) => {
                       const allPeriods = periodsByRoute.get(r.route_id) ?? [];
                       const periods = allPeriods.filter((p) => p.direction_id === r.travel_direction);
-                      console.log(`[FacilityPanel] route_id=${r.route_id} travel_direction="${r.travel_direction}" — allPeriods:`, allPeriods.length, "direction_ids in allPeriods:", allPeriods.map(p => ({ direction_id: p.direction_id, type: typeof p.direction_id })), "matched periods after filter:", periods.length);
                       const schedule = summarizePeriods(periods);
                       const { from, to } = routeDisplayNames(r);
                       return (

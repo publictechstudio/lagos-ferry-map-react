@@ -95,8 +95,6 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
 
   const outboundPeriods = (periods ?? []).filter((p) => p.direction_id == 0);
   const returnPeriods = (periods ?? []).filter((p) => p.direction_id == 1);
-  console.log(`[RoutePanel] direction_id values in periods:`, (periods ?? []).map(p => ({ id: p.route_period_id, direction_id: p.direction_id, type: typeof p.direction_id })));
-  console.log(`[RoutePanel] outboundPeriods (direction_id==='0'):`, outboundPeriods.length, "returnPeriods (direction_id==='1'):", returnPeriods.length);
 
   const outboundLabel = `${route.origin_name ?? "Origin"} to ${route.destination_name ?? "Destination"}`;
   const returnLabel = `${route.destination_name ?? "Destination"} to ${route.origin_name ?? "Origin"}`;
@@ -170,8 +168,8 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
               />
             )}
 
-            {/* return */}
-            {(returnStops.length > 0 || returnPeriods.length > 0) && (
+            {/* return — only shown when there are periods with direction_id === 1 */}
+            {returnPeriods.length > 0 && (
               <DirectionSection
                 label={returnLabel}
                 stops={returnStops}
