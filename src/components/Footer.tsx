@@ -15,7 +15,7 @@ export default function Footer() {
     /* MD3 dark surface — on-surface (#1A1B20) */
     <footer id="site-footer" className="bg-[#1A1B20] text-[#C3C7CF]">
       <div className="text-center mb-8 text-sm bg-[#000000] py-4">
-        This is a project from Public Tech Studio.{" "}
+        A project from Public Tech Studio.{" "}
         <a
           href="https://publictech.studio"
           target="_blank"
