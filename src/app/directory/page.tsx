@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "/directory" },
 };
 
-
 function buildJsonLd(facilities: Facility[], destinationMap: Map<number, string[]>) {
   return {
     "@context": "https://schema.org",
@@ -50,26 +49,14 @@ function buildJsonLd(facilities: Facility[], destinationMap: Map<number, string[
   };
 }
 
-function groupByLGA(facilities: Facility[]): [string, Facility[]][] {
-  const map = new Map<string, Facility[]>();
-  for (const f of facilities) {
-    const lga = f.lga ?? "Unknown LGA";
-    if (!map.has(lga)) map.set(lga, []);
-    map.get(lga)!.push(f);
-  }
-  return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
-}
-
-const QUALITY_STYLE: Record<string, string> = {
-  developed: "bg-[#1A1A1A]/10 text-[#1A1A1A]",
-  "less developed": "bg-[#8B2000]/10 text-[#8B2000]",
-};
-
-function qualityStyle(quality: string | null): string {
-  return (
-    QUALITY_STYLE[quality?.toLowerCase() ?? ""] ??
-    "bg-surface-variant text-on-surface-variant"
-  );
+function facilityLabel(facility: Facility): "future-omi-eko" | "charter-only" | null {
+  const isCharterOnly = facility.category?.includes("Charter only") ?? false;
+  const isFutureOmiEko =
+    (facility.category?.includes("Future Omi Eko") ?? false) ||
+    (isCharterOnly && facility.omi_eko === "Yes");
+  if (isFutureOmiEko) return "future-omi-eko";
+  if (isCharterOnly) return "charter-only";
+  return null;
 }
 
 export default async function DirectoryPage() {
@@ -84,11 +71,26 @@ export default async function DirectoryPage() {
     if (!destinationMap.has(facility_id)) destinationMap.set(facility_id, []);
     destinationMap.get(facility_id)!.push(destination_name);
   }
-  const groups = groupByLGA(facilities);
+
+  const sortedFacilities = [...facilities].sort((a, b) => {
+    const lgaComp = (a.lga ?? "").localeCompare(b.lga ?? "");
+    if (lgaComp !== 0) return lgaComp;
+    return (a.facility_name ?? "").localeCompare(b.facility_name ?? "");
+  });
+
+  const sortedRoutes = [...routes].sort((a, b) => {
+    const originComp = (a.origin_name ?? "").localeCompare(b.origin_name ?? "");
+    if (originComp !== 0) return originComp;
+    return (a.destination_name ?? "").localeCompare(b.destination_name ?? "");
+  });
+
   const activeRouteCount = routes.filter(
     (r) => !(r.omi_eko && r.total_base_duration === 9999)
   ).length;
+
   const jsonLd = buildJsonLd(facilities, destinationMap);
+
+  const lgaCount = new Set(facilities.map((f) => f.lga)).size;
 
   return (
     <>
@@ -97,9 +99,8 @@ export default async function DirectoryPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <section className="max-w-5xl mx-auto px-4 py-12">
+      <section className="max-w-5xl mx-auto px-4 py-10">
 
-        {/* Page header */}
         <h1 className="text-[32px] font-normal leading-10 text-on-surface mb-3">
           Lagos Ferry Terminals &amp; Routes
         </h1>
@@ -109,7 +110,6 @@ export default async function DirectoryPage() {
           routes between Victoria Island (VI), Apapa, CMS, Ikorodu, Badore, Ajah, Lekki, and more.
         </p>
 
-        {/* Stats bar */}
         <div className="flex items-center gap-2 text-sm text-on-surface-variant mb-10 flex-wrap">
           <span className="font-medium text-on-surface">{facilities.length}</span>
           <span>facilities</span>
@@ -117,96 +117,101 @@ export default async function DirectoryPage() {
           <span className="font-medium text-on-surface">{activeRouteCount}</span>
           <span>active route{activeRouteCount !== 1 ? "s" : ""}</span>
           <span className="text-outline-variant mx-1">·</span>
-          <span className="font-medium text-on-surface">{groups.length}</span>
-          <span>LGA{groups.length !== 1 ? "s" : ""}</span>
+          <span className="font-medium text-on-surface">{lgaCount}</span>
+          <span>LGA{lgaCount !== 1 ? "s" : ""}</span>
         </div>
 
-        <div className="flex flex-col gap-10">
-          {groups.map(([lga, items]) => (
-            <div key={lga}>
-
-              {/* LGA heading */}
-              <div className="flex items-center gap-3 mb-3">
-                <h2 className="text-[18px] font-medium text-on-surface">{lga}</h2>
-                <span className="text-sm text-on-surface-variant">
-                  {items.length} {items.length !== 1 ? "facilities" : "facility"}
-                </span>
-              </div>
-
-              {/* Facility cards */}
-              <div className="rounded-xl border border-outline-variant overflow-hidden divide-y divide-outline-variant">
-                {items.map((facility) => {
+        {/* Facilities section */}
+        <div className="mb-12">
+          <h2 className="text-xl font-medium text-on-surface mb-4">Facilities</h2>
+          <div className="rounded-xl border border-outline-variant overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-surface-variant/50 border-b border-outline-variant">
+                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide whitespace-nowrap">LGA</th>
+                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide whitespace-nowrap">Facility Name</th>
+                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide whitespace-nowrap">Facility Type</th>
+                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide">Destinations</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/60">
+                {sortedFacilities.map((facility) => {
                   const destinations = destinationMap.get(facility.facility_id) ?? [];
+                  const label = facilityLabel(facility);
                   return (
-                    <Link
-                      key={facility.facility_id}
-                      href={`/map/${toFacilitySlug(facility)}`}
-                      className="flex flex-col gap-2 px-5 py-4 bg-surface hover:bg-on-surface/[0.04] transition-colors group"
-                    >
-                      {/* Name + badges row */}
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className="text-[15px] font-medium text-on-surface group-hover:text-primary transition-colors truncate">
-                            {facility.facility_name ?? "Unnamed"}
+                    <tr key={facility.facility_id} className="bg-surface hover:bg-on-surface/[0.03] transition-colors">
+                      <td className="px-4 py-3 text-on-surface-variant whitespace-nowrap align-top">{facility.lga ?? "—"}</td>
+                      <td className="px-4 py-3 align-top">
+                        <Link
+                          href={`/map/${toFacilitySlug(facility)}`}
+                          className="text-on-surface hover:text-primary transition-colors font-medium"
+                        >
+                          {facility.facility_name ?? "Unnamed"}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-on-surface-variant align-top whitespace-nowrap">
+                        {facility.facility_type ?? "—"}
+                      </td>
+                      <td className="px-4 py-3 align-top">
+                        {label === "future-omi-eko" && (
+                          <span className="inline-flex px-2 py-0.5 rounded-full bg-[#7B3F00]/15 text-[#7B3F00] text-xs font-bold">
+                            Future OMI EKO
                           </span>
-                          {(() => {
-                            const isCharterOnly = facility.category?.includes("Charter only") ?? false;
-                            const isFutureOmiEko = (facility.category?.includes("Future Omi Eko") ?? false) || (isCharterOnly && facility.omi_eko === "Yes");
-                            if (isFutureOmiEko) return (
-                              <span className="shrink-0 px-2 py-1 rounded-full bg-[#7B3F00]/15 text-[#7B3F00] text-xs font-bold">
-                                Future OMI EKO
-                              </span>
-                            );
-                            if (isCharterOnly) return (
-                              <span className="shrink-0 px-2 py-1 rounded-full bg-[#7B3F00]/15 text-[#7B3F00] text-xs font-bold">
-                                Charter Only
-                              </span>
-                            );
-                            return null;
-                          })()}
-                          {facility.facility_type && (
-                            <span className="hidden sm:inline-flex px-2 py-1 rounded-full bg-primary-container/50 text-on-primary-container text-xs font-medium tracking-[0.1px]">
-                              {facility.facility_type} ({facility.quality})
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="text-outline"
-                          >
-                            <path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-                          </svg>
-                        </div>
-                      </div>
-
-                      {/* Destinations row */}
-                      {destinations.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[11px] font-medium text-on-surface-variant/70 uppercase tracking-wide mr-0.5">
-                            Routes to:
+                        )}
+                        {label === "charter-only" && (
+                          <span className="inline-flex px-2 py-0.5 rounded-full bg-[#7B3F00]/15 text-[#7B3F00] text-xs font-bold">
+                            Charter Only
                           </span>
-                          {destinations.map((dest) => (
-                            <span
-                              key={dest}
-                              className="px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant text-[12px]"
-                            >
-                              {dest}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </Link>
+                        )}
+                        {label === null && destinations.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {destinations.map((dest) => (
+                              <span
+                                key={dest}
+                                className="px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant text-xs"
+                              >
+                                {dest}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {label === null && destinations.length === 0 && (
+                          <span className="text-on-surface-variant/50">—</span>
+                        )}
+                      </td>
+                    </tr>
                   );
                 })}
-              </div>
-            </div>
-          ))}
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        {/* Routes section */}
+        <div>
+          <h2 className="text-xl font-medium text-on-surface mb-4">Routes</h2>
+          <div className="rounded-xl border border-outline-variant overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-surface-variant/50 border-b border-outline-variant">
+                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide whitespace-nowrap">Origin</th>
+                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide whitespace-nowrap">Destination</th>
+                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide">Operator</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/60">
+                {sortedRoutes.map((route) => (
+                  <tr key={route.route_id} className="bg-surface hover:bg-on-surface/[0.03] transition-colors">
+                    <td className="px-4 py-3 text-on-surface whitespace-nowrap">{route.origin_name ?? "—"}</td>
+                    <td className="px-4 py-3 text-on-surface whitespace-nowrap">{route.destination_name ?? "—"}</td>
+                    <td className="px-4 py-3 text-on-surface-variant">{route.operator ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </section>
     </>
   );
