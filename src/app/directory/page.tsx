@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getFacilities, getAllFacilityDestinations } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
-import { toFacilitySlug } from "@/lib/facilitySlug";
+import { FacilitiesTable } from "@/components/FacilitiesTable";
+import { RoutesTable } from "@/components/RoutesTable";
 import type { Facility } from "@/types/facility";
 
 export const revalidate = 0;
@@ -49,16 +49,6 @@ function buildJsonLd(facilities: Facility[], destinationMap: Map<number, string[
   };
 }
 
-function facilityLabel(facility: Facility): "future-omi-eko" | "charter-only" | null {
-  const isCharterOnly = facility.category?.includes("Charter only") ?? false;
-  const isFutureOmiEko =
-    (facility.category?.includes("Future Omi Eko") ?? false) ||
-    (isCharterOnly && facility.omi_eko === "Yes");
-  if (isFutureOmiEko) return "future-omi-eko";
-  if (isCharterOnly) return "charter-only";
-  return null;
-}
-
 export default async function DirectoryPage() {
   const [facilities, routes, facilityDestinations] = await Promise.all([
     getFacilities(),
@@ -89,8 +79,11 @@ export default async function DirectoryPage() {
   ).length;
 
   const jsonLd = buildJsonLd(facilities, destinationMap);
-
   const lgaCount = new Set(facilities.map((f) => f.lga)).size;
+
+  // Convert Map to plain Record for client component serialization
+  const destRecord: Record<number, string[]> = {};
+  for (const [id, dests] of destinationMap) destRecord[id] = dests;
 
   return (
     <>
@@ -121,95 +114,16 @@ export default async function DirectoryPage() {
           <span>LGA{lgaCount !== 1 ? "s" : ""}</span>
         </div>
 
-        {/* Facilities section */}
         <div className="mb-12">
-          <h2 className="text-xl font-medium text-on-surface mb-4">Facilities</h2>
-          <div className="rounded-xl border border-outline-variant overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-surface-variant/50 border-b border-outline-variant">
-                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide whitespace-nowrap">LGA</th>
-                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide whitespace-nowrap">Facility Name</th>
-                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide whitespace-nowrap">Facility Type</th>
-                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide">Destinations</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/60">
-                {sortedFacilities.map((facility) => {
-                  const destinations = destinationMap.get(facility.facility_id) ?? [];
-                  const label = facilityLabel(facility);
-                  return (
-                    <tr key={facility.facility_id} className="bg-surface hover:bg-on-surface/[0.03] transition-colors">
-                      <td className="px-4 py-3 text-on-surface-variant whitespace-nowrap align-top">{facility.lga ?? "—"}</td>
-                      <td className="px-4 py-3 align-top">
-                        <Link
-                          href={`/map/${toFacilitySlug(facility)}`}
-                          className="text-on-surface hover:text-primary transition-colors font-medium"
-                        >
-                          {facility.facility_name ?? "Unnamed"}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-on-surface-variant align-top whitespace-nowrap">
-                        {facility.facility_type ?? "—"}
-                      </td>
-                      <td className="px-4 py-3 align-top">
-                        {label === "future-omi-eko" && (
-                          <span className="inline-flex px-2 py-0.5 rounded-full bg-[#7B3F00]/15 text-[#7B3F00] text-xs font-bold">
-                            Future OMI EKO
-                          </span>
-                        )}
-                        {label === "charter-only" && (
-                          <span className="inline-flex px-2 py-0.5 rounded-full bg-[#7B3F00]/15 text-[#7B3F00] text-xs font-bold">
-                            Charter Only
-                          </span>
-                        )}
-                        {label === null && destinations.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {destinations.map((dest) => (
-                              <span
-                                key={dest}
-                                className="px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant text-xs"
-                              >
-                                {dest}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        {label === null && destinations.length === 0 && (
-                          <span className="text-on-surface-variant/50">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <h2 className="text-xl font-medium text-on-surface mb-2">Facilities</h2>
+          <p className="text-xs leading-6 text-on-surface-variant mb-2 max-w-2xl">Click on a facility to see full details</p>
+          <FacilitiesTable facilities={sortedFacilities} destinationMap={destRecord} />
         </div>
 
-        {/* Routes section */}
         <div>
-          <h2 className="text-xl font-medium text-on-surface mb-4">Routes</h2>
-          <div className="rounded-xl border border-outline-variant overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-surface-variant/50 border-b border-outline-variant">
-                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide whitespace-nowrap">Origin</th>
-                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide whitespace-nowrap">Destination</th>
-                  <th className="text-left px-4 py-3 font-medium text-on-surface-variant text-xs uppercase tracking-wide">Operator</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/60">
-                {sortedRoutes.map((route) => (
-                  <tr key={route.route_id} className="bg-surface hover:bg-on-surface/[0.03] transition-colors">
-                    <td className="px-4 py-3 text-on-surface whitespace-nowrap">{route.origin_name ?? "—"}</td>
-                    <td className="px-4 py-3 text-on-surface whitespace-nowrap">{route.destination_name ?? "—"}</td>
-                    <td className="px-4 py-3 text-on-surface-variant">{route.operator ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <h2 className="text-xl font-medium text-on-surface mb-2">Routes</h2>
+          <p className="text-xs leading-6 text-on-surface-variant mb-2 max-w-2xl">Click on a route to see full details and schedule</p>
+          <RoutesTable routes={sortedRoutes} />
         </div>
 
       </section>

@@ -44,7 +44,7 @@ export default function Footer() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="block px-4 py-1 rounded-full text-sm font-medium tracking-[0.1px] text-[#C3C7CF] hover:text-[#F9F9FF] hover:bg-white/8 transition-colors"
+                  className="block px-0 py-1 rounded-full text-sm font-medium tracking-[0.1px] text-[#C3C7CF] hover:text-[#F9F9FF] hover:bg-white/8 transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -55,7 +55,7 @@ export default function Footer() {
                 href={REPORT_FORM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block px-4 py-2 rounded-full text-sm font-medium tracking-[0.1px] text-[#C3C7CF] hover:text-[#F9F9FF] hover:bg-white/8 transition-colors"
+                className="block px-0 py-1 rounded-full text-sm font-medium tracking-[0.1px] text-[#C3C7CF] hover:text-[#F9F9FF] hover:bg-white/8 transition-colors"
               >
                 Report Issue
               </a>
