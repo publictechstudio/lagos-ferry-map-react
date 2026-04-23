@@ -42,9 +42,6 @@ export default function ScheduleTable({ periods }: { periods: RoutePeriod[] }) {
           ))}
         </tbody>
       </table>
-      <p className="mt-1 text-[11px] italic text-on-surface-variant">
-        Note: Departure times are estimates. Actual departures depend on passenger demand, with boats typically waiting until they are full.
-      </p>
     </div>
   );
 }

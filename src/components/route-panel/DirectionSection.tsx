@@ -54,6 +54,9 @@ export default function DirectionSection({
             No schedule data available.
           </p>
         )}
+        <p className="mt-1 mb-5 text-[11px] italic text-on-surface-variant">
+          Note: Departure times are estimates. Actual departures depend on passenger demand, with boats typically waiting until they are full.
+        </p>
 
         {/* Price table */}
         <PriceTable stops={stops} paymentOptions={paymentOptions} totalBaseCost={totalBaseCost} originName={originName} destinationName={destinationName} />

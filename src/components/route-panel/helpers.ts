@@ -34,10 +34,10 @@ export function formatDaySchedule(p: RoutePeriod): string {
   const allWeekend = weekend.every(Boolean);
   const noWeekend = weekend.every((d) => !d);
 
-  if (allWeekdays && noWeekend) return "Monday – Friday. Does not operate on weekends.";
-  if (allWeekdays && p.saturday && !p.sunday) return "Monday – Saturday. Does not operate on Sundays.";
+  if (allWeekdays && noWeekend) return "Monday – Friday";
+  if (allWeekdays && p.saturday && !p.sunday) return "Monday – Saturday";
   if (allWeekdays && allWeekend) return "Daily";
-  if (noWeekdays && allWeekend) return "Weekends only. Does not operate on weekdays.";
+  if (noWeekdays && allWeekend) return "Saturday and Sunday";
   if (noWeekdays && p.saturday && !p.sunday) return "Saturdays only.";
   if (noWeekdays && !p.saturday && p.sunday) return "Sundays only.";
 
