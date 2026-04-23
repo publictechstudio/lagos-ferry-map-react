@@ -25,15 +25,15 @@ export default function ScheduleTable({ periods }: { periods: RoutePeriod[] }) {
           {periods.map((p) => (
             <tr key={p.route_period_id} className="border-b border-outline-variant last:border-0">
               <td className="px-3 py-2 text-on-surface">
-                {p.single_daily_departure
+                {p.average_daily_boat_departures === 1
                   ? `Departure at ${formatTime(p.start_time)}`
                   : p.end_time
                   ? `${formatTime(p.start_time)} – ${formatTime(p.end_time)}`
                   : formatTime(p.start_time)}
               </td>
               <td className="px-3 py-2 text-on-surface">
-                {p.single_daily_departure
-                  ? "Single departure"
+                {p.average_daily_boat_departures === 1
+                  ? "Single departure (only 1 boat)"
                   : p.frequency
                   ? `Every ${p.frequency} mins`
                   : "—"}
@@ -42,6 +42,9 @@ export default function ScheduleTable({ periods }: { periods: RoutePeriod[] }) {
           ))}
         </tbody>
       </table>
+      <p className="mt-1 text-[11px] italic text-on-surface-variant">
+        Note: Departure times are estimates. Actual departures depend on passenger demand, with boats typically waiting until they are full.
+      </p>
     </div>
   );
 }
