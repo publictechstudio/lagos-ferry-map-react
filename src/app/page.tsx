@@ -69,10 +69,10 @@ export default function HomePage() {
             <Image src="/logos/black-logo-transparent.png" alt="Public Tech Studio" height={30} width={110} sizes="110px" className="mb-3 object-contain object-left" />
             <p className="text-base leading-6 text-on-surface-variant mb-3">
               <a className="link" href="https://www.publictech.studio/">Public Tech Studio</a> launched this project in 2025 to educate Lagos commuters about the availability and advantages of ferry transportation, aiming to reduce road congestion and promote more robust multi-modal public transit.</p>
-            {/* <Image src="/logos/LASWA_logo.png" alt="Lagos State Waterways Authority" height={25} width={90} sizes="90px" className="mb-3 object-contain object-left" /> */}
-            {/* <p className="text-base leading-6 text-on-surface-variant mb-3">
+            <Image src="/logos/LASWA_logo.png" alt="Lagos State Waterways Authority" height={25} width={90} sizes="90px" className="mb-3 object-contain object-left" />
+            <p className="text-base leading-6 text-on-surface-variant mb-3">
               Through a new partnership, the <a className="link" href="https://lagoswaterways.com/">Lagos State Waterways Authority</a> is also contributing data on ferry operations at the facilities under their oversight.
-            </p> */}
+            </p>
           </div>
         </div>
       </section>
