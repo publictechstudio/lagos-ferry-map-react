@@ -178,6 +178,7 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
                 totalBaseCost={route.total_base_cost}
                 originName={route.destination_name_short ?? route.destination_name ?? "Destination"}
                 destinationName={route.origin_name_short ?? route.origin_name ?? "Origin"}
+                totalOnly
               />
             )}
           </>

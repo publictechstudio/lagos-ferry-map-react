@@ -14,6 +14,7 @@ export default function DirectionSection({
   totalBaseCost,
   originName,
   destinationName,
+  totalOnly = false,
 }: {
   label: string;
   stops: RouteStop[];
@@ -22,6 +23,7 @@ export default function DirectionSection({
   totalBaseCost: number | null;
   originName: string;
   destinationName: string;
+  totalOnly?: boolean;
 }) {
   console.log(`[DirectionSection] label="${label}" — periods received:`, periods.length, "stops received:", stops.length);
   const suffix = directionSuffix(periods);
@@ -59,7 +61,7 @@ export default function DirectionSection({
         </p>
 
         {/* Price table */}
-        <PriceTable stops={stops} paymentOptions={paymentOptions} totalBaseCost={totalBaseCost} originName={originName} destinationName={destinationName} />
+        <PriceTable stops={stops} paymentOptions={paymentOptions} totalBaseCost={totalBaseCost} originName={originName} destinationName={destinationName} totalOnly={totalOnly} />
       </div>
     </div>
   );

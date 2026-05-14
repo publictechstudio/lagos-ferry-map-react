@@ -9,18 +9,24 @@ export default function PriceTable({
   totalBaseCost,
   originName,
   destinationName,
+  totalOnly = false,
 }: {
   stops: RouteStop[];
   paymentOptions: string | null;
   totalBaseCost: number | null;
   originName: string;
   destinationName: string;
+  totalOnly?: boolean;
 }) {
   if (stops.length < 2) return null;
 
   const flat = isFlat(stops);
   const paymentNote = paymentOptions ? ` (${paymentOptions})` : "";
-  const showTotal = stops.length > 2 && totalBaseCost != null;
+  const showTotal = !totalOnly && stops.length > 2 && totalBaseCost != null;
+
+  const totalCost = totalBaseCost != null
+    ? `${formatNaira(totalBaseCost)}${paymentNote}`
+    : `${formatStopCost(stops[stops.length - 1].cost_to_stop) || "—"}${paymentNote}`;
 
   return (
     <div className="mb-3">
@@ -36,7 +42,22 @@ export default function PriceTable({
           </tr>
         </thead>
         <tbody>
-          {flat ? (
+          {totalOnly && flat ? (
+            <tr>
+              <td className="px-3 py-2 text-on-surface-variant">Flat rate for all stops</td>
+              <td className="px-3 py-2 text-on-surface font-medium">
+                {formatStopCost(stops[1].cost_to_stop)}
+                {paymentNote}
+              </td>
+            </tr>
+          ) : totalOnly ? (
+            <tr>
+              <td className="px-3 py-2 text-on-surface-variant">
+                {originName} → {destinationName}
+              </td>
+              <td className="px-3 py-2 text-on-surface font-medium">{totalCost}</td>
+            </tr>
+          ) : flat ? (
             <tr>
               <td className="px-3 py-2 text-on-surface-variant">Flat rate for all stops</td>
               <td className="px-3 py-2 text-on-surface font-medium">
@@ -46,11 +67,10 @@ export default function PriceTable({
             </tr>
           ) : (
             stops.slice(1).map((stop, i) => {
-              const from = stops[i];
               return (
                 <tr key={stop.route_stop_id} className="border-b border-outline-variant last:border-0">
                   <td className="px-3 py-2 text-on-surface-variant">
-                    {from.facility_name ?? `Stop ${i + 1}`} → {stop.facility_name ?? `Stop ${i + 2}`}
+                    {originName} → {stop.facility_name ?? `Stop ${i + 2}`}
                   </td>
                   <td className="px-3 py-2 text-on-surface font-medium">
                     {formatStopCost(stop.cost_to_stop) || "—"}
