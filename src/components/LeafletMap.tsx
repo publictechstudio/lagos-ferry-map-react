@@ -220,7 +220,7 @@ export default function LeafletMap({
       });
 
       facilities.forEach((facility) => {
-        if (facility.omi_eko !== "Yes") return;
+        if (facility.omi_eko !== true) return;
         const name = facility.facility_name ?? "Unnamed";
 
         const star = L.marker([facility.facility_lat, facility.facility_lon], {
@@ -243,8 +243,8 @@ export default function LeafletMap({
         const name = facility.facility_name ?? "Unnamed";
         const cat = facility.category ?? "Unknown";
 
-        // Future Omi Eko facilities are only shown via the Omi Eko star layer
-        if (cat === "Future Omi Eko") return;
+        // Only render circle markers for known active categories
+        if (!(cat in CATEGORY_STYLES)) return;
 
         // Visual marker — non-interactive, purely for display
         const marker = L.circleMarker([facility.facility_lat, facility.facility_lon], {

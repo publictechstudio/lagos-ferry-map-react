@@ -355,7 +355,7 @@ export default function FacilityList({
               </li>
               {nearbyFacilities.map(({ facility, distanceKm }) => {
                 const isCharterOnly = facility.category?.includes("Charter only") ?? false;
-                const isFutureOmiEko = (facility.category?.includes("Future Omi Eko") ?? false) || (isCharterOnly && facility.omi_eko === "Yes");
+                const isFutureOmiEko = (facility.category?.includes("Future Omi Eko") ?? false) || (isCharterOnly && facility.omi_eko === true);
                 const statusLabel = isFutureOmiEko ? "Future Omi Eko" : isCharterOnly ? "Charter Only" : "Active";
                 const statusColor = isFutureOmiEko ? "text-[#1A6B3C]" : isCharterOnly ? "text-[#7B3F00]" : "text-primary";
                 return (

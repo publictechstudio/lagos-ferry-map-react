@@ -22,7 +22,7 @@ export type Facility = {
   laswa_officer_available: string | null;
   source_of_awareness: string | null;
   category: string | null;
-  omi_eko: string | null;
+  omi_eko: boolean | null;
   assignment: string | null;
   additional_notes: string | null;
 };

@@ -10,7 +10,7 @@ function facilityLabel(facility: Facility): "future-omi-eko" | "charter-only" | 
   const isCharterOnly = facility.category?.includes("Charter only") ?? false;
   const isFutureOmiEko =
     (facility.category?.includes("Future Omi Eko") ?? false) ||
-    (isCharterOnly && facility.omi_eko === "Yes");
+    (isCharterOnly && facility.omi_eko === true);
   if (isFutureOmiEko) return "future-omi-eko";
   if (isCharterOnly) return "charter-only";
   return null;

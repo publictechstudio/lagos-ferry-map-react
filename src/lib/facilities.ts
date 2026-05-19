@@ -33,7 +33,7 @@ export async function getFacilities(): Promise<Facility[]> {
     FROM facilities
     WHERE facility_lat IS NOT NULL
       AND facility_lon IS NOT NULL
-      AND category NOT LIKE 'Not included%'
+      AND (category NOT LIKE 'Not included%' OR omi_eko = TRUE)
     ORDER BY facility_name
   `;
   return rows as Facility[];
