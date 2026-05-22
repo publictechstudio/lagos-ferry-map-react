@@ -16,5 +16,5 @@ export async function GET(
     WHERE route_id = ${id}
     ORDER BY direction_id, start_time
   `;
-  return NextResponse.json(rows as RoutePeriod[]);
+  return NextResponse.json(rows as unknown as RoutePeriod[]);
 }

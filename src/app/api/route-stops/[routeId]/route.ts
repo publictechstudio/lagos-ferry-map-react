@@ -26,5 +26,5 @@ export async function GET(
     WHERE rs.route_id = ${id}
     ORDER BY rs.stop_order
   `;
-  return NextResponse.json(rows as RouteStop[]);
+  return NextResponse.json(rows as unknown as RouteStop[]);
 }
