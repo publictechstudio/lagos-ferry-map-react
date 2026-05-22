@@ -301,7 +301,7 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
           )}
 
           {/* Key attributes + Google Maps link */}
-          <div className="flex flex-col justify-start h-48 rounded-lg mb-3 md:mb-0 md:w-1/2 md:shrink-0 bg-primary/[0.1]">
+          <div className="flex flex-col justify-start md:h-48 rounded-lg mb-3 md:mb-0 md:w-1/2 md:shrink-0 bg-primary/[0.1]">
             {keyAttrValues.length > 0 && (
               <div className="text-sm text-on-surface-variant mb-3 flex flex-col gap-1 px-4 py-4">
                 {keyAttrValues.map(({ key, label }) => (
@@ -318,7 +318,7 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
                 href={facility.google_maps_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-4 text-primary text-sm font-medium hover:underline underline-offset-2"
+                className="inline-flex items-center px-4 text-primary text-sm font-medium hover:underline underline-offset-2 mb-4"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />

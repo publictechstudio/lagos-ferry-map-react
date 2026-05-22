@@ -1,10 +1,8 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import type { RouteStop } from "@/types/routeStop";
 import { toFacilitySlug } from "@/lib/facilitySlug";
 import { formatMinutes } from "./helpers";
-
-const STOPS_PER_ROW = 4;
 
 /** Renders one stop circle + label, linked to the facility page. */
 function StopNode({
@@ -91,7 +89,9 @@ function Connector({ durationLabel, direction }: { durationLabel: string | null;
 function TurnConnector({ side, durationLabel }: { side: "right" | "left"; durationLabel: string | null }) {
   return (
     <div className={`flex py-1 ${side === "right" ? "justify-end pr-[38px]" : "justify-start pl-[38px]"}`}>
-      <div className="flex flex-col items-center">
+      {/* translate-x-1/2 offsets by half the inner div's own width so the line center
+          lands exactly on the stop center (38px from edge), regardless of label width. */}
+      <div className={`flex flex-col items-center ${side === "right" ? "translate-x-1/2" : "-translate-x-1/2"}`}>
         {durationLabel && (
           <span className="text-[11px] text-on-surface-variant whitespace-nowrap px-1 mb-0.5">{durationLabel}</span>
         )}
@@ -106,12 +106,21 @@ function TurnConnector({ side, durationLabel }: { side: "right" | "left"; durati
 
 /** Stop diagram that wraps into a snake layout when stops exceed one row. */
 export default function StopDiagram({ stops }: { stops: RouteStop[] }) {
+  const [stopsPerRow, setStopsPerRow] = useState(4);
+
+  useEffect(() => {
+    const update = () => setStopsPerRow(window.innerWidth < 640 ? 3 : 4);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   if (stops.length === 0) return null;
 
   // Chunk into rows
   const rows: RouteStop[][] = [];
-  for (let i = 0; i < stops.length; i += STOPS_PER_ROW) {
-    rows.push(stops.slice(i, i + STOPS_PER_ROW));
+  for (let i = 0; i < stops.length; i += stopsPerRow) {
+    rows.push(stops.slice(i, i + stopsPerRow));
   }
 
   const totalStops = stops.length;
@@ -122,7 +131,7 @@ export default function StopDiagram({ stops }: { stops: RouteStop[] }) {
         const isEvenRow = rowIdx % 2 === 0;
         // Odd rows display stops right-to-left so travel continues from the turn side
         const displayStops = isEvenRow ? rowStops : [...rowStops].reverse();
-        const rowStartIdx = rowIdx * STOPS_PER_ROW;
+        const rowStartIdx = rowIdx * stopsPerRow;
 
         // Global index in the full stops array for a given display position
         const globalIdx = (displayIdx: number) =>
@@ -152,7 +161,7 @@ export default function StopDiagram({ stops }: { stops: RouteStop[] }) {
 
         return (
           <div key={rowIdx}>
-            <div className="flex items-start w-full">
+            <div className={`flex items-start w-full ${!isEvenRow ? "justify-end" : ""}`}>
               {displayStops.map((stop, displayIdx) => {
                 const gIdx = globalIdx(displayIdx);
                 return (
