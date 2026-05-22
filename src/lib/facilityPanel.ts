@@ -28,7 +28,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
     ORDER BY f.lga, f.facility_name
   `;
 
-  const destinations = destRows as Destination[];
+  const destinations = destRows as unknown as Destination[];
 
   if (destinations.length === 0) {
     return { destinations: [], routesByDest: {}, periodsByRoute: {} };
@@ -69,7 +69,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
   const routesByDest: Record<number, ConnectingRoute[]> = {};
   const uniqueRouteIds = new Set<number>();
 
-  for (const row of routeRows as (ConnectingRoute & { dest_id: number })[]) {
+  for (const row of routeRows as unknown as (ConnectingRoute & { dest_id: number })[]) {
     const { dest_id, ...route } = row;
     if (!routesByDest[dest_id]) routesByDest[dest_id] = [];
     routesByDest[dest_id].push(route as ConnectingRoute);
@@ -93,7 +93,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
   `;
 
   const periodsByRoute: Record<number, RoutePeriod[]> = {};
-  for (const row of periodRows as RoutePeriod[]) {
+  for (const row of periodRows as unknown as RoutePeriod[]) {
     if (!periodsByRoute[row.route_id]) periodsByRoute[row.route_id] = [];
     periodsByRoute[row.route_id].push(row);
   }

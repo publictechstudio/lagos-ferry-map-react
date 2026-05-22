@@ -34,7 +34,7 @@ export async function getRoutes(): Promise<Route[]> {
     WHERE r.geom IS NOT NULL
     ORDER BY r.route_id
   `;
-  return rows as Route[];
+  return rows as unknown as Route[];
 }
 
 export async function getRouteById(id: number): Promise<Route | null> {
@@ -70,5 +70,5 @@ export async function getRouteById(id: number): Promise<Route | null> {
     WHERE r.route_id = ${id}
       AND r.geom IS NOT NULL
   `;
-  return (rows[0] as Route) ?? null;
+  return (rows[0] as unknown as Route) ?? null;
 }
