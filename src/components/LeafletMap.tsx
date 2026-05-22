@@ -189,7 +189,7 @@ export default function LeafletMap({
         if (isOmiEko) {
           const dashedLine = L.polyline(coords, {
             color: '#000000',
-            weight: 2,
+            weight: 1.5,
             opacity: 0.8,
             dashArray: '8, 6',
             interactive: false,
@@ -358,6 +358,11 @@ export default function LeafletMap({
         weight: isSelected ? 8 : routeWeight(zoom),
         opacity: isSelected ? 1 : 0.7,
       });
+      if (isSelected) polyline.bringToFront();
+    });
+    omiEkoRouteLinesRef.current.forEach((polyline, id) => {
+      const isSelected = id === selectedRouteId;
+      polyline.setStyle({ weight: isSelected ? 5 : 1.5 });
       if (isSelected) polyline.bringToFront();
     });
   }, [selectedRouteId]);
