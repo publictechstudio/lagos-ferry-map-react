@@ -36,7 +36,7 @@ export async function getFacilities(): Promise<Facility[]> {
       AND (category NOT LIKE 'Not included%' OR omi_eko = TRUE)
     ORDER BY facility_name
   `;
-  return rows as Facility[];
+  return rows as unknown as Facility[];
 }
 
 export async function getAllFacilityDestinations(): Promise<{ facility_id: number; destination_name: string }[]> {
@@ -49,5 +49,5 @@ export async function getAllFacilityDestinations(): Promise<{ facility_id: numbe
       AND fd.is_charter IS FALSE
     ORDER BY fd.facility_id, f.facility_name
   `;
-  return rows as { facility_id: number; destination_name: string }[];
+  return rows as unknown as { facility_id: number; destination_name: string }[];
 }

@@ -34,7 +34,7 @@ export async function getRoutePanelData(routeId: number): Promise<RoutePanelData
   ]);
 
   return {
-    stops: stopRows as RouteStop[],
-    periods: periodRows as RoutePeriod[],
+    stops: stopRows as unknown as RouteStop[],
+    periods: periodRows as unknown as RoutePeriod[],
   };
 }
