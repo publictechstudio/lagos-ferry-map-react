@@ -111,11 +111,12 @@ function OperatorLabel({ operator }: { operator: string | null }) {
 interface DestinationCardProps {
   dest: Destination;
   facility: Facility;
+  reversed: boolean;
   routesByDest: Map<number, ConnectingRoute[]>;
   periodsByRoute: Map<number, RoutePeriod[]>;
 }
 
-function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: DestinationCardProps) {
+function DestinationCard({ dest, facility, reversed, routesByDest, periodsByRoute }: DestinationCardProps) {
   const [open, setOpen] = useState(false);
   const routes = (routesByDest.get(dest.facility_id) ?? []).filter((r) => {
     const allPeriods = periodsByRoute.get(r.route_id) ?? [];
@@ -159,7 +160,11 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
           <div className="border-t border-outline-variant/60">
             <div className="flex items-center gap-2 px-4 pt-2.5 pb-1 text-on-surface-variant text-sm">
               <DirectionsBoatIcon sx={{ fontSize: 16 }} className="shrink-0" />
-              <span>Routes that will take you from {facility.facility_name_short} to {dest.facility_name_short ?? "destination"}</span>
+              <span>
+                {reversed
+                  ? `Routes that will take you from ${dest.facility_name_short ?? "this facility"} to ${facility.facility_name_short}`
+                  : `Routes that will take you from ${facility.facility_name_short} to ${dest.facility_name_short ?? "destination"}`}
+              </span>
             </div>
             {routes.length === 0 ? (
               <p className="px-4 pb-2.5 text-xs text-on-surface-variant/60">No direct routes recorded.</p>
@@ -225,6 +230,7 @@ interface Props {
 
 export default function FacilityPanel({ facility, onClose, preloadedData }: Props) {
   const [destinations, setDestinations] = useState<Destination[] | null>(null);
+  const [reversed, setReversed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [routesByDest, setRoutesByDest] = useState<Map<number, ConnectingRoute[]>>(new Map());
   const [periodsByRoute, setPeriodsByRoute] = useState<Map<number, RoutePeriod[]>>(new Map());
@@ -233,6 +239,7 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
     // Use server-provided data immediately — no network request needed
     if (preloadedData) {
       setDestinations(preloadedData.destinations);
+      setReversed(preloadedData.reversed);
       setRoutesByDest(new Map(Object.entries(preloadedData.routesByDest).map(([k, v]) => [Number(k), v])));
       setPeriodsByRoute(new Map(Object.entries(preloadedData.periodsByRoute).map(([k, v]) => [Number(k), v])));
       setLoading(false);
@@ -241,22 +248,26 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
 
     setLoading(true);
     setDestinations(null);
+    setReversed(false);
     setRoutesByDest(new Map());
     setPeriodsByRoute(new Map());
     fetch(`/api/facility-panel/${facility.facility_id}`)
       .then((r) => r.json())
-      .then(({ destinations, routesByDest, periodsByRoute }: {
+      .then(({ destinations, reversed, routesByDest, periodsByRoute }: {
         destinations: Destination[];
+        reversed: boolean;
         routesByDest: Record<string, ConnectingRoute[]>;
         periodsByRoute: Record<string, RoutePeriod[]>;
       }) => {
         setDestinations(destinations);
+        setReversed(reversed);
         setRoutesByDest(new Map(Object.entries(routesByDest).map(([k, v]) => [Number(k), v])));
         setPeriodsByRoute(new Map(Object.entries(periodsByRoute).map(([k, v]) => [Number(k), v])));
         setLoading(false);
       })
       .catch(() => {
         setDestinations([]);
+        setReversed(false);
         setLoading(false);
       });
   }, [facility.facility_id, preloadedData]);
@@ -360,7 +371,9 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
                 </p>
               )}
               <h3 className="text-[15px] font-semibold text-on-surface mb-3 leading-5">
-                From this facility, you can get to the following destinations
+                {reversed
+                  ? "You can reach this facility from"
+                  : "From this facility, you can get to the following destinations"}
               </h3>
               {loading ? (
                 <LoadingSpinner message="Loading destinations…" />
@@ -381,6 +394,7 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
                             key={dest.facility_id}
                             dest={dest}
                             facility={facility}
+                            reversed={reversed}
                             routesByDest={routesByDest}
                             periodsByRoute={periodsByRoute}
                           />

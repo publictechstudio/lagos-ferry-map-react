@@ -8,6 +8,8 @@ export const revalidate = 60;
 
 export type FacilityPanelData = {
   destinations: Destination[];
+  /** True when `destinations` are places that lead here, not places reachable from here. */
+  reversed: boolean;
   routesByDest: Record<number, ConnectingRoute[]>;
   periodsByRoute: Record<number, RoutePeriod[]>;
 };
@@ -42,48 +44,106 @@ export async function GET(
     ORDER BY f.lga, f.facility_name
   `;
 
-  const destinations = destRows as unknown as Destination[];
+  let destinations = destRows as unknown as Destination[];
+  let reversed = false;
+
+  // No recorded outgoing destinations — fall back to places that lead here.
+  if (destinations.length === 0) {
+    const originRows = await sql`
+      SELECT
+        f.facility_id,
+        f.facility_name,
+        f.facility_name_short,
+        f.facility_lat::float AS facility_lat,
+        f.facility_lon::float AS facility_lon,
+        f.lga,
+        f.facility_type
+      FROM facility_destinations fd
+      JOIN facilities f ON f.facility_id = fd.facility_id
+      WHERE fd.destination_id = ${id}
+        AND f.status IS NOT NULL
+        AND f.status != 'not_in_use'
+        AND fd.is_charter IS FALSE
+      ORDER BY f.lga, f.facility_name
+    `;
+    destinations = originRows as unknown as Destination[];
+    reversed = true;
+  }
 
   if (destinations.length === 0) {
-    return NextResponse.json({ destinations: [], routesByDest: {}, periodsByRoute: {} });
+    return NextResponse.json({ destinations: [], reversed: false, routesByDest: {}, periodsByRoute: {} });
   }
 
   const destIds = destinations.map((d) => d.facility_id);
 
   // Step 2: get all connecting routes for ALL destinations in one query
-  const routeRows = await sql`
-    SELECT DISTINCT
-      rs2.stop_id AS dest_id,
-      r.route_id,
-      r.operator,
-      (
-        SELECT rs.cost_to_stop::numeric
-        FROM route_stops rs
-        WHERE rs.route_id = r.route_id
-        ORDER BY rs.stop_order DESC
-        LIMIT 1
-      ) AS last_stop_cost,
-      r.total_base_duration,
-      f1.facility_name AS origin_name,
-      f2.facility_name AS destination_name,
-      f1.facility_name_short AS origin_name_short,
-      f2.facility_name_short AS destination_name_short,
-      CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END AS travel_direction
-    FROM route_stops rs1
-    JOIN route_stops rs2
-      ON rs2.route_id = rs1.route_id
-      AND rs2.stop_id = ANY(${destIds})
-    JOIN routes r ON r.route_id = rs1.route_id
-    LEFT JOIN facilities f1 ON f1.facility_id = r.origin
-    LEFT JOIN facilities f2 ON f2.facility_id = r.destination
-    WHERE rs1.stop_id = ${id}
-      AND rs1.route_id NOT IN (SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE)
-      AND EXISTS (
-        SELECT 1 FROM route_periods rp
-        WHERE rp.route_id = r.route_id
-          AND rp.direction_id = (CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END)
-      )
-  `;
+  const routeRows = reversed
+    ? await sql`
+        SELECT DISTINCT
+          rs1.stop_id AS dest_id,
+          r.route_id,
+          r.operator,
+          (
+            SELECT rs.cost_to_stop::numeric
+            FROM route_stops rs
+            WHERE rs.route_id = r.route_id
+            ORDER BY rs.stop_order DESC
+            LIMIT 1
+          ) AS last_stop_cost,
+          r.total_base_duration,
+          f1.facility_name AS origin_name,
+          f2.facility_name AS destination_name,
+          f1.facility_name_short AS origin_name_short,
+          f2.facility_name_short AS destination_name_short,
+          CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END AS travel_direction
+        FROM route_stops rs1
+        JOIN route_stops rs2
+          ON rs2.route_id = rs1.route_id
+          AND rs1.stop_id = ANY(${destIds})
+        JOIN routes r ON r.route_id = rs1.route_id
+        LEFT JOIN facilities f1 ON f1.facility_id = r.origin
+        LEFT JOIN facilities f2 ON f2.facility_id = r.destination
+        WHERE rs2.stop_id = ${id}
+          AND rs1.route_id NOT IN (SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE)
+          AND EXISTS (
+            SELECT 1 FROM route_periods rp
+            WHERE rp.route_id = r.route_id
+              AND rp.direction_id = (CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END)
+          )
+      `
+    : await sql`
+        SELECT DISTINCT
+          rs2.stop_id AS dest_id,
+          r.route_id,
+          r.operator,
+          (
+            SELECT rs.cost_to_stop::numeric
+            FROM route_stops rs
+            WHERE rs.route_id = r.route_id
+            ORDER BY rs.stop_order DESC
+            LIMIT 1
+          ) AS last_stop_cost,
+          r.total_base_duration,
+          f1.facility_name AS origin_name,
+          f2.facility_name AS destination_name,
+          f1.facility_name_short AS origin_name_short,
+          f2.facility_name_short AS destination_name_short,
+          CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END AS travel_direction
+        FROM route_stops rs1
+        JOIN route_stops rs2
+          ON rs2.route_id = rs1.route_id
+          AND rs2.stop_id = ANY(${destIds})
+        JOIN routes r ON r.route_id = rs1.route_id
+        LEFT JOIN facilities f1 ON f1.facility_id = r.origin
+        LEFT JOIN facilities f2 ON f2.facility_id = r.destination
+        WHERE rs1.stop_id = ${id}
+          AND rs1.route_id NOT IN (SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE)
+          AND EXISTS (
+            SELECT 1 FROM route_periods rp
+            WHERE rp.route_id = r.route_id
+              AND rp.direction_id = (CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END)
+          )
+      `;
 
   const routesByDest: Record<number, ConnectingRoute[]> = {};
   const uniqueRouteIds = new Set<number>();
@@ -96,7 +156,7 @@ export async function GET(
   }
 
   if (uniqueRouteIds.size === 0) {
-    return NextResponse.json({ destinations, routesByDest, periodsByRoute: {} });
+    return NextResponse.json({ destinations, reversed, routesByDest, periodsByRoute: {} });
   }
 
   const routeIds = [...uniqueRouteIds];
@@ -116,5 +176,5 @@ export async function GET(
     periodsByRoute[row.route_id].push(row);
   }
 
-  return NextResponse.json({ destinations, routesByDest, periodsByRoute } satisfies FacilityPanelData);
+  return NextResponse.json({ destinations, reversed, routesByDest, periodsByRoute } satisfies FacilityPanelData);
 }
