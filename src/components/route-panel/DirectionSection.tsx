@@ -11,7 +11,6 @@ export default function DirectionSection({
   stops,
   periods,
   paymentOptions,
-  totalBaseCost,
   originName,
   destinationName,
   totalOnly = false,
@@ -20,7 +19,6 @@ export default function DirectionSection({
   stops: RouteStop[];
   periods: RoutePeriod[];
   paymentOptions: string | null;
-  totalBaseCost: number | null;
   originName: string;
   destinationName: string;
   totalOnly?: boolean;
@@ -61,7 +59,7 @@ export default function DirectionSection({
         </p>
 
         {/* Price table */}
-        <PriceTable stops={stops} paymentOptions={paymentOptions} totalBaseCost={totalBaseCost} originName={originName} destinationName={destinationName} totalOnly={totalOnly} />
+        <PriceTable stops={stops} paymentOptions={paymentOptions} originName={originName} destinationName={destinationName} totalOnly={totalOnly} />
       </div>
     </div>
   );

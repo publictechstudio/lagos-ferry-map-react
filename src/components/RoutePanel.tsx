@@ -162,7 +162,6 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
                 stops={outboundStops}
                 periods={outboundPeriods}
                 paymentOptions={route.payment_options}
-                totalBaseCost={route.total_base_cost}
                 originName={route.origin_name_short ?? route.origin_name ?? "Origin"}
                 destinationName={route.destination_name_short ?? route.destination_name ?? "Destination"}
               />
@@ -175,7 +174,6 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
                 stops={returnStops}
                 periods={returnPeriods}
                 paymentOptions={route.payment_options}
-                totalBaseCost={route.total_base_cost}
                 originName={route.destination_name_short ?? route.destination_name ?? "Destination"}
                 destinationName={route.origin_name_short ?? route.origin_name ?? "Origin"}
                 totalOnly

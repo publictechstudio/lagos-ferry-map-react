@@ -192,7 +192,7 @@ function DestinationCard({ dest, facility, routesByDest, periodsByRoute }: Desti
                             <OperatorLabel operator={r.operator} />
                           </td>
                           <td className="px-2 py-2 text-on-surface-variant whitespace-nowrap">
-                            {r.total_base_cost != null ? formatNaira(r.total_base_cost) : "—"}
+                            {r.last_stop_cost != null ? formatNaira(r.last_stop_cost) : "—"}
                           </td>
                           <td className="px-2 py-2 text-on-surface-variant">
                             {schedule || "—"}

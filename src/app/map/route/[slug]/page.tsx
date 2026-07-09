@@ -22,7 +22,7 @@ export async function generateMetadata({
 
     if (route?.origin_name && route?.destination_name) {
       const title = `${route.origin_name} → ${route.destination_name}`;
-      const fare = route.total_base_cost != null ? ` from ${formatNaira(route.total_base_cost)}` : "";
+      const fare = route.last_stop_cost != null ? ` from ${formatNaira(route.last_stop_cost)}` : "";
       const duration =
         route.total_base_duration != null
           ? ` in ~${route.total_base_duration} min`
@@ -82,10 +82,10 @@ export default async function RouteMapPage({
         ...(initialSelectedRoute.total_base_duration != null && {
           estimatedDuration: `PT${initialSelectedRoute.total_base_duration}M`,
         }),
-        ...(initialSelectedRoute.total_base_cost != null && {
+        ...(initialSelectedRoute.last_stop_cost != null && {
           offers: {
             "@type": "Offer",
-            price: String(initialSelectedRoute.total_base_cost),
+            price: String(initialSelectedRoute.last_stop_cost),
             priceCurrency: "NGN",
           },
         }),

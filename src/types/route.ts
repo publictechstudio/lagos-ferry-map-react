@@ -8,6 +8,8 @@ export type Route = {
   saturday_equals_sunday_schedule: string | null;
   total_base_duration: number | null;
   total_base_cost: number | null;
+  /** Authoritative total cost, derived from the last route_stops row — use this over total_base_cost for display. */
+  last_stop_cost: number | null;
   hyacinth_season_disruption: string | null;
   rain: string | null;
   geom: string;

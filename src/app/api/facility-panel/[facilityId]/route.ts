@@ -56,7 +56,13 @@ export async function GET(
       rs2.stop_id AS dest_id,
       r.route_id,
       r.operator,
-      r.total_base_cost,
+      (
+        SELECT rs.cost_to_stop::numeric
+        FROM route_stops rs
+        WHERE rs.route_id = r.route_id
+        ORDER BY rs.stop_order DESC
+        LIMIT 1
+      ) AS last_stop_cost,
       r.total_base_duration,
       f1.facility_name AS origin_name,
       f2.facility_name AS destination_name,
