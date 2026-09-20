@@ -190,7 +190,7 @@ export default function FacilityList({
   }
 
   function handleNearbyFacilitySelect(facility: Facility) {
-    gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, source: "proximity_search" });
+    gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, select_method: "proximity_search" });
     onSelect(facility);
     handleAddressClear();
   }
@@ -221,7 +221,7 @@ export default function FacilityList({
   })();
 
   function handleSuggestionSelect(facility: Facility) {
-    gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, source: "name_search" });
+    gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, select_method: "name_search" });
     onSelect(facility);
     setQuery("");
     setShowSuggestions(false);
