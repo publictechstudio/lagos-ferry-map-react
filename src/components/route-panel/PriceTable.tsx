@@ -1,19 +1,16 @@
 import type { RouteStop } from "@/types/routeStop";
 import { formatStopCost, isFlat } from "./helpers";
-import { formatNaira } from "@/lib/format";
 
 /** Price table for one direction. */
 export default function PriceTable({
   stops,
   paymentOptions,
-  totalBaseCost,
   originName,
   destinationName,
   totalOnly = false,
 }: {
   stops: RouteStop[];
   paymentOptions: string | null;
-  totalBaseCost: number | null;
   originName: string;
   destinationName: string;
   totalOnly?: boolean;
@@ -22,11 +19,12 @@ export default function PriceTable({
 
   const flat = isFlat(stops);
   const paymentNote = paymentOptions ? ` (${paymentOptions})` : "";
-  const showTotal = !totalOnly && stops.length > 2 && totalBaseCost != null;
+  const showTotal = !totalOnly && stops.length > 2;
 
-  const totalCost = totalBaseCost != null
-    ? `${formatNaira(totalBaseCost)}${paymentNote}`
-    : `${formatStopCost(stops[stops.length - 1].cost_to_stop) || "—"}${paymentNote}`;
+  // The last stop in route_stops is the authoritative total cost for the
+  // route — it must always match the per-leg rows above it.
+  const lastLegCost = stops[stops.length - 1].cost_to_stop;
+  const totalCost = `${formatStopCost(lastLegCost) || "—"}${paymentNote}`;
 
   return (
     <div className="mb-3">
@@ -86,7 +84,7 @@ export default function PriceTable({
                 {originName} → {destinationName} (total)
               </td>
               <td className="px-3 py-2 text-on-surface font-semibold">
-                {formatNaira(totalBaseCost)}
+                {formatStopCost(lastLegCost) || "—"}
               </td>
             </tr>
           )}

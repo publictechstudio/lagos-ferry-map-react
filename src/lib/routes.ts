@@ -13,6 +13,13 @@ export async function getRoutes(): Promise<Route[]> {
       r.saturday_equals_sunday_schedule,
       r.total_base_duration,
       r.total_base_cost,
+      (
+        SELECT rs.cost_to_stop::numeric
+        FROM route_stops rs
+        WHERE rs.route_id = r.route_id
+        ORDER BY rs.stop_order DESC
+        LIMIT 1
+      ) AS last_stop_cost,
       r.hyacinth_season_disruption,
       r.rain,
       r.geom,
@@ -49,6 +56,13 @@ export async function getRouteById(id: number): Promise<Route | null> {
       r.saturday_equals_sunday_schedule,
       r.total_base_duration,
       r.total_base_cost,
+      (
+        SELECT rs.cost_to_stop::numeric
+        FROM route_stops rs
+        WHERE rs.route_id = r.route_id
+        ORDER BY rs.stop_order DESC
+        LIMIT 1
+      ) AS last_stop_cost,
       r.hyacinth_season_disruption,
       r.rain,
       r.geom,
