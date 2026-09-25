@@ -23,6 +23,7 @@ const DirectionsIcon = (
 
 const ctaCards = [
   {
+    ctaId: "map",
     icon: MapIcon,
     title: "View map of all routes",
     description:
@@ -30,6 +31,7 @@ const ctaCards = [
     href: "/map",
   },
   {
+    ctaId: "navigation",
     icon: DirectionsIcon,
     title: "Navigate from A to B",
     description:
@@ -37,6 +39,7 @@ const ctaCards = [
     href: "/partnerships",
   },
     {
+    ctaId: "learn",
     icon: InfoIcon,
     title: "Learn about the ferries",
     description:
@@ -113,8 +116,8 @@ export default function HeroSection() {
       ──────────────────────────────────────────────────────────────────── */}
       <div className="bg-[#1976D2]">
         <div className="min-h-[360px] max-w-8xl mx-auto px-4 md:px-20 py-15 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {ctaCards.map((card) => (
-            <CtaCard key={card.href} {...card} />
+          {ctaCards.map((card, i) => (
+            <CtaCard key={card.ctaId} {...card} position={i + 1} />
           ))}
         </div>
       </div>

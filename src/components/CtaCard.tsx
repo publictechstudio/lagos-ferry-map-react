@@ -1,17 +1,30 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { event as gaEvent } from "@/lib/gtag";
 
 interface CtaCardProps {
   icon: ReactNode;
   title: string;
   description: string;
   href: string;
+  ctaId: string;
+  position: number;
 }
 
-export default function CtaCard({ icon, title, description, href }: CtaCardProps) {
+export default function CtaCard({ icon, title, description, href, ctaId, position }: CtaCardProps) {
   return (
     <Link
       href={href}
+      onClick={() =>
+        gaEvent("home_cta_click", {
+          cta_id: ctaId,
+          cta_label: title,
+          cta_destination: href,
+          cta_position: position,
+        })
+      }
       className="group flex flex-col items-center text-center gap-4 bg-white rounded-2xl p-8 shadow-elevation-1 hover:shadow-elevation-2 transition-shadow duration-200"
     >
       <div className="text-primary w-12 h-12 flex items-center justify-center">

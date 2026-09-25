@@ -34,11 +34,13 @@ function AccordionRow({ title, icon, content }: AccordionItem) {
         </svg>
       </button>
 
-      {open && (
-        <div className="pb-6 text-base leading-6 text-on-surface-variant space-y-4">
-          {content}
-        </div>
-      )}
+      {/* Always rendered (hidden via attribute) so crawlers see the content in the server HTML. */}
+      <div
+        hidden={!open}
+        className="pb-6 text-base leading-6 text-on-surface-variant space-y-4"
+      >
+        {content}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import TrackedLink from "@/components/TrackedLink";
 
 export const metadata: Metadata = {
   title: "Lagos Ferry Navigation Partnerships | Google Maps, OrnaMap & More",
@@ -29,6 +30,11 @@ const partnershipsJsonLd = {
   ],
 };
 
+// Tags outbound partner links so partners can attribute the referral to us.
+function partnerUrl(base: string) {
+  return `${base}?utm_source=lagosferries&utm_medium=referral&utm_campaign=partnerships`;
+}
+
 const partners = [
   {
     name: "Google Maps",
@@ -38,14 +44,14 @@ const partners = [
     body: (
       <>
         Thanks to a partnership with{" "}
-        <a
-          href="https://lara.ng"
+        <TrackedLink
+          href={partnerUrl("https://lara.ng")}
+          eventName="directions_click"
+          params={{ destination: "lara_ng", partner_section: "google_maps" }}
           className="text-primary underline underline-offset-2 hover:text-primary-dark"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           Lara.ng
-        </a>{" "}
+        </TrackedLink>{" "}
         , the ferry routes are included in Google Maps,
         alongside other public transit options.
       </>
@@ -60,14 +66,14 @@ const partners = [
       <>
         OrnaMap includes an integration for topping up your Cowry Card to pay for
         LagFerry and LAMATA trains and buses.{" "}
-        <a
-          href="https://ornamap.com"
+        <TrackedLink
+          href={partnerUrl("https://ornamap.com")}
+          eventName="directions_click"
+          params={{ destination: "ornamap", partner_section: "ornamap" }}
           className="text-primary underline underline-offset-2 hover:text-primary-dark"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           Download the app
-        </a>
+        </TrackedLink>
         .
       </>
     ),
@@ -82,14 +88,14 @@ const partners = [
       <>
         Lara is a chat-based navigation tool with the most comprehensive data on danfos and other forms of popular public transit. You don&apos;t need to download an app.
         <br></br>
-        <a
-          href="https://lara.ng"
+        <TrackedLink
+          href={partnerUrl("https://lara.ng")}
+          eventName="directions_click"
+          params={{ destination: "lara_ng", partner_section: "lara" }}
           className="text-primary underline underline-offset-2 hover:text-primary-dark"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           Use it now: Lara.ng
-        </a>.
+        </TrackedLink>.
       </>
     ),
   },
@@ -103,14 +109,14 @@ const partners = [
         OpenStreetMap is a fully open source open data platform. Transportation
         data layers are freely available for tech companies and GIS users
         building on Lagos mobility data.{" "}
-        <a
-          href="https://tasks.hotosm.org"
+        <TrackedLink
+          href={partnerUrl("https://tasks.hotosm.org")}
+          eventName="outbound_link_click"
+          params={{ destination: "hotosm", partner_section: "openstreetmap" }}
           className="text-primary underline underline-offset-2 hover:text-primary-dark"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           Learn more about the partnership
-        </a>
+        </TrackedLink>
         .
       </>
     ),
