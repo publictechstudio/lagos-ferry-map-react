@@ -29,11 +29,21 @@ view. The effect counts **subsequent** client-side route changes only. This spli
 is deliberate; see "Bugs fixed" below.
 
 Note that selecting a facility on the map rewrites the URL with
-`window.history.replaceState` (`MapWrapper.tsx`). That bypasses the Next.js
-router, so **no page view fires**. This is intentional, but it means the page
-views for `/map/{slug}` reflect only people who landed on that deep link
-directly. To measure in-session facility browsing, use `select_content`, never
-the Pages report.
+`window.history.replaceState` (`MapWrapper.tsx`, five call sites — select
+facility, select route, and the three close/deselect paths). That bypasses the
+Next.js router, so **no page view fires** — but only as long as the GA4 setting
+described below is off.
+
+This means page views for `/map/{slug}` reflect only people who landed on that
+deep link directly. To measure in-session facility browsing, use
+`select_content`, never the Pages report.
+
+> **Required GA4 setting.** Enhanced Measurement's *"Page changes based on
+> browser history events"* must be **off**. When on, GA4 fires its own
+> `page_view` on every History API change, which duplicates the manual
+> route-change tracking *and* generates a page view for every marker click and
+> panel close. This was enabled in production until 2026-09-25 and is the reason
+> `/map` page views are inflated before that date.
 
 ---
 
@@ -234,6 +244,13 @@ Device category), `link_location` (no variance), `partner_section` (covered by
 
 ### Other settings
 
+- **Enhanced Measurement:** Admin → Data collection and modification → Data
+  streams → the web stream → Enhanced measurement → gear icon → Page views →
+  "Show advanced settings". **"Page changes based on browser history events"
+  must stay unchecked.** Leave the rest of Enhanced Measurement on; outbound
+  clicks, scrolls, and file downloads are useful and cost nothing. Site search
+  will never fire, because the search boxes do not put anything in the URL —
+  that is what the custom `search` event is for.
 - **Key event:** mark `directions_click`. It is the closest thing the site has to
   a conversion, and marking it unlocks conversion-rate columns across all
   acquisition and landing-page reports.
@@ -257,12 +274,10 @@ limit; prefer it for that specific question.
 
 - **No consent management.** There is no cookie banner or Consent Mode
   implementation. Relevant to NDPR and any EU traffic.
-- **Enhanced Measurement "Page changes based on browser history events".** If
-  this sub-option is enabled on the data stream, GA4 fires its own `page_view`
-  on History API changes — which would both duplicate the manual route-change
-  tracking *and* generate page views for `MapWrapper`'s `replaceState` calls.
-  Use either that setting or the manual tracking in `GoogleAnalytics.tsx`, never
-  both. Verify in Admin → Data streams → Enhanced measurement → gear icon.
+- **Do not re-enable "Page changes based on browser history events".** See the
+  page views section above. It was on in production until 2026-09-25 and was the
+  main cause of inflated page view counts. Use either that setting or the manual
+  tracking in `GoogleAnalytics.tsx`, never both.
 - **Enhanced Measurement is on.** GA4 automatically fires a generic `click` event
   for outbound links with `link_url`, `link_domain`, `link_text`. That is where
   the undifferentiated `click` events in reports come from — not this codebase.
