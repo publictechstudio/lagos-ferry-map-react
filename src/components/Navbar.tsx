@@ -32,7 +32,7 @@ export default function Navbar() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                onClick={() => gaEvent("nav_click", { label: link.label, href: link.href, location: "desktop" })}
+                onClick={() => gaEvent("nav_click", { nav_label: link.label, href: link.href, nav_location: "desktop" })}
                 className="block px-4 py-2 rounded-full text-sm font-bold tracking-[0.1px] text-white hover:text-primary hover:bg-primary/8 transition-colors"
               >
                 {link.label}
@@ -45,7 +45,7 @@ export default function Navbar() {
         <button
           className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-[5px] rounded-full hover:bg-on-surface/8 transition-colors text-on-surface-variant"
           onClick={() => {
-            gaEvent("mobile_menu_toggle", { state: menuOpen ? "closed" : "open" });
+            gaEvent("mobile_menu_toggle", { menu_state: menuOpen ? "closed" : "open" });
             setMenuOpen(!menuOpen);
           }}
           aria-label="Toggle menu"
@@ -65,7 +65,7 @@ export default function Navbar() {
               <Link
                 href={link.href}
                 className="block px-4 py-3 rounded-full text-sm font-bold tracking-[0.1px] text-on-surface-variant hover:bg-on-surface/8 hover:text-primary transition-colors"
-                onClick={() => { gaEvent("nav_click", { label: link.label, href: link.href, location: "mobile" }); setMenuOpen(false); }}
+                onClick={() => { gaEvent("nav_click", { nav_label: link.label, href: link.href, nav_location: "mobile" }); setMenuOpen(false); }}
               >
                 {link.label}
               </Link>

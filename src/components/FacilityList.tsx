@@ -159,7 +159,6 @@ export default function FacilityList({
 
   // Stage 2: resolve place_id → coordinates, then compute nearest facilities
   async function handleAddressConfirm(suggestion: PlaceSuggestion) {
-    gaEvent("search", { search_term: suggestion.description, search_type: "address" });
     // Immediately lock the input so stage-1 effect doesn't re-fire
     setSelectedGeoPoint({ lat: 0, lon: 0, display_name: suggestion.description });
     setAddressQuery(suggestion.description);
@@ -176,6 +175,13 @@ export default function FacilityList({
         .sort((a, b) => a.distanceKm - b.distanceKm)
         .slice(0, 5);
       setNearbyFacilities(ranked);
+      // A typed address can be someone's home, which must not be sent to
+      // Analytics, so report the area it resolved to rather than the address.
+      gaEvent("search", {
+        search_type: "address",
+        results_count: ranked.length,
+        lga: ranked[0]?.facility.lga,
+      });
     } finally {
       setAddressSearching(false);
     }
