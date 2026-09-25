@@ -69,14 +69,43 @@ export default function MapWrapper({
   const pendingFlyTo = useRef<Facility | null>(initialSelected);
   const pendingRoute = useRef<Route | null>(initialSelectedRoute);
 
+  // LeafletMap binds its handlers once on mount, so these closures see stale
+  // state. Track what's open in a ref instead.
+  const openPanel = useRef<{ contentType: "facility" | "route"; openedAt: number } | null>(
+    initialSelected ? { contentType: "facility", openedAt: Date.now() }
+      : initialSelectedRoute ? { contentType: "route", openedAt: Date.now() }
+      : null
+  );
+
+  function trackPanelClose(closeMethod: string) {
+    const panel = openPanel.current;
+    if (!panel) return;
+    openPanel.current = null;
+    gaEvent("map_panel_close", {
+      content_type: panel.contentType,
+      close_method: closeMethod,
+      dwell_seconds: Math.round((Date.now() - panel.openedAt) / 1000),
+    });
+  }
+
   // After the layout changes size, tell Leaflet to re-measure the container.
   useEffect(() => {
     const id = setTimeout(() => mapRef.current?.invalidateSize(), 350);
     return () => clearTimeout(id);
   }, [selected, selectedRoute, mobileCollapsed]);
 
-  function handleSelect(facility: Facility) {
-    gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, lga: facility.lga });
+  // Every facility selection funnels through here, so this is the single place
+  // select_content is reported. Callers pass how the selection was made.
+  function handleSelect(facility: Facility, method: string = "map_marker") {
+    trackPanelClose("switched");
+    gaEvent("select_content", {
+      content_type: "facility",
+      item_id: facility.facility_id,
+      item_name: facility.facility_name,
+      lga: facility.lga,
+      select_method: method,
+    });
+    openPanel.current = { contentType: "facility", openedAt: Date.now() };
     setSelected(facility);
     setSelectedRoute(null);
     setFacilityPanelData(null);
@@ -89,18 +118,27 @@ export default function MapWrapper({
   }
 
   function handleClose() {
+    trackPanelClose("close_button");
     setSelected(null);
     window.history.replaceState(null, "", "/map");
   }
 
   function handleDeselect() {
+    trackPanelClose("map_click");
     setSelected(null);
     setSelectedRoute(null);
     window.history.replaceState(null, "", "/map");
   }
 
   function handleSelectRoute(route: Route) {
-    gaEvent("select_content", { content_type: "route", item_id: route.route_id, route_name: `${route.origin_name} → ${route.destination_name}` });
+    trackPanelClose("switched");
+    gaEvent("select_content", {
+      content_type: "route",
+      item_id: route.route_id,
+      route_name: `${route.origin_name} → ${route.destination_name}`,
+      select_method: "map_route",
+    });
+    openPanel.current = { contentType: "route", openedAt: Date.now() };
     setSelectedRoute(route);
     setSelected(null);
     setFacilityPanelData(null);
@@ -130,6 +168,7 @@ export default function MapWrapper({
   }
 
   function handleCloseRoute() {
+    trackPanelClose("close_button");
     setSelectedRoute(null);
     window.history.replaceState(null, "", "/map");
   }

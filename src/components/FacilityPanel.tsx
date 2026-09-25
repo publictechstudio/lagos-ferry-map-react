@@ -13,6 +13,7 @@ import PanelShell from "./PanelShell";
 import LoadingSpinner from "./LoadingSpinner";
 import { groupByLGA } from "@/lib/groupByLGA";
 import { formatNaira } from "@/lib/format";
+import { event as gaEvent } from "@/lib/gtag";
 import PlaceIcon from '@mui/icons-material/Place';
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 
@@ -329,6 +330,13 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
                 href={facility.google_maps_url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  gaEvent("directions_click", {
+                    destination: "google_maps",
+                    item_id: facility.facility_id,
+                    item_name: facility.facility_name,
+                  })
+                }
                 className="inline-flex items-center px-4 text-primary text-sm font-medium hover:underline underline-offset-2 mb-4"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">

@@ -8,17 +8,22 @@ import { GA_ID, pageview } from "@/lib/gtag";
 export default function GoogleAnalytics() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const initialLoad = useRef(true);
+  // useSearchParams() returns a new object each render, so depend on the string
+  // value instead — an object dep re-runs this effect on every render pass.
+  const search = searchParams.toString();
+  const lastTracked = useRef<string | null>(null);
 
   useEffect(() => {
+    const url = pathname + (search ? `?${search}` : "");
     // The inline config snippet below already counts the initial page view.
-    if (initialLoad.current) {
-      initialLoad.current = false;
+    if (lastTracked.current === null) {
+      lastTracked.current = url;
       return;
     }
-    const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "");
+    if (lastTracked.current === url) return;
+    lastTracked.current = url;
     pageview(url);
-  }, [pathname, searchParams]);
+  }, [pathname, search]);
 
   if (!GA_ID) return null;
 

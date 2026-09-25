@@ -10,7 +10,7 @@ import { event as gaEvent } from "@/lib/gtag";
 interface FacilityListProps {
   facilities: Facility[];
   selected: Facility | null;
-  onSelect: (facility: Facility) => void;
+  onSelect: (facility: Facility, method?: string) => void;
   hiddenLayers: Set<string>;
   setHiddenLayers: Dispatch<SetStateAction<Set<string>>>;
   onCollapsedChange?: (collapsed: boolean) => void;
@@ -190,8 +190,7 @@ export default function FacilityList({
   }
 
   function handleNearbyFacilitySelect(facility: Facility) {
-    gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, select_method: "proximity_search" });
-    onSelect(facility);
+    onSelect(facility, "proximity_search");
     handleAddressClear();
   }
 
@@ -220,9 +219,19 @@ export default function FacilityList({
     return { suggestions: combined, lgaStartIndex: lgaStart };
   })();
 
+  // Debounced so a search is reported once the user stops typing, not per
+  // keystroke. results_count surfaces searches that find nothing.
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 3) return;
+    const timer = setTimeout(() => {
+      gaEvent("search", { search_term: q, search_type: "facility_name", results_count: suggestions.length });
+    }, 700);
+    return () => clearTimeout(timer);
+  }, [query, suggestions.length]);
+
   function handleSuggestionSelect(facility: Facility) {
-    gaEvent("select_content", { content_type: "facility", item_id: facility.facility_id, item_name: facility.facility_name, select_method: "name_search" });
-    onSelect(facility);
+    onSelect(facility, "name_search");
     setQuery("");
     setShowSuggestions(false);
   }
@@ -538,7 +547,7 @@ export default function FacilityList({
                   return (
                     <li key={facility.facility_id}>
                       <button
-                        onClick={() => onSelect(facility)}
+                        onClick={() => onSelect(facility, "sidebar_list")}
                         className={[
                           "w-full text-left px-6 py-2 flex items-center gap-2 transition-colors",
                           isSelected

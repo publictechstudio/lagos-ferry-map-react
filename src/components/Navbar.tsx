@@ -44,7 +44,10 @@ export default function Navbar() {
         {/* Mobile — MD3 icon button (40×40 circle, state layer) */}
         <button
           className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-[5px] rounded-full hover:bg-on-surface/8 transition-colors text-on-surface-variant"
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={() => {
+            gaEvent("mobile_menu_toggle", { state: menuOpen ? "closed" : "open" });
+            setMenuOpen(!menuOpen);
+          }}
           aria-label="Toggle menu"
           aria-expanded={menuOpen}
         >

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { REPORT_FORM_URL } from "@/lib/constants";
+import TrackedLink from "./TrackedLink";
 
 const internalLinks = [
   { label: "About", href: "/about" },
@@ -16,14 +17,14 @@ export default function Footer() {
     <footer id="site-footer" className="bg-[#1A1B20] text-[#C3C7CF]">
       <div className="text-center mb-8 text-sm bg-[#000000] py-4">
         A project from Public Tech Studio.{" "}
-        <a
-          href="https://publictech.studio"
-          target="_blank"
-          rel="noopener noreferrer"
+        <TrackedLink
+          href="https://publictech.studio?utm_source=lagosferries&utm_medium=referral&utm_campaign=footer"
+          eventName="outbound_link_click"
+          params={{ destination: "publictech_studio", link_location: "footer" }}
           className="text-[#F9F9FF] underline underline-offset-2 hover:text-white transition-colors"
         >
           Want to build something great?
-        </a>
+        </TrackedLink>
       </div>
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-8 py-4 px-5">
         <div>
@@ -51,14 +52,14 @@ export default function Footer() {
               </li>
             ))}
             <li>
-              <a
+              <TrackedLink
                 href={REPORT_FORM_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+                eventName="outbound_link_click"
+                params={{ destination: "report_form", link_location: "footer" }}
                 className="block px-0 py-1 rounded-full text-sm font-medium tracking-[0.1px] text-[#C3C7CF] hover:text-[#F9F9FF] hover:bg-white/8 transition-colors"
               >
                 Report Issue
-              </a>
+              </TrackedLink>
             </li>
           </ul>
         </nav>
