@@ -27,6 +27,13 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
       AND f.status IS NOT NULL
       AND f.status != 'not_in_use'
       AND fd.is_charter IS FALSE
+      AND EXISTS (
+          SELECT 1 FROM route_stops a
+          JOIN route_stops b ON b.route_id = a.route_id
+          JOIN routes r ON r.route_id = a.route_id
+          WHERE a.stop_id = fd.facility_id AND b.stop_id = fd.destination_id
+            AND NOT COALESCE(r.archived, FALSE)
+      )
     ORDER BY f.lga, f.facility_name
   `;
 
@@ -50,6 +57,13 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
         AND f.status IS NOT NULL
         AND f.status != 'not_in_use'
         AND fd.is_charter IS FALSE
+        AND EXISTS (
+            SELECT 1 FROM route_stops a
+            JOIN route_stops b ON b.route_id = a.route_id
+            JOIN routes r ON r.route_id = a.route_id
+            WHERE a.stop_id = fd.facility_id AND b.stop_id = fd.destination_id
+              AND NOT COALESCE(r.archived, FALSE)
+        )
       ORDER BY f.lga, f.facility_name
     `;
     destinations = originRows as unknown as Destination[];
