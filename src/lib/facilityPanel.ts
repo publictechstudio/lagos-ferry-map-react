@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { travelDirection, validPair } from "./travelDirection";
 import type { Destination } from "@/types/destination";
 import type { ConnectingRoute } from "@/types/connectingRoute";
 import type { RoutePeriod } from "@/types/routePeriod";
@@ -32,7 +33,14 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
           JOIN route_stops b ON b.route_id = a.route_id
           JOIN routes r ON r.route_id = a.route_id
           WHERE a.stop_id = fd.facility_id AND b.stop_id = fd.destination_id
+            AND ${validPair("a", "b", "r.route_id")}
             AND NOT COALESCE(r.archived, FALSE)
+            AND NOT (r.total_base_duration = 9999 AND r.omi_eko = TRUE)
+            AND EXISTS (
+              SELECT 1 FROM route_periods rp
+              WHERE rp.route_id = r.route_id
+                AND rp.direction_id = ${travelDirection("a", "b", "r.route_id")}
+            )
       )
     ORDER BY f.lga, f.facility_name
   `;
@@ -62,7 +70,14 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
             JOIN route_stops b ON b.route_id = a.route_id
             JOIN routes r ON r.route_id = a.route_id
             WHERE a.stop_id = fd.facility_id AND b.stop_id = fd.destination_id
+            AND ${validPair("a", "b", "r.route_id")}
               AND NOT COALESCE(r.archived, FALSE)
+              AND NOT (r.total_base_duration = 9999 AND r.omi_eko = TRUE)
+              AND EXISTS (
+                SELECT 1 FROM route_periods rp
+                WHERE rp.route_id = r.route_id
+                  AND rp.direction_id = ${travelDirection("a", "b", "r.route_id")}
+              )
         )
       ORDER BY f.lga, f.facility_name
     `;
@@ -94,7 +109,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
           f2.facility_name AS destination_name,
           f1.facility_name_short AS origin_name_short,
           f2.facility_name_short AS destination_name_short,
-          CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END AS travel_direction
+          ${travelDirection("rs1", "rs2", "r.route_id")} AS travel_direction
         FROM route_stops rs1
         JOIN route_stops rs2
           ON rs2.route_id = rs1.route_id
@@ -103,6 +118,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
         LEFT JOIN facilities f1 ON f1.facility_id = r.origin
         LEFT JOIN facilities f2 ON f2.facility_id = r.destination
         WHERE rs2.stop_id = ${id}
+          AND ${validPair("rs1", "rs2", "r.route_id")}
           AND NOT COALESCE(r.archived, FALSE)
           AND rs1.route_id NOT IN (
             SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE
@@ -110,7 +126,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
           AND EXISTS (
             SELECT 1 FROM route_periods rp
             WHERE rp.route_id = r.route_id
-              AND rp.direction_id = (CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END)
+              AND rp.direction_id = ${travelDirection("rs1", "rs2", "r.route_id")}
           )
       `
     : await sql`
@@ -130,7 +146,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
           f2.facility_name AS destination_name,
           f1.facility_name_short AS origin_name_short,
           f2.facility_name_short AS destination_name_short,
-          CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END AS travel_direction
+          ${travelDirection("rs1", "rs2", "r.route_id")} AS travel_direction
         FROM route_stops rs1
         JOIN route_stops rs2
           ON rs2.route_id = rs1.route_id
@@ -139,6 +155,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
         LEFT JOIN facilities f1 ON f1.facility_id = r.origin
         LEFT JOIN facilities f2 ON f2.facility_id = r.destination
         WHERE rs1.stop_id = ${id}
+          AND ${validPair("rs1", "rs2", "r.route_id")}
           AND NOT COALESCE(r.archived, FALSE)
           AND rs1.route_id NOT IN (
             SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE
@@ -146,7 +163,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
           AND EXISTS (
             SELECT 1 FROM route_periods rp
             WHERE rp.route_id = r.route_id
-              AND rp.direction_id = (CASE WHEN rs1.stop_order < rs2.stop_order THEN 0 ELSE 1 END)
+              AND rp.direction_id = ${travelDirection("rs1", "rs2", "r.route_id")}
           )
       `;
 

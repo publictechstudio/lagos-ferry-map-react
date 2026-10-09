@@ -90,6 +90,16 @@ function routeDisplayNames(route: ConnectingRoute): { from: string; to: string }
   };
 }
 
+/**
+ * Periods to summarise for a route row. A route that runs both ways is one
+ * service, so its schedule covers both directions (e.g. morning out, evening
+ * back = "All day"). One-way routes only use their own direction.
+ */
+function periodsForRoute(route: ConnectingRoute, allPeriods: RoutePeriod[]): RoutePeriod[] {
+  const runsBothWays = new Set(allPeriods.map((p) => p.direction_id)).size > 1;
+  return runsBothWays ? allPeriods : allPeriods.filter((p) => p.direction_id === route.travel_direction);
+}
+
 function OperatorLabel({ operator }: { operator: string | null }) {
   if (!operator) return <span>—</span>;
   const mapped = OPERATOR_MAP[operator];
@@ -184,7 +194,7 @@ function DestinationCard({ dest, facility, reversed, routesByDest, periodsByRout
                   <tbody>
                     {routes.map((r) => {
                       const allPeriods = periodsByRoute.get(r.route_id) ?? [];
-                      const periods = allPeriods.filter((p) => p.direction_id === r.travel_direction);
+                      const periods = periodsForRoute(r, allPeriods);
                       const schedule = summarizePeriods(periods);
                       const { from, to } = routeDisplayNames(r);
                       return (
