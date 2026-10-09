@@ -89,6 +89,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
         LEFT JOIN facilities f1 ON f1.facility_id = r.origin
         LEFT JOIN facilities f2 ON f2.facility_id = r.destination
         WHERE rs2.stop_id = ${id}
+          AND NOT COALESCE(r.archived, FALSE)
           AND rs1.route_id NOT IN (
             SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE
           )
@@ -124,6 +125,7 @@ export async function getFacilityPanelData(id: number): Promise<FacilityPanelDat
         LEFT JOIN facilities f1 ON f1.facility_id = r.origin
         LEFT JOIN facilities f2 ON f2.facility_id = r.destination
         WHERE rs1.stop_id = ${id}
+          AND NOT COALESCE(r.archived, FALSE)
           AND rs1.route_id NOT IN (
             SELECT DISTINCT route_id FROM routes WHERE total_base_duration = 9999 AND omi_eko = TRUE
           )
