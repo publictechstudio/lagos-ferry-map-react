@@ -9,6 +9,7 @@ import Link from "next/link";
 import { toFacilitySlug } from "@/lib/facilitySlug";
 import { toRouteSlug } from "@/lib/routeSlug";
 import type { FacilityPanelData } from "@/lib/facilityPanel";
+import { groupByDays } from "./route-panel/helpers";
 import PanelShell from "./PanelShell";
 import LoadingSpinner from "./LoadingSpinner";
 import { groupByLGA } from "@/lib/groupByLGA";
@@ -39,27 +40,33 @@ const KEY_ATTRS: { key: keyof Facility; label: string }[] = [
   { key: "facility_type", label: "Type" },
 ];
 
-function summarizePeriods(periods: RoutePeriod[]): string {
-  if (periods.length === 0) return "";
+const MAX_CONTINUOUS_GAP_MINUTES = 60;
 
-  // Aggregate active days and morning/evening flags across all periods
-  let mo = false, tu = false, we = false, th = false, fr = false, sa = false, su = false;
-  let hasMorning = false, hasEvening = false;
-  for (const p of periods) {
-    if (p.monday)    mo = true;
-    if (p.tuesday)   tu = true;
-    if (p.wednesday) we = true;
-    if (p.thursday)  th = true;
-    if (p.friday)    fr = true;
-    if (p.saturday)  sa = true;
-    if (p.sunday)    su = true;
-    if (p.morning_service) hasMorning = true;
-    if (p.evening_service) hasEvening = true;
+function toMinutes(t: string): number {
+  const [h, m] = t.split(":");
+  return parseInt(h, 10) * 60 + parseInt(m, 10);
+}
+
+/** True when the periods' time windows leave a gap of more than an hour between first departure and last end. */
+function hasGap(periods: RoutePeriod[]): boolean {
+  if (periods.some((p) => !p.start_time || !p.end_time)) return false; // no times: trust the flags
+  const sorted = [...periods].sort((a, b) => a.start_time.localeCompare(b.start_time));
+  let coveredUntil = toMinutes(sorted[0].end_time!);
+  for (const p of sorted.slice(1)) {
+    if (toMinutes(p.start_time) - coveredUntil > MAX_CONTINUOUS_GAP_MINUTES) return true;
+    coveredUntil = Math.max(coveredUntil, toMinutes(p.end_time!));
   }
+  return false;
+}
 
-  // Format the day range
+function summarizeGroup(periods: RoutePeriod[]): string {
+  const p0 = periods[0];
+  const [mo, tu, we, th, fr, sa, su] = [p0.monday, p0.tuesday, p0.wednesday, p0.thursday, p0.friday, p0.saturday, p0.sunday];
+  const hasMorning = periods.some((p) => p.morning_service);
+  const hasEvening = periods.some((p) => p.evening_service);
+
   let days: string;
-  if (mo && tu && we && th && fr && sa && su)  days = "Mon-Sun";
+  if (mo && tu && we && th && fr && sa && su)  days = "Mon–Sun";
   else if (mo && tu && we && th && fr && !sa && !su) days = "Mon–Fri";
   else if (!mo && !tu && !we && !th && !fr && sa && su) days = "Sat–Sun";
   else if (mo && tu && we && th && fr && sa && !su)  days = "Mon–Sat";
@@ -68,13 +75,17 @@ function summarizePeriods(periods: RoutePeriod[]): string {
     days = names.filter((_, i) => [mo, tu, we, th, fr, sa, su][i]).join(", ");
   }
 
-  // Format the time-of-day coverage
   const time =
-    hasMorning && hasEvening ? "All day" :
-    hasMorning               ? "Morning only" :
-    hasEvening               ? "Evening only" : "";
+    hasMorning && hasEvening ? (hasGap(periods) ? "Mornings & evenings" : "All day") :
+    hasMorning               ? "Mornings only" :
+    hasEvening               ? "Evenings only" : "";
 
   return time ? `${days} · ${time}` : days;
+}
+
+/** One line per distinct day-set, so unlike schedules are never merged. */
+function summarizePeriods(periods: RoutePeriod[]): string[] {
+  return Array.from(groupByDays(periods).values()).map(summarizeGroup);
 }
 
 function routeDisplayNames(route: ConnectingRoute): { from: string; to: string } {
@@ -90,14 +101,9 @@ function routeDisplayNames(route: ConnectingRoute): { from: string; to: string }
   };
 }
 
-/**
- * Periods to summarise for a route row. A route that runs both ways is one
- * service, so its schedule covers both directions (e.g. morning out, evening
- * back = "All day"). One-way routes only use their own direction.
- */
+/** Only the periods for the direction this row travels (e.g. Falomo to Ikorodu). */
 function periodsForRoute(route: ConnectingRoute, allPeriods: RoutePeriod[]): RoutePeriod[] {
-  const runsBothWays = new Set(allPeriods.map((p) => p.direction_id)).size > 1;
-  return runsBothWays ? allPeriods : allPeriods.filter((p) => p.direction_id === route.travel_direction);
+  return allPeriods.filter((p) => p.direction_id === route.travel_direction);
 }
 
 function OperatorLabel({ operator }: { operator: string | null }) {
@@ -105,15 +111,18 @@ function OperatorLabel({ operator }: { operator: string | null }) {
   const mapped = OPERATOR_MAP[operator];
   if (!mapped) return <span>{operator}</span>;
   return (
-    <span className="inline-flex items-center gap-1">
-      {mapped.label}
-      <span className="relative group/tip cursor-help shrink-0">
+    <span>
+      {mapped.label.includes(" ") && `${mapped.label.slice(0, mapped.label.lastIndexOf(" "))} `}
+      <span className="whitespace-nowrap">
+      {mapped.label.slice(mapped.label.lastIndexOf(" ") + 1)}
+      <span className="relative group/tip cursor-help inline-block align-middle ml-1">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface-variant/50">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
         </svg>
         <span className="pointer-events-none absolute top-full right-0 mt-1.5 w-48 rounded bg-on-surface px-2.5 py-1.5 text-[11px] leading-4 text-surface shadow-md opacity-0 group-hover/tip:opacity-100 transition-opacity z-50">
           {mapped.tooltip}
         </span>
+      </span>
       </span>
     </span>
   );
@@ -211,7 +220,7 @@ function DestinationCard({ dest, facility, reversed, routesByDest, periodsByRout
                             {r.last_stop_cost != null ? formatNaira(r.last_stop_cost) : "—"}
                           </td>
                           <td className="px-2 py-2 text-on-surface-variant">
-                            {schedule || "—"}
+                            {schedule.length === 0 ? "—" : schedule.map((line) => <div key={line}>{line}</div>)}
                           </td>
                           <td className="px-2 py-2 text-on-surface-variant">
                             <Link href={`/map/route/${toRouteSlug(r)}`} className="font-medium text-primary hover:underline underline-offset-2">
