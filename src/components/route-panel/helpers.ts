@@ -62,9 +62,13 @@ export function groupByDays(periods: RoutePeriod[]): Map<string, RoutePeriod[]> 
   return map;
 }
 
+export function isMorningsOnly(periods: RoutePeriod[]): boolean {
+  return periods.length > 0 && periods.every((p) => p.morning_service && !p.evening_service);
+}
+
 /** Direction suffix based on whether service is morning/evening only. */
 export function directionSuffix(periods: RoutePeriod[]): string {
-  const allMorning = periods.length > 0 && periods.every((p) => p.morning_service && !p.evening_service);
+  const allMorning = isMorningsOnly(periods);
   const allEvening = periods.length > 0 && periods.every((p) => !p.morning_service && p.evening_service);
   if (allMorning) return " (MORNINGS ONLY)";
   if (allEvening) return " (EVENINGS ONLY)";

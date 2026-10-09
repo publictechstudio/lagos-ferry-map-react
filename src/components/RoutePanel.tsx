@@ -8,7 +8,7 @@ import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import { toRouteSlug } from "@/lib/routeSlug";
 import PanelShell from "./PanelShell";
 import LoadingSpinner from "./LoadingSpinner";
-import { formatMinutes } from "./route-panel/helpers";
+import { formatMinutes, isMorningsOnly } from "./route-panel/helpers";
 import DirectionSection from "./route-panel/DirectionSection";
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -101,6 +101,46 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
   const outboundLabel = `${route.origin_name ?? "Origin"} to ${route.destination_name ?? "Destination"}`;
   const returnLabel = `${route.destination_name ?? "Destination"} to ${route.origin_name ?? "Origin"}`;
 
+  const directionSections = [
+    outboundStops.length > 0 || outboundPeriods.length > 0
+      ? {
+          periods: outboundPeriods,
+          node: (
+            <DirectionSection
+              key="outbound"
+              label={outboundLabel}
+              stops={outboundStops}
+              periods={outboundPeriods}
+              paymentOptions={route.payment_options}
+              originName={route.origin_name_short ?? route.origin_name ?? "Origin"}
+              destinationName={route.destination_name_short ?? route.destination_name ?? "Destination"}
+            />
+          ),
+        }
+      : null,
+    // return: only shown when there are periods with direction_id === 1
+    returnPeriods.length > 0
+      ? {
+          periods: returnPeriods,
+          node: (
+            <DirectionSection
+              key="return"
+              label={returnLabel}
+              stops={returnStops}
+              periods={returnPeriods}
+              paymentOptions={route.payment_options}
+              originName={route.destination_name_short ?? route.destination_name ?? "Destination"}
+              destinationName={route.origin_name_short ?? route.origin_name ?? "Origin"}
+              totalOnly
+            />
+          ),
+        }
+      : null,
+  ]
+    .filter((s): s is NonNullable<typeof s> => s !== null)
+    // Mornings-only directions come first (stable sort keeps outbound before return otherwise)
+    .sort((a, b) => Number(isMorningsOnly(b.periods)) - Number(isMorningsOnly(a.periods)));
+
   return (
     <PanelShell
       typeIcon={<DirectionsBoatIcon sx={{ fontSize: 16 }} className="shrink-0" />}
@@ -157,30 +197,7 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
         {/* ── Direction sections ─────────────────────────────────────── */}
         {!loading && (
           <>
-            {/* outbound */}
-            {(outboundStops.length > 0 || outboundPeriods.length > 0) && (
-              <DirectionSection
-                label={outboundLabel}
-                stops={outboundStops}
-                periods={outboundPeriods}
-                paymentOptions={route.payment_options}
-                originName={route.origin_name_short ?? route.origin_name ?? "Origin"}
-                destinationName={route.destination_name_short ?? route.destination_name ?? "Destination"}
-              />
-            )}
-
-            {/* return — only shown when there are periods with direction_id === 1 */}
-            {returnPeriods.length > 0 && (
-              <DirectionSection
-                label={returnLabel}
-                stops={returnStops}
-                periods={returnPeriods}
-                paymentOptions={route.payment_options}
-                originName={route.destination_name_short ?? route.destination_name ?? "Destination"}
-                destinationName={route.origin_name_short ?? route.origin_name ?? "Origin"}
-                totalOnly
-              />
-            )}
+            {directionSections.map((section) => section.node)}
           </>
         )}
 
