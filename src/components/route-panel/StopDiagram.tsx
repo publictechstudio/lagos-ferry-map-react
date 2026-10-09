@@ -40,8 +40,13 @@ function StopNode({
         >
           {globalIdx + 1}
         </div>
-        <p className="text-[11px] text-on-surface text-center mt-1.5 leading-tight max-w-[76px] group-hover:text-primary transition-colors">
-          {stop.facility_name ?? `Stop #${stop.stop_id}`}
+        <p className="text-[11px] text-on-surface text-center mt-1.5 leading-tight max-w-[76px] [overflow-wrap:anywhere] group-hover:text-primary transition-colors">
+          {(stop.facility_name ?? `Stop #${stop.stop_id}`).split("/").map((part, i, parts) => (
+            <Fragment key={i}>
+              {part}
+              {i < parts.length - 1 && <>/<wbr /></>}
+            </Fragment>
+          ))}
           {stop.lga && <span className="block text-on-surface-variant">({stop.lga})</span>}
         </p>
       </Link>

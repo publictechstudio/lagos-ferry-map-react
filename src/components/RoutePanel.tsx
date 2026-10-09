@@ -79,11 +79,13 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
   }
 
   // outbound: stops in order (origin → destination)
-  const outboundStops = stops ?? [];
-  // return: stops in reverse (destination → origin).
+  const outboundStops = (stops ?? []).filter((s) => s.direction_id == 0);
+  // return: use explicit direction_id = 1 stops when the route has them (their own order,
+  // durations and costs); otherwise derive from outbound in reverse (destination → origin).
   // The cost/duration to reach return-stop[idx] equals the outbound cost/duration of the stop
   // one position ahead in outbound order (outboundStops[n - idx]), i.e. the stop being departed.
-  const returnStops = [...outboundStops].reverse().map((stop, idx) => {
+  const explicitReturnStops = (stops ?? []).filter((s) => s.direction_id == 1);
+  const returnStops = explicitReturnStops.length > 0 ? explicitReturnStops : [...outboundStops].reverse().map((stop, idx) => {
     const n = outboundStops.length;
     const srcStop = idx === 0 ? null : outboundStops[n - idx];
     return {
