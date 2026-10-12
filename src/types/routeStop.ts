@@ -3,6 +3,7 @@ export type RouteStop = {
   route_id: number;
   stop_id: number;
   stop_order: number;
+  direction_id: number; // 0 = outbound, 1 = return
   duration_to_stop: number;
   cost_to_stop: string; // numeric stored as string
   is_stop_mandatory: string; // "Yes" | "No"

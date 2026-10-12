@@ -15,6 +15,7 @@ export async function getRoutePanelData(routeId: number): Promise<RoutePanelData
         rs.route_id,
         rs.stop_id,
         rs.stop_order,
+        rs.direction_id,
         rs.duration_to_stop,
         rs.cost_to_stop::text AS cost_to_stop,
         rs.is_stop_mandatory,
@@ -23,7 +24,7 @@ export async function getRoutePanelData(routeId: number): Promise<RoutePanelData
       FROM route_stops rs
       LEFT JOIN facilities f ON rs.stop_id = f.facility_id
       WHERE rs.route_id = ${routeId}
-      ORDER BY rs.stop_order
+      ORDER BY rs.direction_id, rs.stop_order
     `,
     sql`
       SELECT *

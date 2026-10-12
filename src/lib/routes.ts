@@ -39,6 +39,7 @@ export async function getRoutes(): Promise<Route[]> {
     LEFT JOIN facilities f1 ON r.origin = f1.facility_id
     LEFT JOIN facilities f2 ON r.destination = f2.facility_id
     WHERE r.geom IS NOT NULL
+      AND NOT COALESCE(r.archived, FALSE)
     ORDER BY r.route_id
   `;
   return rows as unknown as Route[];
@@ -83,6 +84,7 @@ export async function getRouteById(id: number): Promise<Route | null> {
     LEFT JOIN facilities f2 ON r.destination = f2.facility_id
     WHERE r.route_id = ${id}
       AND r.geom IS NOT NULL
+      AND NOT COALESCE(r.archived, FALSE)
   `;
   return (rows[0] as unknown as Route) ?? null;
 }

@@ -8,7 +8,7 @@ import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import { toRouteSlug } from "@/lib/routeSlug";
 import PanelShell from "./PanelShell";
 import LoadingSpinner from "./LoadingSpinner";
-import { formatMinutes } from "./route-panel/helpers";
+import { formatMinutes, isMorningsOnly } from "./route-panel/helpers";
 import DirectionSection from "./route-panel/DirectionSection";
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -79,11 +79,13 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
   }
 
   // outbound: stops in order (origin → destination)
-  const outboundStops = stops ?? [];
-  // return: stops in reverse (destination → origin).
+  const outboundStops = (stops ?? []).filter((s) => s.direction_id == 0);
+  // return: use explicit direction_id = 1 stops when the route has them (their own order,
+  // durations and costs); otherwise derive from outbound in reverse (destination → origin).
   // The cost/duration to reach return-stop[idx] equals the outbound cost/duration of the stop
   // one position ahead in outbound order (outboundStops[n - idx]), i.e. the stop being departed.
-  const returnStops = [...outboundStops].reverse().map((stop, idx) => {
+  const explicitReturnStops = (stops ?? []).filter((s) => s.direction_id == 1);
+  const returnStops = explicitReturnStops.length > 0 ? explicitReturnStops : [...outboundStops].reverse().map((stop, idx) => {
     const n = outboundStops.length;
     const srcStop = idx === 0 ? null : outboundStops[n - idx];
     return {
@@ -98,6 +100,46 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
 
   const outboundLabel = `${route.origin_name ?? "Origin"} to ${route.destination_name ?? "Destination"}`;
   const returnLabel = `${route.destination_name ?? "Destination"} to ${route.origin_name ?? "Origin"}`;
+
+  const directionSections = [
+    outboundStops.length > 0 || outboundPeriods.length > 0
+      ? {
+          periods: outboundPeriods,
+          node: (
+            <DirectionSection
+              key="outbound"
+              label={outboundLabel}
+              stops={outboundStops}
+              periods={outboundPeriods}
+              paymentOptions={route.payment_options}
+              originName={route.origin_name_short ?? route.origin_name ?? "Origin"}
+              destinationName={route.destination_name_short ?? route.destination_name ?? "Destination"}
+            />
+          ),
+        }
+      : null,
+    // return: only shown when there are periods with direction_id === 1
+    returnPeriods.length > 0
+      ? {
+          periods: returnPeriods,
+          node: (
+            <DirectionSection
+              key="return"
+              label={returnLabel}
+              stops={returnStops}
+              periods={returnPeriods}
+              paymentOptions={route.payment_options}
+              originName={route.destination_name_short ?? route.destination_name ?? "Destination"}
+              destinationName={route.origin_name_short ?? route.origin_name ?? "Origin"}
+              totalOnly
+            />
+          ),
+        }
+      : null,
+  ]
+    .filter((s): s is NonNullable<typeof s> => s !== null)
+    // Mornings-only directions come first (stable sort keeps outbound before return otherwise)
+    .sort((a, b) => Number(isMorningsOnly(b.periods)) - Number(isMorningsOnly(a.periods)));
 
   return (
     <PanelShell
@@ -155,30 +197,7 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
         {/* ── Direction sections ─────────────────────────────────────── */}
         {!loading && (
           <>
-            {/* outbound */}
-            {(outboundStops.length > 0 || outboundPeriods.length > 0) && (
-              <DirectionSection
-                label={outboundLabel}
-                stops={outboundStops}
-                periods={outboundPeriods}
-                paymentOptions={route.payment_options}
-                originName={route.origin_name_short ?? route.origin_name ?? "Origin"}
-                destinationName={route.destination_name_short ?? route.destination_name ?? "Destination"}
-              />
-            )}
-
-            {/* return — only shown when there are periods with direction_id === 1 */}
-            {returnPeriods.length > 0 && (
-              <DirectionSection
-                label={returnLabel}
-                stops={returnStops}
-                periods={returnPeriods}
-                paymentOptions={route.payment_options}
-                originName={route.destination_name_short ?? route.destination_name ?? "Destination"}
-                destinationName={route.origin_name_short ?? route.origin_name ?? "Origin"}
-                totalOnly
-              />
-            )}
+            {directionSections.map((section) => section.node)}
           </>
         )}
 
