@@ -7,6 +7,7 @@ const internalLinks = [
   { label: "Interactive Map", href: "/map" },
   { label: "Navigation Partnerships", href: "/partnerships" },
   { label: "Directory", href: "/directory" },
+  { label: "GTFS License", href: "/gtfs-license" },
   { label: "Sitemap", href: "/sitemap.xml" },
   { label: "Robots", href: "/robots.txt" },
 ];

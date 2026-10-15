@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "GTFS Data License — Lagos Ferry Map",
   description:
     "License terms for the Lagos Ferry GTFS data published by Public Tech Studio, available under Creative Commons Attribution 4.0.",
-  alternates: { canonical: "/gtfs_license" },
+  alternates: { canonical: "/gtfs-license" },
   openGraph: {
     title: "GTFS Data License - Lagos Ferry Map",
     description:
@@ -28,10 +28,7 @@ export default function GtfsLicensePage() {
         Back to home
       </Link>
 
-      <h1 className="text-[32px] font-normal leading-10 text-on-surface mb-8 flex items-center gap-3">
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-primary shrink-0" aria-hidden>
-          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-        </svg>
+      <h1 className="text-[32px] font-normal leading-10 text-on-surface mb-8">
         GTFS Data License
       </h1>
 
@@ -145,7 +142,7 @@ export default function GtfsLicensePage() {
       </p>
 
       <p className="text-sm text-on-surface-variant mt-12 pt-6 border-t border-black/10">
-        Last updated: 2026-04-21
+        Last updated: 2026-10-15
       </p>
     </section>
   );
