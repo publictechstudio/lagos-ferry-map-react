@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import AboutAccordion from "@/components/AboutAccordion";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
@@ -203,7 +204,11 @@ export default function AboutPage() {
         About the Lagos Ferry Map
       </h1>
       <p className="text-base leading-6 text-on-surface-variant mb-3">
-        <a className="link" href="https://www.publictech.studio/">Public Tech Studio</a> launched this project in 2025 to educate Lagos commuters about the availability and advantages of ferry transportation, aiming to reduce road congestion and promote more robust multi-modal public transit. Through a new partnership, the <a className="link" href="https://lagoswaterways.com/">Lagos State Waterways Authority </a> is also contributing data on ferry operations at the facilities under their oversight.
+        <a className="link" href="https://www.publictech.studio/">Public Tech Studio</a> launched this project in 2025 to educate Lagos commuters about the availability and advantages of ferry transportation, aiming to reduce road congestion and promote more robust multi-modal public transit. Through a new partnership, the <a className="link" href="https://lagoswaterways.com/">Lagos State Waterways Authority</a> is also contributing data on ferry operations at the facilities under their oversight.
+      </p>
+      <p className="text-base leading-6 text-on-surface-variant mb-3">
+        You may download the GTFS data and reuse it under a Creative Commons Attribution 4.0 license:{" "}
+        <Link className="link" href="/gtfs-license">GTFS license and download</Link>
       </p>
       <p className="text-base leading-6 text-on-surface-variant mb-3">
         Learn about Lagos ferries, the mapping process, safety information, and
