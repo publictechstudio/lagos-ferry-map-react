@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { event as gaEvent } from "@/lib/gtag";
 
 const navLinks = [
@@ -14,17 +14,65 @@ const navLinks = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Hover on the byline is tracked here, not with :hover: after a click opens publictech.studio
+  // in a new tab and the visitor comes back, browsers keep :hover until the mouse next moves,
+  // so it would stay highlighted. Cleared on click and whenever the tab loses focus.
+  const [bylineHover, setBylineHover] = useState(false);
+  const bylineHoverOn = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse") setBylineHover(true);
+  };
+  const bylineHoverOff = () => setBylineHover(false);
+
+  useEffect(() => {
+    window.addEventListener("blur", bylineHoverOff);
+    document.addEventListener("visibilitychange", bylineHoverOff);
+    return () => {
+      window.removeEventListener("blur", bylineHoverOff);
+      document.removeEventListener("visibilitychange", bylineHoverOff);
+    };
+  }, []);
+
   return (
     <header className="sticky top-0 z-5000 bg-[#012c57] shadow-elevation-2">
       {/* MD3 Top App Bar — 64px */}
       <nav className="px-4 h-16 flex items-center justify-between">
-        {/* Title Large (22px / 400) */}
-        <Link
-          href="/"
-          className="text-white font-bold text-[22px] leading-7 tracking-tight"
-        >
-          Lagos Ferry Map
-        </Link>
+        <div className="flex items-center">
+          {/* Title Large (22px / 400) */}
+          <Link
+            href="/"
+            className="text-white font-bold text-[22px] leading-7 tracking-tight"
+          >
+            Lagos Ferry Map
+          </Link>
+
+          <span className="w-px h-[18px] md:h-5 mx-3 md:mx-4 bg-white/30 shrink-0" aria-hidden="true" />
+
+          {/* "A product of" and the PTS logo, linking to publictech.studio (as on Population.Africa).
+              Muted at rest, full white on hover, press and keyboard focus. Text is hidden on phones. */}
+          <a
+            href="https://publictech.studio"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="A product of Public Tech Studio (opens publictech.studio in a new tab)"
+            onPointerEnter={bylineHoverOn}
+            onPointerMove={bylineHoverOn}
+            onPointerLeave={bylineHoverOff}
+            onClick={(e) => {
+              gaEvent("byline_click", { href: "https://publictech.studio" });
+              bylineHoverOff();
+              if (e.detail > 0) e.currentTarget.blur();
+            }}
+            className={`group flex items-center md:gap-2 text-xs leading-4 whitespace-nowrap rounded-[3px] transition-colors duration-150 ease-out motion-reduce:transition-none active:text-white focus-visible:text-white focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-4 ${bylineHover ? "is-hover text-white" : "text-white/70"}`}
+          >
+            <span className="hidden md:inline">A product of</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logos/pts-logo-white.svg"
+              alt=""
+              className={`block h-6 md:h-7 w-auto transition-opacity duration-150 ease-out motion-reduce:transition-none group-active:opacity-100 group-focus-visible:opacity-100 ${bylineHover ? "opacity-100" : "opacity-60"}`}
+            />
+          </a>
+        </div>
 
         {/* Desktop — Label Large (14px / 500) with pill state layers */}
         <ul className="hidden md:flex gap-1">
