@@ -7,6 +7,7 @@ import { toRouteSlug } from "@/lib/routeSlug";
 import { getRoutePanelData } from "@/lib/routePanel";
 import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
 import { routeDescription, routePageTitle } from "@/lib/routeName";
+import { buildRouteFaqs, faqPlainText } from "@/lib/routeFaqs";
 
 export const revalidate = 60;
 
@@ -79,6 +80,10 @@ export default async function RouteMapPage({
         "@context": "https://schema.org",
         "@type": "BusRoute",
         name: `${initialSelectedRoute.origin_name ?? ""} to ${initialSelectedRoute.destination_name ?? ""} Ferry`,
+        // Freshness signal for crawlers; not shown on the page
+        ...(initialSelectedRoute.modified_at && {
+          dateModified: new Date(initialSelectedRoute.modified_at).toISOString(),
+        }),
         ...(initialSelectedRoute.operator && {
           provider: { "@type": "Organization", name: initialSelectedRoute.operator },
         }),
@@ -104,12 +109,39 @@ export default async function RouteMapPage({
       }
     : null;
 
+  // Same questions the panel shows, so the structured data matches the visible page
+  const faqs = initialSelectedRoute
+    ? buildRouteFaqs(
+        initialSelectedRoute,
+        initialRoutePanelData?.periods ?? [],
+        initialRoutePanelData?.stops ?? [],
+        routes,
+      )
+    : [];
+  const faqJsonLd = faqs.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: { "@type": "Answer", text: faqPlainText(faq) },
+        })),
+      }
+    : null;
+
   return (
     <>
       {jsonLd && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       )}
       <section className="flex flex-col" style={{ height: "calc(100vh - 64px)" }}>

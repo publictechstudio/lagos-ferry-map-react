@@ -13,17 +13,21 @@ import LoadingSpinner from "./LoadingSpinner";
 import { isMorningsOnly } from "./route-panel/helpers";
 import { formatMinutes } from "@/lib/format";
 import DirectionSection from "./route-panel/DirectionSection";
+import RouteFaqs from "./route-panel/RouteFaqs";
+import { buildRouteFaqs } from "@/lib/routeFaqs";
 
 // ── Main component ────────────────────────────────────────────────────────────
 
 interface Props {
   route: Route;
+  /** All routes, so answers can point to other services on the same crossing. */
+  routes: Route[];
   onClose: () => void;
   preloadedStops?: RouteStop[] | null;
   preloadedPeriods?: RoutePeriod[] | null;
 }
 
-export default function RoutePanel({ route, onClose, preloadedStops, preloadedPeriods }: Props) {
+export default function RoutePanel({ route, routes, onClose, preloadedStops, preloadedPeriods }: Props) {
   const isPlannedOmiEko = isPlannedOmiEkoRoute(route);
 
   // Seed from server-provided data so the first render (and the server HTML) has the schedule
@@ -74,9 +78,10 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
           <h1 className="px-2 pb-4 text-[22px] font-bold leading-7 text-on-surface shrink-0">
             {route.origin_name_short ?? "Origin"} to {route.destination_name_short ?? "Destination"}
           </h1>
-          <p className="px-2 text-sm text-on-surface-variant leading-relaxed">
+          <p className="px-2 mb-4 text-sm text-on-surface-variant leading-relaxed">
             This route is tentatively planned as part of the Lagos State government OMI EKO ferry expansion.
           </p>
+          <RouteFaqs faqs={buildRouteFaqs(route, [], [], routes)} />
         </div>
       </PanelShell>
     );
@@ -224,6 +229,9 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
             </ul>
           </div>
         )}
+
+        {/* ── Questions ──────────────────────────────────────────────── */}
+        {!loading && <RouteFaqs faqs={buildRouteFaqs(route, periods ?? [], stops ?? [], routes)} />}
 
       </div>
     </PanelShell>

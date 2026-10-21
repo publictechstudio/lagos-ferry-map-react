@@ -13,3 +13,18 @@ export function formatMinutes(mins: number | null): string | null {
   const m = mins % 60;
   return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
 }
+
+/** Format a Postgres time ("07:30:00") as a 12-hour clock time (7:30 AM). */
+export function formatTime(timeStr: string): string {
+  const [h, m] = timeStr.split(":");
+  const hour = parseInt(h, 10);
+  const minute = m;
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${h12}:${minute} ${ampm}`;
+}
+
+/** Format a date as month and year (October 2026), in Lagos time so server and browser agree. */
+export function formatMonthYear(date: string | Date): string {
+  return new Date(date).toLocaleDateString("en-NG", { month: "long", year: "numeric", timeZone: "Africa/Lagos" });
+}
