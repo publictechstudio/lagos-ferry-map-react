@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
 import MapWrapper from "@/components/MapWrapper";
 import { getFacilities } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
 import { toRouteSlug } from "@/lib/routeSlug";
-import { formatNaira } from "@/lib/format";
 import { getRoutePanelData } from "@/lib/routePanel";
 import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
+import { routeDescription, routePageTitle } from "@/lib/routeName";
 
 export const revalidate = 60;
 
@@ -22,19 +23,8 @@ export async function generateMetadata({
     const route = routes.find((r) => r.route_id === routeId);
 
     if (route?.origin_name && route?.destination_name) {
-      const planned = isPlannedOmiEkoRoute(route);
-      // Planned routes have a placeholder duration and no real fare, so leave both out
-      const title = planned
-        ? `${route.origin_name} → ${route.destination_name} (planned Omi Eko route)`
-        : `${route.origin_name} → ${route.destination_name}`;
-      const fare = route.last_stop_cost != null ? ` from ${formatNaira(route.last_stop_cost)}` : "";
-      const duration =
-        route.total_base_duration != null
-          ? ` in ~${route.total_base_duration} min`
-          : "";
-      const description = planned
-        ? `Planned ferry route from ${route.origin_name} to ${route.destination_name}, proposed under the Lagos State Government's Omi Eko ferry expansion. Not yet in service. See the ferry routes running today on the Lagos Ferry Map.`
-        : `Ferry route from ${route.origin_name} to ${route.destination_name}${duration}${fare}. View schedule, stops, and pricing on the Lagos Ferry Map.`;
+      const title = routePageTitle(route);
+      const description = routeDescription(route);
 
       return {
         title,
@@ -71,6 +61,12 @@ export default async function RouteMapPage({
   const initialSelectedRoute = !isNaN(routeId)
     ? (routes.find((r) => r.route_id === routeId) ?? null)
     : null;
+
+  // Only the leading id is used for lookup, so any text after it would serve this page.
+  // Send outdated or mistyped slugs (e.g. after a facility rename) to the one real URL.
+  if (initialSelectedRoute && slug !== toRouteSlug(initialSelectedRoute)) {
+    permanentRedirect(`/map/route/${toRouteSlug(initialSelectedRoute)}`);
+  }
 
   const isPlannedOmiEko = initialSelectedRoute != null && isPlannedOmiEkoRoute(initialSelectedRoute);
   const initialRoutePanelData =

@@ -11,14 +11,6 @@ export function formatTime(timeStr: string): string {
   return `${h12}:${minute} ${ampm}`;
 }
 
-export function formatMinutes(mins: number | null): string | null {
-  if (mins == null) return null;
-  if (mins < 60) return `${mins} min`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
-}
-
 export function formatDaySchedule(p: RoutePeriod): string {
   const days = [p.monday, p.tuesday, p.wednesday, p.thursday, p.friday, p.saturday, p.sunday];
   const names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];

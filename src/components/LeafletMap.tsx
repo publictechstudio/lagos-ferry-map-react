@@ -6,6 +6,7 @@ import type { Facility } from "@/types/facility";
 import type { Route } from "@/types/route";
 import { parseWKTLineString } from "@/lib/parseWKT";
 import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
+import { routeName as formatRouteName } from "@/lib/routeName";
 
 const LAGOS_CENTER: [number, number] = [6.47, 3.3958];
 const INITIAL_ZOOM = 12;
@@ -157,7 +158,7 @@ export default function LeafletMap({
 
         const routeName =
           route.origin_name && route.destination_name
-            ? `${route.origin_name} → ${route.destination_name}`
+            ? formatRouteName(route)
             : `Route #${route.route_id}`;
 
         // Regular polylines — skip for planned-only Omi Eko routes

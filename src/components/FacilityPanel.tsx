@@ -14,24 +14,10 @@ import PanelShell from "./PanelShell";
 import LoadingSpinner from "./LoadingSpinner";
 import { groupByLGA } from "@/lib/groupByLGA";
 import { formatNaira } from "@/lib/format";
+import { operatorInfo } from "@/lib/operators";
 import { event as gaEvent } from "@/lib/gtag";
 import PlaceIcon from '@mui/icons-material/Place';
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
-
-const OPERATOR_MAP: Record<string, { label: string; tooltip: string }> = {
-  "LagFerry/Government: Operated by the government": {
-    label: "LagFerry",
-    tooltip: "Operated by the government",
-  },
-  "Formal Commercial: Operated by licensed operators (under the jurisdiction/licensed by LASWA or NIWA)": {
-    label: "Licensed Commercial",
-    tooltip: "Licensed commercial operators under the jurisdiction/licensed by LASWA or NIWA",
-  },
-  "Informal Commercial: Operated by unlicensed operators(NOT under the jurisdiction/licensed by LASWA/NIWA)": {
-    label: "Unlicensed Commercial",
-    tooltip: "Unlicensed commercial operators not under the jurisdiction/licensed by LASWA or NIWA",
-  },
-};
 
 /** Key attributes shown inline under the title. */
 const KEY_ATTRS: { key: keyof Facility; label: string }[] = [
@@ -108,7 +94,7 @@ function periodsForRoute(route: ConnectingRoute, allPeriods: RoutePeriod[]): Rou
 
 function OperatorLabel({ operator }: { operator: string | null }) {
   if (!operator) return <span>—</span>;
-  const mapped = OPERATOR_MAP[operator];
+  const mapped = operatorInfo(operator);
   if (!mapped) return <span>{operator}</span>;
   return (
     <span>
@@ -119,7 +105,7 @@ function OperatorLabel({ operator }: { operator: string | null }) {
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface-variant/50">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
         </svg>
-        <span className="pointer-events-none absolute top-full right-0 mt-1.5 w-48 rounded bg-on-surface px-2.5 py-1.5 text-[11px] leading-4 text-surface shadow-md opacity-0 group-hover/tip:opacity-100 transition-opacity z-50">
+        <span className="pointer-events-none absolute top-full right-0 mt-1.5 w-48 whitespace-normal rounded bg-on-surface px-2.5 py-1.5 text-[11px] leading-4 text-surface shadow-md opacity-0 group-hover/tip:opacity-100 transition-opacity z-50">
           {mapped.tooltip}
         </span>
       </span>

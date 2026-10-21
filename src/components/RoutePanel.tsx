@@ -7,9 +7,11 @@ import type { RoutePeriod } from "@/types/routePeriod";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import { toRouteSlug } from "@/lib/routeSlug";
 import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
+import { routeArrow } from "@/lib/routeName";
 import PanelShell from "./PanelShell";
 import LoadingSpinner from "./LoadingSpinner";
-import { formatMinutes, isMorningsOnly } from "./route-panel/helpers";
+import { isMorningsOnly } from "./route-panel/helpers";
+import { formatMinutes } from "@/lib/format";
 import DirectionSection from "./route-panel/DirectionSection";
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -155,7 +157,7 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
       <div className="overflow-y-auto flex-1 px-4 py-3">
         {/* Route label */}
         <h1 className="px-2 pb-4 text-[22px] font-bold leading-7 text-on-surface shrink-0">
-          {route.origin_name_short ?? "Origin"} ⇄ {route.destination_name_short ?? "Destination"}
+          {route.origin_name_short ?? "Origin"} {routeArrow(route)} {route.destination_name_short ?? "Destination"}
         </h1>
 
         {/* ── Route header card ──────────────────────────────────────── */}

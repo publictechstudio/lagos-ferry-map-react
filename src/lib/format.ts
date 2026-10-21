@@ -4,3 +4,12 @@ export function formatNaira(amount: number): string {
   // locale keeps the server-rendered HTML identical to what the browser hydrates.
   return `₦${Number(amount).toLocaleString("en-NG")}`;
 }
+
+/** Format a duration in minutes (e.g. 45 min, 2 hr, 2 hr 30 min). */
+export function formatMinutes(mins: number | null): string | null {
+  if (mins == null) return null;
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
+}
