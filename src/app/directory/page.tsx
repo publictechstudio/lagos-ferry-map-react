@@ -3,6 +3,7 @@ import { getFacilities, getAllFacilityDestinations } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
 import { toFacilitySlug } from "@/lib/facilitySlug";
 import { toRouteSlug } from "@/lib/routeSlug";
+import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
 import { FacilitiesTable } from "@/components/FacilitiesTable";
 import { RoutesTable } from "@/components/RoutesTable";
 import type { Facility } from "@/types/facility";
@@ -125,7 +126,7 @@ export default async function DirectoryPage() {
   });
 
   const activeRouteCount = routes.filter(
-    (r) => !(r.omi_eko && r.total_base_duration === 9999)
+    (r) => !isPlannedOmiEkoRoute(r)
   ).length;
 
   const lgaCount = new Set(facilities.map((f) => f.lga)).size;

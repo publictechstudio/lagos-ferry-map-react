@@ -5,6 +5,7 @@ import { getRoutes } from "@/lib/routes";
 import { toRouteSlug } from "@/lib/routeSlug";
 import { formatNaira } from "@/lib/format";
 import { getRoutePanelData } from "@/lib/routePanel";
+import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
 
 export const revalidate = 60;
 
@@ -65,7 +66,7 @@ export default async function RouteMapPage({
     ? (routes.find((r) => r.route_id === routeId) ?? null)
     : null;
 
-  const isPlannedOmiEko = initialSelectedRoute?.omi_eko === true && initialSelectedRoute?.total_base_duration === 9999;
+  const isPlannedOmiEko = initialSelectedRoute != null && isPlannedOmiEkoRoute(initialSelectedRoute);
   const initialRoutePanelData =
     initialSelectedRoute && !isPlannedOmiEko
       ? await getRoutePanelData(initialSelectedRoute.route_id)

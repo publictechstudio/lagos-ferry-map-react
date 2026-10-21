@@ -6,6 +6,7 @@ import type { RouteStop } from "@/types/routeStop";
 import type { RoutePeriod } from "@/types/routePeriod";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import { toRouteSlug } from "@/lib/routeSlug";
+import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
 import PanelShell from "./PanelShell";
 import LoadingSpinner from "./LoadingSpinner";
 import { formatMinutes, isMorningsOnly } from "./route-panel/helpers";
@@ -21,11 +22,12 @@ interface Props {
 }
 
 export default function RoutePanel({ route, onClose, preloadedStops, preloadedPeriods }: Props) {
-  const isPlannedOmiEko = route.omi_eko === true && route.total_base_duration === 9999;
+  const isPlannedOmiEko = isPlannedOmiEkoRoute(route);
 
-  const [stops, setStops] = useState<RouteStop[] | null>(null);
-  const [periods, setPeriods] = useState<RoutePeriod[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Seed from server-provided data so the first render (and the server HTML) has the schedule
+  const [stops, setStops] = useState<RouteStop[] | null>(preloadedStops ?? null);
+  const [periods, setPeriods] = useState<RoutePeriod[] | null>(preloadedPeriods ?? null);
+  const [loading, setLoading] = useState(preloadedStops == null || preloadedPeriods == null);
 
   useEffect(() => {
     if (isPlannedOmiEko) return;
