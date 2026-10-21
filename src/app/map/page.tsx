@@ -4,7 +4,7 @@ import { getFacilities } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
 
 export const metadata: Metadata = {
-  title: "Lagos Ferry Map — Interactive Route & Terminal Map",
+  title: { absolute: "Lagos Ferry Map — Interactive Route & Terminal Map" },
   description:
     "Explore every active ferry route and terminal in Lagos on an interactive map. Search by address or facility name, filter by operator, and view fares, schedules, and terminal details for routes across Lagos Lagoon.",
   openGraph: {

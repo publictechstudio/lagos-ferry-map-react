@@ -22,13 +22,19 @@ export async function generateMetadata({
     const route = routes.find((r) => r.route_id === routeId);
 
     if (route?.origin_name && route?.destination_name) {
-      const title = `${route.origin_name} → ${route.destination_name}`;
+      const planned = isPlannedOmiEkoRoute(route);
+      // Planned routes have a placeholder duration and no real fare, so leave both out
+      const title = planned
+        ? `${route.origin_name} → ${route.destination_name} (planned Omi Eko route)`
+        : `${route.origin_name} → ${route.destination_name}`;
       const fare = route.last_stop_cost != null ? ` from ${formatNaira(route.last_stop_cost)}` : "";
       const duration =
         route.total_base_duration != null
           ? ` in ~${route.total_base_duration} min`
           : "";
-      const description = `Ferry route from ${route.origin_name} to ${route.destination_name}${duration}${fare}. View schedule, stops, and pricing on the Lagos Ferry Map.`;
+      const description = planned
+        ? `Planned ferry route from ${route.origin_name} to ${route.destination_name}, proposed under the Lagos State Government's Omi Eko ferry expansion. Not yet in service. See the ferry routes running today on the Lagos Ferry Map.`
+        : `Ferry route from ${route.origin_name} to ${route.destination_name}${duration}${fare}. View schedule, stops, and pricing on the Lagos Ferry Map.`;
 
       return {
         title,

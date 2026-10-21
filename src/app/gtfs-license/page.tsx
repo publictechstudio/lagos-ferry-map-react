@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "GTFS Data License — Lagos Ferry Map",
+  title: "GTFS Data License",
   description:
     "License terms for the Lagos Ferry GTFS data published by Public Tech Studio, available under Creative Commons Attribution 4.0.",
   alternates: { canonical: "/gtfs-license" },
   openGraph: {
-    title: "GTFS Data License - Lagos Ferry Map",
+    title: "GTFS Data License — Lagos Ferry Map",
     description:
       "License terms for the Lagos Ferry GTFS data published by Public Tech Studio.",
   },
