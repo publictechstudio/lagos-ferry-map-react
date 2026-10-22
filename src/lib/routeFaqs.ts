@@ -27,6 +27,7 @@ export function buildRouteFaqs(
   if (isPlannedOmiEkoRoute(route)) return [plannedFaq(route, siblings, allRoutes)];
 
   return [
+    getThereFaq(route, periods, siblings),
     durationFaq(route, stops, siblings),
     fareFaq(route, siblings),
     firstDepartureFaq(route, periods),
@@ -177,6 +178,35 @@ function boatWords(boatTypes: string | null): string | null {
 }
 
 // ── Questions ──────────────────────────────────────────────────────────────────
+
+/** Matches how people search ("how do I get from A to B by ferry"), so it goes first. */
+function getThereFaq(route: Route, periods: RoutePeriod[], siblings: Route[]): Faq {
+  const { o, d } = ends(route);
+  const word = operatorWord(route);
+  const boat = word === "LagFerry" ? "the LagFerry boat" : word ? `a ${word} boat` : "a boat";
+  const duration = route.total_base_duration != null ? ` in about ${durationWords(route.total_base_duration)}` : "";
+  const fare = route.last_stop_cost != null ? ` for ${formatNaira(route.last_stop_cost)}` : "";
+
+  const answer: FaqPart[] = [
+    bold(`Take ${boat} from ${route.origin_name ?? o}`),
+    `, which reaches ${d}${duration}${fare}.`,
+  ];
+  const outbound = periods.filter((p) => p.direction_id == 0);
+  const first = firstPeriod(outbound);
+  if (first) {
+    const single = outbound.length === 1 && first.average_daily_boat_departures === 1;
+    answer.push(
+      ` ${single ? "The boat leaves at" : "Boats leave from"} ${formatTime(first.start_time)} ${daysPhrase(periodDays(first))}.`,
+    );
+  }
+
+  // Another running service on the same crossing, as an alternative
+  const alternative = siblings.find((s) => s.origin === route.origin && s.destination === route.destination)
+    ?? siblings.find((s) => s.has_return && sameEnds(s, route));
+  if (alternative) answer.push(" You can also take ", routeLink(alternative, { from: route }), ".");
+
+  return { question: `How do I get from ${o} to ${d} by ferry?`, answer };
+}
 
 function durationFaq(route: Route, stops: RouteStop[], siblings: Route[]): Faq | null {
   if (route.total_base_duration == null) return null;

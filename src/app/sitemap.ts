@@ -4,13 +4,14 @@ import { getRoutes } from "@/lib/routes";
 import { toFacilitySlug } from "@/lib/facilitySlug";
 import { toRouteSlug } from "@/lib/routeSlug";
 import { getFaqs } from "@/lib/faqs";
+import { getFeedInfo } from "@/lib/gtfs";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lagosferries.com";
 
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [facilities, routes, faqs] = await Promise.all([getFacilities(), getRoutes(), getFaqs()]);
+  const [facilities, routes, faqs, feed] = await Promise.all([getFacilities(), getRoutes(), getFaqs(), getFeedInfo()]);
   const faqsUpdated = faqs.reduce<Date | null>((latest, f) => (!latest || f.updatedAt > latest ? f.updatedAt : latest), null);
 
   const staticPages: MetadataRoute.Sitemap = [
@@ -52,13 +53,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${BASE_URL}/gtfs-license`,
-      lastModified: new Date(),
+      lastModified: feed.updatedAt ?? new Date(),
       changeFrequency: "monthly",
       priority: 0.5,
     },
     {
       url: `${BASE_URL}/gtfs.zip`,
-      lastModified: new Date(),
+      lastModified: feed.updatedAt ?? new Date(),
       changeFrequency: "monthly",
       priority: 0.3,
     },
@@ -74,7 +75,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const routePages: MetadataRoute.Sitemap = routes.map((r) => ({
     url: `${BASE_URL}/map/route/${toRouteSlug(r)}`,
-    lastModified: new Date(),
+    // Real edit dates, so crawlers can trust them; "now" on every crawl gets ignored
+    lastModified: r.modified_at ? new Date(r.modified_at) : new Date(),
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));

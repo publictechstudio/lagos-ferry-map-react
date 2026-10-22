@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { permanentRedirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import MapWrapper from "@/components/MapWrapper";
 import { getFacilities } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
@@ -69,9 +69,12 @@ export default async function FacilityMapPage({
       ? (facilities.find((f) => f.facility_id === facilityId) ?? null)
       : null;
 
+  // Unknown or hidden facilities are a real 404, so search engines drop them instead of keeping an empty page
+  if (!initialSelected) notFound();
+
   // Only the id is used for lookup, so any name after it would serve this page.
   // Send outdated or mistyped slugs (e.g. after a rename) to the one real URL.
-  if (initialSelected && slug !== toFacilitySlug(initialSelected)) {
+  if (slug !== toFacilitySlug(initialSelected)) {
     permanentRedirect(`/map/${toFacilitySlug(initialSelected)}`);
   }
 

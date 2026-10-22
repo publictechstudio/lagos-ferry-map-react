@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { permanentRedirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import MapWrapper from "@/components/MapWrapper";
 import { getFacilities } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
@@ -64,9 +64,12 @@ export default async function RouteMapPage({
     ? (routes.find((r) => r.route_id === routeId) ?? null)
     : null;
 
+  // Unknown or archived routes are a real 404, so search engines drop them instead of keeping an empty page
+  if (!initialSelectedRoute) notFound();
+
   // Only the leading id is used for lookup, so any text after it would serve this page.
   // Send outdated or mistyped slugs (e.g. after a facility rename) to the one real URL.
-  if (initialSelectedRoute && slug !== toRouteSlug(initialSelectedRoute)) {
+  if (slug !== toRouteSlug(initialSelectedRoute)) {
     permanentRedirect(`/map/route/${toRouteSlug(initialSelectedRoute)}`);
   }
 

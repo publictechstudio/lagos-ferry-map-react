@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { sql } from "@/lib/db";
+import { getFeedInfo } from "@/lib/gtfs";
 
 export const revalidate = 3600;
 
@@ -19,14 +19,6 @@ export const metadata: Metadata = {
 };
 
 const linkClass = "text-primary underline underline-offset-2 hover:opacity-70";
-
-/** Version and build time of the feed served at /gtfs.zip (src/app/gtfs.zip/route.ts). */
-async function getFeedInfo(): Promise<{ version: string | null; updatedAt: Date | null }> {
-  const rows = await sql<{ version: string | null; updated_at: Date | null }[]>`
-    SELECT version, updated_at FROM gtfs_zip_cache WHERE id = 1
-  `;
-  return { version: rows[0]?.version ?? null, updatedAt: rows[0]?.updated_at ?? null };
-}
 
 /** schema.org Dataset, so Google Dataset Search and other crawlers can list and cite the feed. */
 function datasetJsonLd(version: string | null, updatedAt: Date | null) {
