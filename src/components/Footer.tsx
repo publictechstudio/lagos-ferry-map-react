@@ -8,7 +8,7 @@ const internalLinks = [
   { label: "Navigation Partnerships", href: "/partnerships" },
   { label: "Directory", href: "/directory" },
   { label: "FAQs", href: "/faq" },
-  { label: "GTFS License", href: "/gtfs-license" },
+  { label: "GTFS Dataset", href: "/gtfs-license" },
   { label: "Sitemap", href: "/sitemap.xml" },
   { label: "Robots", href: "/robots.txt" },
 ];
