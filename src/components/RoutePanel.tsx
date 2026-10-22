@@ -13,7 +13,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import { isMorningsOnly } from "./route-panel/helpers";
 import { formatMinutes } from "@/lib/format";
 import DirectionSection from "./route-panel/DirectionSection";
-import RouteFaqs from "./route-panel/RouteFaqs";
+import FaqList from "./FaqList";
 import { buildRouteFaqs } from "@/lib/routeFaqs";
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ export default function RoutePanel({ route, routes, onClose, preloadedStops, pre
           <p className="px-2 mb-4 text-sm text-on-surface-variant leading-relaxed">
             This route is tentatively planned as part of the Lagos State government OMI EKO ferry expansion.
           </p>
-          <RouteFaqs faqs={buildRouteFaqs(route, [], [], routes)} />
+          <FaqList title="Questions about this route" faqs={buildRouteFaqs(route, [], [], routes)} />
         </div>
       </PanelShell>
     );
@@ -210,28 +210,13 @@ export default function RoutePanel({ route, routes, onClose, preloadedStops, pre
           </>
         )}
 
-        {/* ── Disruptions ────────────────────────────────────────────── */}
-        {(route.rain || route.hyacinth_season_disruption) && (
-          <div className="mb-4">
-            <h3 className="text-[13px] font-semibold text-on-surface mb-2">Disruptions:</h3>
-            <ul className="list-disc list-inside flex flex-col gap-1.5">
-              {route.rain && (
-                <li className="text-[12px] text-on-surface-variant leading-relaxed">
-                  <span className="font-semibold text-on-surface">Rain:</span> {route.rain}
-                </li>
-              )}
-              {route.hyacinth_season_disruption && (
-                <li className="text-[12px] text-on-surface-variant leading-relaxed">
-                  <span className="font-semibold text-on-surface">Water hyacinth:</span>{" "}
-                  {route.hyacinth_season_disruption}
-                </li>
-              )}
-            </ul>
-          </div>
+        {/* ── Questions (includes disruptions: rain and water hyacinth season) ──────────────────────────────────────────────── */}
+        {!loading && (
+          <FaqList
+            title="Questions about this route"
+            faqs={buildRouteFaqs(route, periods ?? [], stops ?? [], routes)}
+          />
         )}
-
-        {/* ── Questions ──────────────────────────────────────────────── */}
-        {!loading && <RouteFaqs faqs={buildRouteFaqs(route, periods ?? [], stops ?? [], routes)} />}
 
       </div>
     </PanelShell>

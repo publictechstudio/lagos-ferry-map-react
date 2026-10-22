@@ -2,14 +2,12 @@ import type { Route } from "@/types/route";
 import type { RoutePeriod } from "@/types/routePeriod";
 import type { RouteStop } from "@/types/routeStop";
 import { toFacilitySlug } from "./facilitySlug";
-import { formatMonthYear, formatNaira, formatTime } from "./format";
+import { formatNaira, formatTime } from "./format";
+import type { Faq, FaqPart } from "./faq";
 import { isPlannedOmiEkoRoute } from "./omiEko";
 import { operatorInfo } from "./operators";
 import { toRouteSlug } from "./routeSlug";
 
-/** A piece of answer text: plain, a link to another page on the site, or the key fact in bold. */
-export type FaqPart = string | { text: string; href: string } | { text: string; bold: true };
-export type Faq = { question: string; answer: FaqPart[] };
 
 /**
  * Questions and answers for a route page, built from its data. Each answer leads
@@ -35,11 +33,6 @@ export function buildRouteFaqs(
     weekendFaq(route, periods),
     disruptionsFaq(route),
   ].filter((f): f is Faq => f !== null);
-}
-
-/** The answer as plain text, for structured data. */
-export function faqPlainText(faq: Faq): string {
-  return faq.answer.map((p) => (typeof p === "string" ? p : p.text)).join("");
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -219,7 +212,8 @@ function fareFaq(route: Route, siblings: Route[]): Faq | null {
   const { o, d } = ends(route);
   const operator = operatorInfo(route.operator)?.inSentence;
   const payment = paymentWords(route.payment_options);
-  const updated = route.modified_at ? formatMonthYear(route.modified_at) : null;
+  // Year only; UTC so the server and the browser always agree
+  const updated = route.modified_at ? new Date(route.modified_at).getUTCFullYear() : null;
 
   const answer: FaqPart[] = [
     `A ticket for the full ${o} to ${d} ferry trip costs `,

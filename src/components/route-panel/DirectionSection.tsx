@@ -53,7 +53,7 @@ export default function DirectionSection({
           </p>
         )}
         <p className="mt-1 mb-5 text-[11px] italic text-on-surface-variant">
-          Note: Departure times are estimates. Actual departures depend on passenger demand, with boats typically waiting until they are full.
+          Note: Departure times are estimates, since boats typically wait until they are full of passengers. Schedules are also subject to potential environmental disruptions; see more below.
         </p>
 
         {/* Price table */}

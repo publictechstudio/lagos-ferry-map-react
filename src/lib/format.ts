@@ -23,8 +23,3 @@ export function formatTime(timeStr: string): string {
   const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
   return `${h12}:${minute} ${ampm}`;
 }
-
-/** Format a date as month and year (October 2026), in Lagos time so server and browser agree. */
-export function formatMonthYear(date: string | Date): string {
-  return new Date(date).toLocaleDateString("en-NG", { month: "long", year: "numeric", timeZone: "Africa/Lagos" });
-}

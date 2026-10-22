@@ -7,7 +7,8 @@ import { toRouteSlug } from "@/lib/routeSlug";
 import { getRoutePanelData } from "@/lib/routePanel";
 import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
 import { routeDescription, routePageTitle } from "@/lib/routeName";
-import { buildRouteFaqs, faqPlainText } from "@/lib/routeFaqs";
+import { buildRouteFaqs } from "@/lib/routeFaqs";
+import { faqPageJsonLd } from "@/lib/faq";
 
 export const revalidate = 60;
 
@@ -109,26 +110,17 @@ export default async function RouteMapPage({
       }
     : null;
 
-  // Same questions the panel shows, so the structured data matches the visible page
-  const faqs = initialSelectedRoute
-    ? buildRouteFaqs(
-        initialSelectedRoute,
-        initialRoutePanelData?.periods ?? [],
-        initialRoutePanelData?.stops ?? [],
-        routes,
-      )
-    : [];
-  const faqJsonLd = faqs.length > 0
-    ? {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: faqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: { "@type": "Answer", text: faqPlainText(faq) },
-        })),
-      }
-    : null;
+  // Same questions the panel shows, so the structured data matches the page
+  const faqJsonLd = faqPageJsonLd(
+    initialSelectedRoute
+      ? buildRouteFaqs(
+          initialSelectedRoute,
+          initialRoutePanelData?.periods ?? [],
+          initialRoutePanelData?.stops ?? [],
+          routes,
+        )
+      : [],
+  );
 
   return (
     <>
