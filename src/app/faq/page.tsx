@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 /** Section order and headings for faqs.topic. Topics not listed here follow, titled from the slug. */
 const TOPICS: Record<string, string> = {
-  general: "Lagos ferries in general",
+  general: "Ferry operations, schedules, and safety",
   ikorodu: "Ikorodu ferries",
   "badore-lekki": "Badore, Ajah and the Lekki axis",
   "tarkwa-bay": "Tarkwa Bay",
@@ -65,10 +65,10 @@ export default async function FaqPage() {
       )}
       <section className="max-w-4xl mx-auto px-4 py-16">
         <h1 className="text-[32px] font-normal leading-10 text-on-surface mb-3">
-          Lagos ferry questions and answers
+          Lagos Ferries: Questions and Answers
         </h1>
         <p className="text-base leading-6 text-on-surface-variant mb-3">
-          Answers to the questions people ask most about ferries in Lagos.
+          Answers to the questions people ask most about ferry services in Lagos.
           Timetables and fares for every route are on the{" "}
           <Link href="/map" className={linkClass}>
             interactive map
@@ -118,7 +118,7 @@ export default async function FaqPage() {
               <div key={topic} className="mb-12">
                 <h2
                   id={topic}
-                  className="text-xl font-medium text-on-surface mb-2 scroll-mt-20"
+                  className="text-xl font-bold text-on-surface mb-2 scroll-mt-20"
                 >
                   {topicHeading(topic)}
                 </h2>
