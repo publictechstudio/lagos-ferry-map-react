@@ -25,7 +25,7 @@ const TOPICS: Record<string, string> = {
   ikorodu: "Ikorodu ferries",
   "badore-lekki": "Badore, Ajah and the Lekki axis",
   "tarkwa-bay": "Tarkwa Bay",
-  "ojo-ilashe-badagry": "Ojo and Ilashe",
+  "ojo-ilashe": "Ojo and Ilashe",
   "cross-border": "Boats to Benin Republic",
 };
 
