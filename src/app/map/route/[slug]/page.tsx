@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
+import { notFound, permanentRedirect } from "next/navigation";
 import MapWrapper from "@/components/MapWrapper";
 import { getFacilities } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
 import { toRouteSlug } from "@/lib/routeSlug";
-import { formatNaira } from "@/lib/format";
 import { getRoutePanelData } from "@/lib/routePanel";
+import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
+import { routeDescription, routePageTitle } from "@/lib/routeName";
+import { buildRouteFaqs } from "@/lib/routeFaqs";
+import { faqPageJsonLd } from "@/lib/faq";
 
 export const revalidate = 60;
 
@@ -21,13 +25,8 @@ export async function generateMetadata({
     const route = routes.find((r) => r.route_id === routeId);
 
     if (route?.origin_name && route?.destination_name) {
-      const title = `${route.origin_name} → ${route.destination_name}`;
-      const fare = route.last_stop_cost != null ? ` from ${formatNaira(route.last_stop_cost)}` : "";
-      const duration =
-        route.total_base_duration != null
-          ? ` in ~${route.total_base_duration} min`
-          : "";
-      const description = `Ferry route from ${route.origin_name} to ${route.destination_name}${duration}${fare}. View schedule, stops, and pricing on the Lagos Ferry Map.`;
+      const title = routePageTitle(route);
+      const description = routeDescription(route);
 
       return {
         title,
@@ -65,7 +64,16 @@ export default async function RouteMapPage({
     ? (routes.find((r) => r.route_id === routeId) ?? null)
     : null;
 
-  const isPlannedOmiEko = initialSelectedRoute?.omi_eko === true && initialSelectedRoute?.total_base_duration === 9999;
+  // Unknown or archived routes are a real 404, so search engines drop them instead of keeping an empty page
+  if (!initialSelectedRoute) notFound();
+
+  // Only the leading id is used for lookup, so any text after it would serve this page.
+  // Send outdated or mistyped slugs (e.g. after a facility rename) to the one real URL.
+  if (slug !== toRouteSlug(initialSelectedRoute)) {
+    permanentRedirect(`/map/route/${toRouteSlug(initialSelectedRoute)}`);
+  }
+
+  const isPlannedOmiEko = initialSelectedRoute != null && isPlannedOmiEkoRoute(initialSelectedRoute);
   const initialRoutePanelData =
     initialSelectedRoute && !isPlannedOmiEko
       ? await getRoutePanelData(initialSelectedRoute.route_id)
@@ -76,6 +84,10 @@ export default async function RouteMapPage({
         "@context": "https://schema.org",
         "@type": "BusRoute",
         name: `${initialSelectedRoute.origin_name ?? ""} to ${initialSelectedRoute.destination_name ?? ""} Ferry`,
+        // Freshness signal for crawlers; not shown on the page
+        ...(initialSelectedRoute.modified_at && {
+          dateModified: new Date(initialSelectedRoute.modified_at).toISOString(),
+        }),
         ...(initialSelectedRoute.operator && {
           provider: { "@type": "Organization", name: initialSelectedRoute.operator },
         }),
@@ -101,12 +113,30 @@ export default async function RouteMapPage({
       }
     : null;
 
+  // Same questions the panel shows, so the structured data matches the page
+  const faqJsonLd = faqPageJsonLd(
+    initialSelectedRoute
+      ? buildRouteFaqs(
+          initialSelectedRoute,
+          initialRoutePanelData?.periods ?? [],
+          initialRoutePanelData?.stops ?? [],
+          routes,
+        )
+      : [],
+  );
+
   return (
     <>
       {jsonLd && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       )}
       <section className="flex flex-col" style={{ height: "calc(100vh - 64px)" }}>

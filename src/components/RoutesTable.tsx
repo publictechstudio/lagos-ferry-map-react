@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ClickableRow } from "@/components/ClickableRow";
 import { toRouteSlug } from "@/lib/routeSlug";
+import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
 import type { Route } from "@/types/route";
 
 function FilterIcon({ active }: { active: boolean }) {
@@ -97,7 +98,14 @@ export function RoutesTable({ routes }: { routes: Route[] }) {
                     {route.origin_name ?? "—"}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-on-surface whitespace-nowrap">{route.destination_name ?? "—"}</td>
+                <td className="px-4 py-3 text-on-surface whitespace-nowrap">
+                  {route.destination_name ?? "—"}
+                  {isPlannedOmiEkoRoute(route) && (
+                    <span className="ml-2 inline-flex px-2 py-0.5 rounded-full bg-[#7B3F00]/15 text-[#7B3F00] text-xs font-bold">
+                      Planned
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-on-surface-variant">
                   {(() => {
                     const op = route.operator ?? "";

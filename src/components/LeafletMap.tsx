@@ -5,6 +5,8 @@ import type { Map as LMap, CircleMarker, Circle, Polyline, Marker } from "leafle
 import type { Facility } from "@/types/facility";
 import type { Route } from "@/types/route";
 import { parseWKTLineString } from "@/lib/parseWKT";
+import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
+import { routeName as formatRouteName } from "@/lib/routeName";
 
 const LAGOS_CENTER: [number, number] = [6.47, 3.3958];
 const INITIAL_ZOOM = 12;
@@ -150,16 +152,16 @@ export default function LeafletMap({
 
         const isSelected = route.route_id === initialSelectedRouteId;
         const isOmiEko = route.omi_eko === true;
-        const isPlannedOnly = isOmiEko && route.total_base_duration === 9999;
+        const isPlannedOnly = isPlannedOmiEkoRoute(route);
         const opKey = routeOperatorKey(route.operator);
         const opColor = routeColor(route.operator);
 
         const routeName =
           route.origin_name && route.destination_name
-            ? `${route.origin_name} → ${route.destination_name}`
+            ? formatRouteName(route)
             : `Route #${route.route_id}`;
 
-        // Regular polylines — skip for planned-only Omi Eko routes (duration 9999)
+        // Regular polylines — skip for planned-only Omi Eko routes
         if (!isPlannedOnly) {
           const polyline = L.polyline(coords, {
             color: isSelected ? '#262626' : opColor,

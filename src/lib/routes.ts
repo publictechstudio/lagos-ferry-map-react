@@ -34,7 +34,11 @@ export async function getRoutes(): Promise<Route[]> {
       f2.facility_name AS destination_name,
       f1.facility_name_short AS origin_name_short,
       f2.facility_name_short AS destination_name_short,
-      r.omi_eko
+      r.omi_eko,
+      EXISTS (
+        SELECT 1 FROM route_periods rp
+        WHERE rp.route_id = r.route_id AND rp.direction_id = 1
+      ) AS has_return
     FROM routes r
     LEFT JOIN facilities f1 ON r.origin = f1.facility_id
     LEFT JOIN facilities f2 ON r.destination = f2.facility_id
@@ -78,7 +82,11 @@ export async function getRouteById(id: number): Promise<Route | null> {
       f2.facility_name AS destination_name,
       f1.facility_name_short AS origin_name_short,
       f2.facility_name_short AS destination_name_short,
-      r.omi_eko
+      r.omi_eko,
+      EXISTS (
+        SELECT 1 FROM route_periods rp
+        WHERE rp.route_id = r.route_id AND rp.direction_id = 1
+      ) AS has_return
     FROM routes r
     LEFT JOIN facilities f1 ON r.origin = f1.facility_id
     LEFT JOIN facilities f2 ON r.destination = f2.facility_id

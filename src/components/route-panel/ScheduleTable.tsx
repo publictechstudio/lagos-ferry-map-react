@@ -1,5 +1,6 @@
 import type { RoutePeriod } from "@/types/routePeriod";
-import { formatDaySchedule, formatTime } from "./helpers";
+import { formatDaySchedule } from "./helpers";
+import { formatTime } from "@/lib/format";
 
 /** Schedule table for one group of periods sharing the same day combination. */
 export default function ScheduleTable({ periods }: { periods: RoutePeriod[] }) {
