@@ -25,12 +25,15 @@ const TOPICS: Record<string, string> = {
   ikorodu: "Ikorodu ferries",
   "badore-lekki": "Badore, Ajah and the Lekki axis",
   "tarkwa-bay": "Tarkwa Bay",
-  "ojo-ilashe-badagry": "Ojo, Ilashe and Badagry",
+  "ojo-ilashe": "Ojo and Ilashe",
   "cross-border": "Boats to Benin Republic",
 };
 
 function topicHeading(topic: string): string {
-  return TOPICS[topic] ?? topic.replace(/-/g, " ").replace(/^\w/, (c) => c.toUpperCase());
+  return (
+    TOPICS[topic] ??
+    topic.replace(/-/g, " ").replace(/^\w/, (c) => c.toUpperCase())
+  );
 }
 
 function groupByTopic(faqs: StoredFaq[]): [string, StoredFaq[]][] {
@@ -40,7 +43,8 @@ function groupByTopic(faqs: StoredFaq[]): [string, StoredFaq[]][] {
     groups.get(faq.topic)!.push(faq);
   }
   const order = Object.keys(TOPICS);
-  const rank = (t: string) => (order.includes(t) ? order.indexOf(t) : order.length);
+  const rank = (t: string) =>
+    order.includes(t) ? order.indexOf(t) : order.length;
   return [...groups].sort(([a], [b]) => rank(a) - rank(b));
 }
 
@@ -54,32 +58,51 @@ export default async function FaqPage() {
   return (
     <>
       {jsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       )}
       <section className="max-w-4xl mx-auto px-4 py-16">
         <h1 className="text-[32px] font-normal leading-10 text-on-surface mb-3">
           Lagos ferry questions and answers
         </h1>
         <p className="text-base leading-6 text-on-surface-variant mb-3">
-          Answers to the questions people ask most about ferries in Lagos. Timetables and fares for every route
-          are on the{" "}
-          <Link href="/map" className={linkClass}>interactive map</Link> and in the{" "}
-          <Link href="/directory" className={linkClass}>directory of terminals and routes</Link>.
+          Answers to the questions people ask most about ferries in Lagos.
+          Timetables and fares for every route are on the{" "}
+          <Link href="/map" className={linkClass}>
+            interactive map
+          </Link>{" "}
+          and in the{" "}
+          <Link href="/directory" className={linkClass}>
+            directory of terminals and routes
+          </Link>
+          .
         </p>
         <p className="text-base leading-6 text-on-surface-variant mb-8">
           Something wrong or missing?{" "}
-          <a href={REPORT_FORM_URL} className={linkClass} target="_blank" rel="noopener noreferrer">
+          <a
+            href={REPORT_FORM_URL}
+            className={linkClass}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Let us know
           </a>
           .
         </p>
 
         {groups.length === 0 ? (
-          <p className="text-base leading-6 text-on-surface-variant">No questions have been published yet.</p>
+          <p className="text-base leading-6 text-on-surface-variant">
+            No questions have been published yet.
+          </p>
         ) : (
           <>
             {/* Jump links to each section */}
-            <nav aria-label="FAQ sections" className="mb-10 flex flex-wrap gap-2">
+            <nav
+              aria-label="FAQ sections"
+              className="mb-10 flex flex-wrap gap-2"
+            >
               {groups.map(([topic]) => (
                 <a
                   key={topic}
@@ -93,7 +116,10 @@ export default async function FaqPage() {
 
             {groups.map(([topic, items]) => (
               <div key={topic} className="mb-12">
-                <h2 id={topic} className="text-xl font-medium text-on-surface mb-2 scroll-mt-20">
+                <h2
+                  id={topic}
+                  className="text-xl font-medium text-on-surface mb-2 scroll-mt-20"
+                >
                   {topicHeading(topic)}
                 </h2>
                 <FaqList faqs={items} variant="page" />
