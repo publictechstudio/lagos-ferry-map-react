@@ -63,7 +63,7 @@ export default function HeroSection() {
         <div className="flex-1 relative">
           <Image
             src="/hero-traffic.jpg"
-            alt=""
+            alt="Gridlocked traffic on a Lagos highway beside the lagoon, seen from above"
             fill
             priority
             sizes="(max-width: 768px) 100vw, 50vw"
@@ -76,7 +76,7 @@ export default function HeroSection() {
         <div className="flex-1 relative">
           <Image
             src="/hero-ferry.jpg"
-            alt=""
+            alt="Passenger ferries moored at a floating jetty on Lagos Lagoon, with crew in orange life jackets"
             fill
             priority
             sizes="(max-width: 768px) 100vw, 50vw"
@@ -105,7 +105,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-base leading-6 text-white/80 max-w-xl">
-            The waterways remain an underutilised way to navigate the city,
+            The waterways remain an underutilized way to navigate the city,
             partly due to a lack of public information. We&apos;re changing that.
           </p>
         </div>

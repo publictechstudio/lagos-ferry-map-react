@@ -9,6 +9,7 @@ const navLinks = [
   { label: "Map", href: "/map" },
   { label: "Navigation", href: "/partnerships" },
   { label: "Directory", href: "/directory" },
+  { label: "FAQs", href: "/faq" },
 ];
 
 export default function Navbar() {
