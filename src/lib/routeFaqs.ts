@@ -100,14 +100,14 @@ function periodDays(p: RoutePeriod): Days {
   return [p.monday, p.tuesday, p.wednesday, p.thursday, p.friday, p.saturday, p.sunday];
 }
 
-/** "every day", "on weekdays", "at weekends", "on Mondays, Wednesdays and Fridays"… */
+/** "every day", "on weekdays", "on weekends", "on Mondays, Wednesdays and Fridays"… */
 function daysPhrase(days: Days): string {
   const on = days.map((v, i) => (v ? i : -1)).filter((i) => i >= 0);
   const key = days.map((v) => (v ? "1" : "0")).join("");
   if (on.length === 7) return "every day";
   if (key === "1111100") return "on weekdays";
   if (key === "1111110") return "from Monday to Saturday";
-  if (key === "0000011") return "at weekends";
+  if (key === "0000011") return "on weekends";
   return `on ${listJoin(on.map((i) => `${DAY_NAMES[i]}s`))}`;
 }
 
@@ -160,7 +160,7 @@ function stopsOnTheWay(stops: RouteStop[]): FaqPart[] {
 const BOATS: Record<string, string> = {
   banana: "banana boats",
   "wooden boats": "wooden boats",
-  "fibre boat": "fibre boats",
+  "fibre boat": "fiber boats",
   covered: "covered boats",
   catamaran: "catamarans",
   "speed boats": "speed boats",
@@ -344,7 +344,7 @@ function weekendFaq(route: Route, periods: RoutePeriod[]): Faq | null {
   } else {
     answer.push(bold("No."), ` The ${o} to ${d} ferry runs ${daysPhrase(days)} only, with no boats on Saturdays or Sundays.`);
   }
-  return { question: `Does the ${o} to ${d} ferry run at weekends?`, answer };
+  return { question: `Does the ${o} to ${d} ferry run on the weekends?`, answer };
 }
 
 // routes.rain and routes.hyacinth_season_disruption hold one of a fixed set of survey
@@ -377,7 +377,7 @@ const HYACINTH: Record<string, Note> = {
     disrupts: true,
   },
   "Yes, this route gets disrupted and doesn't work during the water hyacinth season": {
-    sentence: (f) => `${capitaliseText(f)} stops running during water hyacinth season, when the weed blocks the water.`,
+    sentence: (f) => `${capitaliseText(f)} usually stops running during water hyacinth season, when the weed can block the waterway.`,
     disrupts: true,
   },
 };

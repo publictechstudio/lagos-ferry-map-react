@@ -52,7 +52,7 @@ function datasetJsonLd(version: string | null, updatedAt: Date | null) {
 export default async function GtfsLicensePage() {
   const { version, updatedAt } = await getFeedInfo();
   const updated = updatedAt
-    ? updatedAt.toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Lagos" })
+    ? updatedAt.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Lagos" })
     : null;
 
   return (
@@ -85,7 +85,7 @@ export default async function GtfsLicensePage() {
       <h2 className="text-2xl font-medium text-on-surface mt-8 mb-4">Overview</h2>
       <p className="text-base leading-7 text-on-surface-variant mb-4">
         More than 90 ferry routes and 100 stops across Lagos, including boats to Porto-Novo in Benin
-        Republic, with each route&apos;s stops, timetable and path on the water. It covers LagFerry and
+        Republic, with each route&apos;s stops, timetable and path on the water. It covers LagFerry as well as
         licensed and unlicensed commercial operators, in GTFS, the standard format journey planners use.
       </p>
       <p className="text-base leading-7 text-on-surface-variant mb-6">

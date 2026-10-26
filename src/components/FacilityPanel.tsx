@@ -373,7 +373,7 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
                 )}
                 {isFutureOmiEko && (
                   <p className="text-sm text-on-surface-variant py-2">
-                    This location has tentatively been prioritized for the Lagos State government OMI EKO ferry network upgrading plan. Currently, there are no ferry services here, but they are planned to be operating here in the future.
+                    This location has tentatively been prioritized for the Lagos State Government Omi Eko ferry network upgrade plan. There are no ferry services here yet, but some are planned for the future.
                   </p>
                 )}
               </>
@@ -384,7 +384,7 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
             <>
               {isOmiEko && (
                 <p className="text-sm text-on-surface-variant mb-4 pb-4 border-b border-outline-variant">
-                  This location has been prioritized for the Lagos State government OMI EKO ferry network upgrading plan, so the facility is likely to get additional investment and upgrades.
+                  This location has been prioritized for the Lagos State Government Omi Eko ferry network upgrade plan, so the facility is likely to get additional investment and upgrades.
                 </p>
               )}
               <h3 className="text-[15px] font-semibold text-on-surface mb-3 leading-5">

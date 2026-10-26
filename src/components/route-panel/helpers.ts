@@ -21,8 +21,8 @@ export function formatDaySchedule(p: RoutePeriod): string {
   if (allWeekdays && p.saturday && !p.sunday) return "Monday – Saturday";
   if (allWeekdays && allWeekend) return "Daily";
   if (noWeekdays && allWeekend) return "Saturday and Sunday";
-  if (noWeekdays && p.saturday && !p.sunday) return "Saturdays only.";
-  if (noWeekdays && !p.saturday && p.sunday) return "Sundays only.";
+  if (noWeekdays && p.saturday && !p.sunday) return "Saturdays only";
+  if (noWeekdays && !p.saturday && p.sunday) return "Sundays only";
 
   return active.map((d) => d.name).join(", ");
 }

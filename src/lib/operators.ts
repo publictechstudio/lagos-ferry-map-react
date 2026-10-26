@@ -10,17 +10,17 @@ type OperatorInfo = {
 const OPERATORS: Record<string, OperatorInfo> = {
   "LagFerry/Government": {
     label: "LagFerry",
-    tooltip: "Operated by the government",
+    tooltip: "Operated by the Lagos State Government",
     inSentence: "LagFerry, the Lagos State Government service",
   },
   "Formal Commercial": {
     label: "Licensed Commercial",
-    tooltip: "Licensed commercial operators under the jurisdiction/licensed by LASWA or NIWA",
+    tooltip: "Commercial operators licensed by LASWA or NIWA",
     inSentence: "licensed commercial operators",
   },
   "Informal Commercial": {
     label: "Unlicensed Commercial",
-    tooltip: "Unlicensed commercial operators not under the jurisdiction/licensed by LASWA or NIWA",
+    tooltip: "Commercial operators not licensed by LASWA or NIWA",
     inSentence: "unlicensed commercial operators",
   },
 };

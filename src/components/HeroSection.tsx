@@ -105,7 +105,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-base leading-6 text-white/80 max-w-xl">
-            The waterways remain an underutilised way to navigate the city,
+            The waterways remain an underutilized way to navigate the city,
             partly due to a lack of public information. We&apos;re changing that.
           </p>
         </div>

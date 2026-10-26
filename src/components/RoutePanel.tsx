@@ -79,7 +79,7 @@ export default function RoutePanel({ route, routes, onClose, preloadedStops, pre
             {route.origin_name_short ?? "Origin"} to {route.destination_name_short ?? "Destination"}
           </h1>
           <p className="px-2 mb-4 text-sm text-on-surface-variant leading-relaxed">
-            This route is tentatively planned as part of the Lagos State government OMI EKO ferry expansion.
+            This route is tentatively planned as part of the Lagos State Government Omi Eko ferry expansion.
           </p>
           <FaqList title="Questions about this route" faqs={buildRouteFaqs(route, [], [], routes)} />
         </div>
