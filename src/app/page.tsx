@@ -64,7 +64,7 @@ export default function HomePage() {
         <div className="bg-[#1976D2]/10">
           <div className="max-w-4xl mx-auto px-4 py-12">
             <h2 className="text-[28px] font-normal leading-9 text-on-surface mb-4">
-              Who&apos;s beind the map?
+              Who&apos;s behind the map?
             </h2>
             <Image src="/logos/black-logo-transparent.png" alt="Public Tech Studio" height={30} width={110} sizes="110px" className="mb-3 object-contain object-left" />
             <p className="text-base leading-6 text-on-surface-variant mb-3">

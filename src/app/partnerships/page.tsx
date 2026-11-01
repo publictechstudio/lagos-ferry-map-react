@@ -51,7 +51,7 @@ const partners = [
           className="text-primary underline underline-offset-2 hover:text-primary-dark"
         >
           Lara.ng
-        </TrackedLink>{" "}
+        </TrackedLink>
         , the ferry routes are included in Google Maps,
         alongside other public transit options.
       </>
@@ -106,7 +106,7 @@ const partners = [
     height: 150,
     body: (
       <>
-        OpenStreetMap is a fully open source open data platform. Transportation
+        OpenStreetMap is a fully open-source, open-data platform. Transportation
         data layers are freely available for tech companies and GIS users
         building on Lagos mobility data.{" "}
         <TrackedLink

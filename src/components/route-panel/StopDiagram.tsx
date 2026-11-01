@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import type { RouteStop } from "@/types/routeStop";
 import { toFacilitySlug } from "@/lib/facilitySlug";
-import { formatMinutes } from "./helpers";
+import { formatMinutes } from "@/lib/format";
 
 /** Renders one stop circle + label, linked to the facility page. */
 function StopNode({

@@ -25,4 +25,6 @@ export type Route = {
   origin_name_short: string | null;
   destination_name_short: string | null;
   omi_eko: boolean | null;
+  /** True when the route has a return schedule (direction_id 1), i.e. it runs both ways. */
+  has_return: boolean;
 };

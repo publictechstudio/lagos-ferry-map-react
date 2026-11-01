@@ -14,24 +14,10 @@ import PanelShell from "./PanelShell";
 import LoadingSpinner from "./LoadingSpinner";
 import { groupByLGA } from "@/lib/groupByLGA";
 import { formatNaira } from "@/lib/format";
+import { operatorInfo } from "@/lib/operators";
 import { event as gaEvent } from "@/lib/gtag";
 import PlaceIcon from '@mui/icons-material/Place';
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
-
-const OPERATOR_MAP: Record<string, { label: string; tooltip: string }> = {
-  "LagFerry/Government: Operated by the government": {
-    label: "LagFerry",
-    tooltip: "Operated by the government",
-  },
-  "Formal Commercial: Operated by licensed operators (under the jurisdiction/licensed by LASWA or NIWA)": {
-    label: "Licensed Commercial",
-    tooltip: "Licensed commercial operators under the jurisdiction/licensed by LASWA or NIWA",
-  },
-  "Informal Commercial: Operated by unlicensed operators(NOT under the jurisdiction/licensed by LASWA/NIWA)": {
-    label: "Unlicensed Commercial",
-    tooltip: "Unlicensed commercial operators not under the jurisdiction/licensed by LASWA or NIWA",
-  },
-};
 
 /** Key attributes shown inline under the title. */
 const KEY_ATTRS: { key: keyof Facility; label: string }[] = [
@@ -108,7 +94,7 @@ function periodsForRoute(route: ConnectingRoute, allPeriods: RoutePeriod[]): Rou
 
 function OperatorLabel({ operator }: { operator: string | null }) {
   if (!operator) return <span>—</span>;
-  const mapped = OPERATOR_MAP[operator];
+  const mapped = operatorInfo(operator);
   if (!mapped) return <span>{operator}</span>;
   return (
     <span>
@@ -119,7 +105,7 @@ function OperatorLabel({ operator }: { operator: string | null }) {
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface-variant/50">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
         </svg>
-        <span className="pointer-events-none absolute top-full right-0 mt-1.5 w-48 rounded bg-on-surface px-2.5 py-1.5 text-[11px] leading-4 text-surface shadow-md opacity-0 group-hover/tip:opacity-100 transition-opacity z-50">
+        <span className="pointer-events-none absolute top-full right-0 mt-1.5 w-48 whitespace-normal rounded bg-on-surface px-2.5 py-1.5 text-[11px] leading-4 text-surface shadow-md opacity-0 group-hover/tip:opacity-100 transition-opacity z-50">
           {mapped.tooltip}
         </span>
       </span>
@@ -164,79 +150,77 @@ function DestinationCard({ dest, facility, reversed, routesByDest, periodsByRout
         </svg>
       </button>
 
-      {/* Collapsible body */}
-      {open && (
-        <>
-          {/* View on map link */}
-          <a
-            href={`/map/${toFacilitySlug(dest)}`}
-            className="flex items-center gap-2 px-4 py-2.5 text-primary text-sm hover:bg-primary/[0.06] transition-colors border-t border-outline-variant/60"
-          >
-            <PlaceIcon sx={{ fontSize: 16 }} className="shrink-0" />
-            More info on this destination
-          </a>
+      {/* Collapsible body — always rendered (hidden via attribute) so crawlers see the links, fares and schedules in the server HTML. */}
+      <div hidden={!open}>
+        {/* View on map link */}
+        <a
+          href={`/map/${toFacilitySlug(dest)}`}
+          className="flex items-center gap-2 px-4 py-2.5 text-primary text-sm hover:bg-primary/[0.06] transition-colors border-t border-outline-variant/60"
+        >
+          <PlaceIcon sx={{ fontSize: 16 }} className="shrink-0" />
+          More info on this destination
+        </a>
 
-          {/* Connecting routes */}
-          <div className="border-t border-outline-variant/60">
-            <div className="flex items-center gap-2 px-4 pt-2.5 pb-1 text-on-surface-variant text-sm">
-              <DirectionsBoatIcon sx={{ fontSize: 16 }} className="shrink-0" />
-              <span>
-                {reversed
-                  ? `Routes that will take you from ${dest.facility_name_short ?? "this facility"} to ${facility.facility_name_short}`
-                  : `Routes that will take you from ${facility.facility_name_short} to ${dest.facility_name_short ?? "destination"}`}
-              </span>
-            </div>
-            {routes.length === 0 ? (
-              <p className="px-4 pb-2.5 text-xs text-on-surface-variant/60">No direct routes recorded.</p>
-            ) : (
-              <div className="pb-3 overflow-visible">
-                <table className="w-full text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-outline-variant/60 text-on-surface-variant/70 text-left">
-                      <th className="px-4 py-1.5 font-medium">Route</th>
-                      <th className="px-2 py-1.5 font-medium">Operator</th>
-                      <th className="px-2 py-1.5 font-medium">Price</th>
-                      <th className="px-2 py-1.5 font-medium">Schedule</th>
-                      <th className="px-2 py-1.5 font-medium"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {routes.map((r) => {
-                      const allPeriods = periodsByRoute.get(r.route_id) ?? [];
-                      const periods = periodsForRoute(r, allPeriods);
-                      const schedule = summarizePeriods(periods);
-                      const { from, to } = routeDisplayNames(r);
-                      return (
-                        <tr key={r.route_id} className="border-b border-outline-variant/40 last:border-b-0 align-top">
-                          <td className="px-4 py-2">
-                            <Link href={`/map/route/${toRouteSlug(r)}`} className="font-medium text-primary hover:underline underline-offset-2">
-                              {from} → {to}
-                            </Link>
-                          </td>
-                          <td className="px-2 py-2 text-on-surface-variant">
-                            <OperatorLabel operator={r.operator} />
-                          </td>
-                          <td className="px-2 py-2 text-on-surface-variant whitespace-nowrap">
-                            {r.last_stop_cost != null ? formatNaira(r.last_stop_cost) : "—"}
-                          </td>
-                          <td className="px-2 py-2 text-on-surface-variant">
-                            {schedule.length === 0 ? "—" : schedule.map((line) => <div key={line}>{line}</div>)}
-                          </td>
-                          <td className="px-2 py-2 text-on-surface-variant">
-                            <Link href={`/map/route/${toRouteSlug(r)}`} className="font-medium text-primary hover:underline underline-offset-2">
-                              View full details
-                            </Link>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+        {/* Connecting routes */}
+        <div className="border-t border-outline-variant/60">
+          <div className="flex items-center gap-2 px-4 pt-2.5 pb-1 text-on-surface-variant text-sm">
+            <DirectionsBoatIcon sx={{ fontSize: 16 }} className="shrink-0" />
+            <span>
+              {reversed
+                ? `Routes that will take you from ${dest.facility_name_short ?? "this facility"} to ${facility.facility_name_short}`
+                : `Routes that will take you from ${facility.facility_name_short} to ${dest.facility_name_short ?? "destination"}`}
+            </span>
           </div>
-        </>
-      )}
+          {routes.length === 0 ? (
+            <p className="px-4 pb-2.5 text-xs text-on-surface-variant/60">No direct routes recorded.</p>
+          ) : (
+            <div className="pb-3 overflow-visible">
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-outline-variant/60 text-on-surface-variant/70 text-left">
+                    <th className="px-4 py-1.5 font-medium">Route</th>
+                    <th className="px-2 py-1.5 font-medium">Operator</th>
+                    <th className="px-2 py-1.5 font-medium">Price</th>
+                    <th className="px-2 py-1.5 font-medium">Schedule</th>
+                    <th className="px-2 py-1.5 font-medium"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {routes.map((r) => {
+                    const allPeriods = periodsByRoute.get(r.route_id) ?? [];
+                    const periods = periodsForRoute(r, allPeriods);
+                    const schedule = summarizePeriods(periods);
+                    const { from, to } = routeDisplayNames(r);
+                    return (
+                      <tr key={r.route_id} className="border-b border-outline-variant/40 last:border-b-0 align-top">
+                        <td className="px-4 py-2">
+                          <Link href={`/map/route/${toRouteSlug(r)}`} className="font-medium text-primary hover:underline underline-offset-2">
+                            {from} → {to}
+                          </Link>
+                        </td>
+                        <td className="px-2 py-2 text-on-surface-variant">
+                          <OperatorLabel operator={r.operator} />
+                        </td>
+                        <td className="px-2 py-2 text-on-surface-variant whitespace-nowrap">
+                          {r.last_stop_cost != null ? formatNaira(r.last_stop_cost) : "—"}
+                        </td>
+                        <td className="px-2 py-2 text-on-surface-variant">
+                          {schedule.length === 0 ? "—" : schedule.map((line) => <div key={line}>{line}</div>)}
+                        </td>
+                        <td className="px-2 py-2 text-on-surface-variant">
+                          <Link href={`/map/route/${toRouteSlug(r)}`} className="font-medium text-primary hover:underline underline-offset-2">
+                            View full details
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -248,20 +232,26 @@ interface Props {
   preloadedData?: FacilityPanelData | null;
 }
 
+/** Rebuild a numeric-keyed Map from a JSON record (object keys arrive as strings). */
+function toIdMap<T>(record: Record<string, T> | undefined): Map<number, T> {
+  return new Map(Object.entries(record ?? {}).map(([k, v]) => [Number(k), v]));
+}
+
 export default function FacilityPanel({ facility, onClose, preloadedData }: Props) {
-  const [destinations, setDestinations] = useState<Destination[] | null>(null);
-  const [reversed, setReversed] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [routesByDest, setRoutesByDest] = useState<Map<number, ConnectingRoute[]>>(new Map());
-  const [periodsByRoute, setPeriodsByRoute] = useState<Map<number, RoutePeriod[]>>(new Map());
+  // Seed from server-provided data so the first render (and the server HTML) has the destinations
+  const [destinations, setDestinations] = useState<Destination[] | null>(preloadedData?.destinations ?? null);
+  const [reversed, setReversed] = useState(preloadedData?.reversed ?? false);
+  const [loading, setLoading] = useState(!preloadedData);
+  const [routesByDest, setRoutesByDest] = useState(() => toIdMap(preloadedData?.routesByDest));
+  const [periodsByRoute, setPeriodsByRoute] = useState(() => toIdMap(preloadedData?.periodsByRoute));
 
   useEffect(() => {
     // Use server-provided data immediately — no network request needed
     if (preloadedData) {
       setDestinations(preloadedData.destinations);
       setReversed(preloadedData.reversed);
-      setRoutesByDest(new Map(Object.entries(preloadedData.routesByDest).map(([k, v]) => [Number(k), v])));
-      setPeriodsByRoute(new Map(Object.entries(preloadedData.periodsByRoute).map(([k, v]) => [Number(k), v])));
+      setRoutesByDest(toIdMap(preloadedData.routesByDest));
+      setPeriodsByRoute(toIdMap(preloadedData.periodsByRoute));
       setLoading(false);
       return;
     }
@@ -281,8 +271,8 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
       }) => {
         setDestinations(destinations);
         setReversed(reversed);
-        setRoutesByDest(new Map(Object.entries(routesByDest).map(([k, v]) => [Number(k), v])));
-        setPeriodsByRoute(new Map(Object.entries(periodsByRoute).map(([k, v]) => [Number(k), v])));
+        setRoutesByDest(toIdMap(routesByDest));
+        setPeriodsByRoute(toIdMap(periodsByRoute));
         setLoading(false);
       })
       .catch(() => {
@@ -383,7 +373,7 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
                 )}
                 {isFutureOmiEko && (
                   <p className="text-sm text-on-surface-variant py-2">
-                    This location has tentatively been prioritized for the Lagos State government OMI EKO ferry network upgrading plan. Currently, there are no ferry services here, but they are planned to be operating here in the future.
+                    This location has tentatively been prioritized for the Lagos State Government Omi Eko ferry network upgrade plan. There are no ferry services here yet, but some are planned for the future.
                   </p>
                 )}
               </>
@@ -394,7 +384,7 @@ export default function FacilityPanel({ facility, onClose, preloadedData }: Prop
             <>
               {isOmiEko && (
                 <p className="text-sm text-on-surface-variant mb-4 pb-4 border-b border-outline-variant">
-                  This location has been prioritized for the Lagos State government OMI EKO ferry network upgrading plan, so the facility is likely to get additional investment and upgrades.
+                  This location has been prioritized for the Lagos State Government Omi Eko ferry network upgrade plan, so the facility is likely to get additional investment and upgrades.
                 </p>
               )}
               <h3 className="text-[15px] font-semibold text-on-surface mb-3 leading-5">

@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { legacyFacilityPath } from "@/lib/legacyRedirect";
+import { SITE_URL } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  request: Request,
+  _req: Request,
   { params }: { params: Promise<{ rest: string }> },
 ) {
   const { rest } = await params;
   const path = await legacyFacilityPath(decodeURIComponent(rest));
-  return NextResponse.redirect(new URL(path, request.url), 301);
+  // Not request.url: behind the proxy it is an internal address, and the redirect would point there
+  return NextResponse.redirect(new URL(path, SITE_URL), 301);
 }

@@ -6,26 +6,34 @@ import type { RouteStop } from "@/types/routeStop";
 import type { RoutePeriod } from "@/types/routePeriod";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import { toRouteSlug } from "@/lib/routeSlug";
+import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
+import { routeArrow } from "@/lib/routeName";
 import PanelShell from "./PanelShell";
 import LoadingSpinner from "./LoadingSpinner";
-import { formatMinutes, isMorningsOnly } from "./route-panel/helpers";
+import { isMorningsOnly } from "./route-panel/helpers";
+import { formatMinutes } from "@/lib/format";
 import DirectionSection from "./route-panel/DirectionSection";
+import FaqList from "./FaqList";
+import { buildRouteFaqs } from "@/lib/routeFaqs";
 
 // ── Main component ────────────────────────────────────────────────────────────
 
 interface Props {
   route: Route;
+  /** All routes, so answers can point to other services on the same crossing. */
+  routes: Route[];
   onClose: () => void;
   preloadedStops?: RouteStop[] | null;
   preloadedPeriods?: RoutePeriod[] | null;
 }
 
-export default function RoutePanel({ route, onClose, preloadedStops, preloadedPeriods }: Props) {
-  const isPlannedOmiEko = route.omi_eko === true && route.total_base_duration === 9999;
+export default function RoutePanel({ route, routes, onClose, preloadedStops, preloadedPeriods }: Props) {
+  const isPlannedOmiEko = isPlannedOmiEkoRoute(route);
 
-  const [stops, setStops] = useState<RouteStop[] | null>(null);
-  const [periods, setPeriods] = useState<RoutePeriod[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Seed from server-provided data so the first render (and the server HTML) has the schedule
+  const [stops, setStops] = useState<RouteStop[] | null>(preloadedStops ?? null);
+  const [periods, setPeriods] = useState<RoutePeriod[] | null>(preloadedPeriods ?? null);
+  const [loading, setLoading] = useState(preloadedStops == null || preloadedPeriods == null);
 
   useEffect(() => {
     if (isPlannedOmiEko) return;
@@ -70,9 +78,10 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
           <h1 className="px-2 pb-4 text-[22px] font-bold leading-7 text-on-surface shrink-0">
             {route.origin_name_short ?? "Origin"} to {route.destination_name_short ?? "Destination"}
           </h1>
-          <p className="px-2 text-sm text-on-surface-variant leading-relaxed">
-            This route is tentatively planned as part of the Lagos State government OMI EKO ferry expansion.
+          <p className="px-2 mb-4 text-sm text-on-surface-variant leading-relaxed">
+            This route is tentatively planned as part of the Lagos State Government Omi Eko ferry expansion.
           </p>
+          <FaqList title="Questions about this route" faqs={buildRouteFaqs(route, [], [], routes)} />
         </div>
       </PanelShell>
     );
@@ -153,7 +162,7 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
       <div className="overflow-y-auto flex-1 px-4 py-3">
         {/* Route label */}
         <h1 className="px-2 pb-4 text-[22px] font-bold leading-7 text-on-surface shrink-0">
-          {route.origin_name_short ?? "Origin"} ⇄ {route.destination_name_short ?? "Destination"}
+          {route.origin_name_short ?? "Origin"} {routeArrow(route)} {route.destination_name_short ?? "Destination"}
         </h1>
 
         {/* ── Route header card ──────────────────────────────────────── */}
@@ -201,24 +210,12 @@ export default function RoutePanel({ route, onClose, preloadedStops, preloadedPe
           </>
         )}
 
-        {/* ── Disruptions ────────────────────────────────────────────── */}
-        {(route.rain || route.hyacinth_season_disruption) && (
-          <div className="mb-4">
-            <h3 className="text-[13px] font-semibold text-on-surface mb-2">Disruptions:</h3>
-            <ul className="list-disc list-inside flex flex-col gap-1.5">
-              {route.rain && (
-                <li className="text-[12px] text-on-surface-variant leading-relaxed">
-                  <span className="font-semibold text-on-surface">Rain:</span> {route.rain}
-                </li>
-              )}
-              {route.hyacinth_season_disruption && (
-                <li className="text-[12px] text-on-surface-variant leading-relaxed">
-                  <span className="font-semibold text-on-surface">Water hyacinth:</span>{" "}
-                  {route.hyacinth_season_disruption}
-                </li>
-              )}
-            </ul>
-          </div>
+        {/* ── Questions (includes disruptions: rain and water hyacinth season) ──────────────────────────────────────────────── */}
+        {!loading && (
+          <FaqList
+            title="Questions about this route"
+            faqs={buildRouteFaqs(route, periods ?? [], stops ?? [], routes)}
+          />
         )}
 
       </div>

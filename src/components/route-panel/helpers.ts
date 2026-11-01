@@ -2,23 +2,6 @@ import type { RoutePeriod } from "@/types/routePeriod";
 import type { RouteStop } from "@/types/routeStop";
 import { formatNaira } from "@/lib/format";
 
-export function formatTime(timeStr: string): string {
-  const [h, m] = timeStr.split(":");
-  const hour = parseInt(h, 10);
-  const minute = m;
-  const ampm = hour >= 12 ? "PM" : "AM";
-  const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-  return `${h12}:${minute} ${ampm}`;
-}
-
-export function formatMinutes(mins: number | null): string | null {
-  if (mins == null) return null;
-  if (mins < 60) return `${mins} min`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
-}
-
 export function formatDaySchedule(p: RoutePeriod): string {
   const days = [p.monday, p.tuesday, p.wednesday, p.thursday, p.friday, p.saturday, p.sunday];
   const names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -38,8 +21,8 @@ export function formatDaySchedule(p: RoutePeriod): string {
   if (allWeekdays && p.saturday && !p.sunday) return "Monday – Saturday";
   if (allWeekdays && allWeekend) return "Daily";
   if (noWeekdays && allWeekend) return "Saturday and Sunday";
-  if (noWeekdays && p.saturday && !p.sunday) return "Saturdays only.";
-  if (noWeekdays && !p.saturday && p.sunday) return "Sundays only.";
+  if (noWeekdays && p.saturday && !p.sunday) return "Saturdays only";
+  if (noWeekdays && !p.saturday && p.sunday) return "Sundays only";
 
   return active.map((d) => d.name).join(", ");
 }

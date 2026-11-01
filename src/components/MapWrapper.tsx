@@ -264,6 +264,7 @@ export default function MapWrapper({
       {selectedRoute && (
         <RoutePanel
           route={selectedRoute}
+          routes={routes}
           onClose={handleCloseRoute}
           preloadedStops={routePanelData?.stops ?? null}
           preloadedPeriods={routePanelData?.periods ?? null}

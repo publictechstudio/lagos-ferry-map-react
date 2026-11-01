@@ -9,7 +9,10 @@ const nextConfig: NextConfig = {
       { source: "/directory.html", destination: "/directory", permanent: true },
       { source: "/about.html", destination: "/about", permanent: true },
       { source: "/partnerships.html", destination: "/partnerships", permanent: true },
-      { source: "/about/ferries", destination: "/about", permanent: true },
+      // The About page used to be split into sections at /about/ferries, /about/safety, …
+      { source: "/about/:section", destination: "/about", permanent: true },
+      { source: "/index", destination: "/", permanent: true },
+      { source: "/index.html", destination: "/", permanent: true },
     ];
   },
   // Legacy /ferry-facility-{id}-{name} and /ferry-route-{id}-{names} URLs resolve to

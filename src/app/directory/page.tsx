@@ -3,6 +3,8 @@ import { getFacilities, getAllFacilityDestinations } from "@/lib/facilities";
 import { getRoutes } from "@/lib/routes";
 import { toFacilitySlug } from "@/lib/facilitySlug";
 import { toRouteSlug } from "@/lib/routeSlug";
+import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
+import { routeName } from "@/lib/routeName";
 import { FacilitiesTable } from "@/components/FacilitiesTable";
 import { RoutesTable } from "@/components/RoutesTable";
 import type { Facility } from "@/types/facility";
@@ -77,7 +79,7 @@ function buildRoutesJsonLd(routes: Route[]) {
         "@type": "Service",
         "@id": `${BASE_URL}/map/route/${toRouteSlug(r)}`,
         url: `${BASE_URL}/map/route/${toRouteSlug(r)}`,
-        name: `${r.origin_name ?? "Unknown"} → ${r.destination_name ?? "Unknown"} ferry`,
+        name: `${routeName(r)} ferry`,
         description: `Ferry route from ${r.origin_name ?? "Unknown"} to ${r.destination_name ?? "Unknown"} in Lagos, Nigeria${r.operator ? `, operated by ${r.operator.split(":")[0].trim()}` : ""}.`,
         provider: r.operator
           ? { "@type": "Organization", name: r.operator.split(":")[0].trim() }
@@ -125,7 +127,7 @@ export default async function DirectoryPage() {
   });
 
   const activeRouteCount = routes.filter(
-    (r) => !(r.omi_eko && r.total_base_duration === 9999)
+    (r) => !isPlannedOmiEkoRoute(r)
   ).length;
 
   const lgaCount = new Set(facilities.map((f) => f.lga)).size;

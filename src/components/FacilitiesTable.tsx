@@ -18,7 +18,7 @@ function facilityLabel(facility: Facility): "future-omi-eko" | "charter-only" | 
 
 function destinationText(facility: Facility, destinationMap: Record<number, string[]>): string {
   const label = facilityLabel(facility);
-  if (label === "future-omi-eko") return "Future OMI EKO";
+  if (label === "future-omi-eko") return "Future Omi Eko";
   if (label === "charter-only") return "Charter Only";
   return (destinationMap[facility.facility_id] ?? []).join(" ");
 }
@@ -134,7 +134,7 @@ export function FacilitiesTable({
                   <td className="px-4 py-3 align-top">
                     {label === "future-omi-eko" && (
                       <span className="inline-flex px-2 py-0.5 rounded-full bg-[#7B3F00]/15 text-[#7B3F00] text-xs font-bold">
-                        Future OMI EKO
+                        Future Omi Eko
                       </span>
                     )}
                     {label === "charter-only" && (

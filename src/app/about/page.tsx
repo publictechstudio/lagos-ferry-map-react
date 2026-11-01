@@ -31,7 +31,7 @@ const accordionItems = [
     content: (
       <>
         <p>
-          Private, informal transit operations are always subject to change. This information was collected in February 2026 and updates will be published on a quarterly basis. The scope of the map is primarily focused on the Lagos metropolitan area, rather than the entire state, because we are focused on reducing road congestion in the city of Lagos. However, we are gradually expanding the map for coverage of all the full state.
+          Private, informal transit operations are always subject to change. This information was collected in February 2026 and updates will be published on a quarterly basis. The scope of the map is primarily focused on the Lagos metropolitan area, rather than the entire state, because we are focused on reducing road congestion in the city of Lagos. However, we are gradually expanding the map to cover the full state.
         </p>
         <p>
           If you see anything that&apos;s missing or incorrect, please{" "}
@@ -54,7 +54,7 @@ const accordionItems = [
         </p>
         <p>
           In Lagos, a city ranked among the worst in the world for road congestion,
-          ferries are an underutilised and poorly understood transportation
+          ferries are an underutilized and poorly understood transportation
           alternative. Part of the problem is the lack of information; private, informal
           ferries have no public documentation, and people only learn about them
           through word-of-mouth.
@@ -66,11 +66,11 @@ const accordionItems = [
           faster, more enjoyable commutes.
         </p>
         <p>
-          Originally incubated at {" "}
+          This project was originally incubated at{" "}
           <a href="https://stears.co" className={linkClass} target="_blank" rel="noopener noreferrer">
             Stears Open Data
           </a>
-          , we published this project as free
+          . We published it as free
           open data because we believe in the importance of ferry transportation
           and want to spark dialog about reducing road congestion by expanding
           robust multi-modal transportation in Lagos.
@@ -87,7 +87,7 @@ const accordionItems = [
           Ferry operators
         </h3>
         <p>
-          The Lagos State government runs a ferry service called{" "}
+          The Lagos State Government runs a ferry service called{" "}
           <strong className="text-on-surface font-medium">LagFerry</strong>,
           which has been actively expanding and improving over the decades. The
           majority of routes, however, operate through private, informal
@@ -95,12 +95,12 @@ const accordionItems = [
           online documentation of all the private routes, schedules, and fares.
         </p>
         <h3 className="text-on-surface font-bold">
-          Type of facilities and quality
+          Types of facilities and quality
         </h3>
         <p>
           Lagos offers varied ferry infrastructure: from modern ferry terminals
           with air-conditioned waiting rooms and other amenities, to undeveloped
-          landings where boats pull up on sand banks on the shoreline. Some locations are quite informal and undeveloped, making them a better fit for commuters who are more adventurous and don&apos;t mind getting their shoes muddy.
+          landings where boats pull up on sandbanks on the shoreline. Some locations are quite informal and undeveloped, making them a better fit for commuters who are more adventurous and don&apos;t mind getting their shoes muddy.
         </p>
         <p>
           Our interactive map presents the full spectrum of ferry facilities and routes. The ferry facilities are color-coded based on their level of development. Pictures and links to the Google Maps pages are also provided to help you imagine what it&apos;s like at each site.
@@ -116,7 +116,7 @@ const accordionItems = [
           Schedules
         </h3>
         <p>
-          Most ferry routes have very fluid, flexible schedules, with boats departing only once they are full of passengers. Even the government-run LagFerry routes don&apos;t always have a strict departure time; they often wait until the boats are full.
+          Most ferry routes have very fluid, flexible schedules, with boats often departing once they are full of passengers. Even the government-run LagFerry routes don&apos;t always have a strict departure time; they often wait until the boats are full.
         </p>
         <p>
           Our map clarifies these schedules and how often the boats typically depart. In addition to fixed routes, where passengers pay for individual tickets, our map includes charter options, where passengers pay to charter the entire boat to reach any desired destination. There often isn&apos;t a strict line between the two, with private/informal operators switching to offering charter services when there is low passenger demand for fixed routes, especially on weekends or during the lull between peak weekday commuting periods.
@@ -143,11 +143,11 @@ const accordionItems = [
           At the state level, the <strong className="text-on-surface font-bold">
             LASWA — Lagos State Waterways Authority
           </strong>{" "}
-          is pivotal in managing and regulating water transportation. Established to provide alternatives to road traffic congestion, LASWA oversees the operations of boats and ferries, ensuring they adhere to safety protocols. All passenger vehicles must be registered with LASWA and are required to provide lifejackets for passengers. The agency conducts operator training programs and educates the public on water safety. Additionally, LASWA has deployed water guards across various terminals to monitor compliance and enhance passenger safety.
+          is pivotal in managing and regulating water transportation. Established to provide alternatives to road traffic congestion, LASWA oversees the operations of boats and ferries, ensuring they adhere to safety protocols. All passenger boats must be registered with LASWA and are required to provide lifejackets for passengers. The agency conducts operator training programs and educates the public on water safety. Additionally, LASWA has deployed water guards across various terminals to monitor compliance and enhance passenger safety.
         </p>
         <p>
           The <strong className="text-on-surface font-bold">Lagos State Ferry Services (LagFerry)</strong>{" "}
-          prioritises its passengers&apos; safety through strict operating procedures. All passengers and crew are mandated to wear life jackets during voyages, and the agency ensures regular maintenance of its boats to uphold operational safety standards. To enhance emergency preparedness, LagFerry personnel undergo training in survival techniques and search and rescue operations. Additionally, LagFerry has implemented a digital surveillance system, featuring real-time vessel monitoring, CCTV cameras, and geo-fencing capabilities, to bolster passengers&apos; and crew&apos;s safety and security.
+          prioritizes its passengers&apos; safety through strict operating procedures. All passengers and crew are mandated to wear life jackets during voyages, and the agency ensures regular maintenance of its boats to uphold operational safety standards. To enhance emergency preparedness, LagFerry personnel undergo training in survival techniques and search and rescue operations. Additionally, LagFerry has implemented a digital surveillance system, featuring real-time vessel monitoring, CCTV cameras, and geo-fencing capabilities, to bolster the safety and security of passengers and crew.
         </p>
       </>
     ),

@@ -21,8 +21,9 @@ export async function legacyFacilityPath(rest: string): Promise<string> {
 export async function legacyRoutePath(rest: string): Promise<string> {
   const name = squash(rest.replace(/^\d+-?/, ""));
   const routes = await getRoutes();
-  const match = routes.find(
-    (r) => squash(`${r.origin_name}${r.destination_name}`) === name,
-  );
+  // Some old slugs list the ends the other way round (e.g. tarkwa-bay-marina-cms for Marina/CMS to Tarkwa Bay)
+  const match =
+    routes.find((r) => squash(`${r.origin_name}${r.destination_name}`) === name) ??
+    routes.find((r) => squash(`${r.destination_name}${r.origin_name}`) === name);
   return match ? `/map/route/${toRouteSlug(match)}` : "/map";
 }
