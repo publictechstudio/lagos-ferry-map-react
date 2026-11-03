@@ -9,8 +9,11 @@ import { isPlannedOmiEkoRoute } from "@/lib/omiEko";
 import { routeDescription, routePageTitle } from "@/lib/routeName";
 import { buildRouteFaqs } from "@/lib/routeFaqs";
 import { faqPageJsonLd } from "@/lib/faq";
+import { operatorInfo } from "@/lib/operators";
 
 export const revalidate = 60;
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lagosferries.com";
 
 export async function generateMetadata({
   params,
@@ -79,37 +82,51 @@ export default async function RouteMapPage({
       ? await getRoutePanelData(initialSelectedRoute.route_id)
       : null;
 
+  // schema.org has no route type, so the page is a WebPage about a BoatTrip.
+  // dateModified sits on the WebPage because Trip doesn't allow it; Trip has no
+  // duration property either, so the duration is carried in the description.
   const jsonLd = initialSelectedRoute && !isPlannedOmiEko
     ? {
         "@context": "https://schema.org",
-        "@type": "BusRoute",
-        name: `${initialSelectedRoute.origin_name ?? ""} to ${initialSelectedRoute.destination_name ?? ""} Ferry`,
+        "@type": "WebPage",
+        url: `${BASE_URL}/map/route/${toRouteSlug(initialSelectedRoute)}`,
         // Freshness signal for crawlers; not shown on the page
         ...(initialSelectedRoute.modified_at && {
           dateModified: new Date(initialSelectedRoute.modified_at).toISOString(),
         }),
-        ...(initialSelectedRoute.operator && {
-          provider: { "@type": "Organization", name: initialSelectedRoute.operator },
-        }),
-        ...(initialSelectedRoute.total_base_duration != null && {
-          estimatedDuration: `PT${initialSelectedRoute.total_base_duration}M`,
-        }),
-        ...(initialSelectedRoute.last_stop_cost != null && {
-          offers: {
-            "@type": "Offer",
-            price: String(initialSelectedRoute.last_stop_cost),
-            priceCurrency: "NGN",
-          },
-        }),
-        ...(initialRoutePanelData && initialRoutePanelData.stops.length > 0 && {
-          itinerary: initialRoutePanelData.stops.map((s) => ({
-            "@type": "BusStop",
-            name: s.facility_name ?? "Stop",
-            ...(s.lga && {
-              containedInPlace: { "@type": "AdministrativeArea", name: `${s.lga} LGA, Lagos` },
-            }),
-          })),
-        }),
+        mainEntity: {
+          "@type": "BoatTrip",
+          name: `${initialSelectedRoute.origin_name ?? ""} to ${initialSelectedRoute.destination_name ?? ""} Ferry`,
+          description: routeDescription(initialSelectedRoute),
+          ...(initialSelectedRoute.origin_name && {
+            departureBoatTerminal: { "@type": "BoatTerminal", name: initialSelectedRoute.origin_name },
+          }),
+          ...(initialSelectedRoute.destination_name && {
+            arrivalBoatTerminal: { "@type": "BoatTerminal", name: initialSelectedRoute.destination_name },
+          }),
+          ...(initialSelectedRoute.operator && {
+            provider: {
+              "@type": "Organization",
+              name: operatorInfo(initialSelectedRoute.operator)?.label ?? initialSelectedRoute.operator.split(":")[0].trim(),
+            },
+          }),
+          ...(initialSelectedRoute.last_stop_cost != null && {
+            offers: {
+              "@type": "Offer",
+              price: String(initialSelectedRoute.last_stop_cost),
+              priceCurrency: "NGN",
+            },
+          }),
+          ...(initialRoutePanelData && initialRoutePanelData.stops.length > 0 && {
+            itinerary: initialRoutePanelData.stops.map((s) => ({
+              "@type": "BoatTerminal",
+              name: s.facility_name ?? "Stop",
+              ...(s.lga && {
+                containedInPlace: { "@type": "AdministrativeArea", name: `${s.lga} LGA, Lagos` },
+              }),
+            })),
+          }),
+        },
       }
     : null;
 
